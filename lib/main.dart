@@ -52,21 +52,22 @@ class _MainNavigationState extends State<MainNavigation> {
         indicatorColor: theme.primaryColorLight,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
+          //groups page
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
+            icon: Icon(Icons.diversity_3),
+            label: 'Groups',
           ),
+          //Events page
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
+            icon: Badge(child: Icon(Icons.list_alt)),
+            label: 'Eventsa ',
           ),
+          //Profile page
           NavigationDestination(
             icon: Badge(
-              label: Text('2'),
-              child: Icon(Icons.messenger_sharp),
+              child: Icon(Icons.person),
             ),
-            label: 'Messages',
+            label: 'Profile',
           ),
         ],
       ),
