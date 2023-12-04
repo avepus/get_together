@@ -6,12 +6,19 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'app_state.dart';
 import 'main_navigator.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseUIAuth.configureProviders([
+    EmailAuthProvider(),
+  ]);
 
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
@@ -23,58 +30,58 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const MainNavigation(),
+      builder: (context, state) {
+        return SignInScreen(
+          actions: [
+            ForgotPasswordAction(((context, email) {
+              final uri = Uri(
+                path: '/forgot-password',
+                queryParameters: <String, String?>{
+                  'email': email,
+                },
+              );
+              context.push(uri.toString());
+            })),
+            AuthStateChangeAction(((context, state) {
+              final user = switch (state) {
+                SignedIn state => state.user,
+                UserCreated state => state.credential.user,
+                _ => null
+              };
+              if (user == null) {
+                return;
+              }
+              if (state is UserCreated) {
+                user.updateDisplayName(user.email!.split('@')[0]);
+              }
+              if (!user.emailVerified) {
+                user.sendEmailVerification();
+                const snackBar = SnackBar(
+                    content: Text(
+                        'Please check your email to verify your email address'));
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
+              context.pushReplacement('/home');
+            })),
+          ],
+        );
+      },
       routes: [
         GoRoute(
-          path: 'sign-in',
+          path: 'forgot-password',
           builder: (context, state) {
-            return SignInScreen(
-              actions: [
-                ForgotPasswordAction(((context, email) {
-                  final uri = Uri(
-                    path: '/sign-in/forgot-password',
-                    queryParameters: <String, String?>{
-                      'email': email,
-                    },
-                  );
-                  context.push(uri.toString());
-                })),
-                AuthStateChangeAction(((context, state) {
-                  final user = switch (state) {
-                    SignedIn state => state.user,
-                    UserCreated state => state.credential.user,
-                    _ => null
-                  };
-                  if (user == null) {
-                    return;
-                  }
-                  if (state is UserCreated) {
-                    user.updateDisplayName(user.email!.split('@')[0]);
-                  }
-                  if (!user.emailVerified) {
-                    user.sendEmailVerification();
-                    const snackBar = SnackBar(
-                        content: Text(
-                            'Please check your email to verify your email address'));
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-                  context.pushReplacement('/');
-                })),
-              ],
+            final arguments = state.uri.queryParameters;
+            return ForgotPasswordScreen(
+              email: arguments['email'],
+              headerMaxExtent: 200,
             );
           },
-          routes: [
-            GoRoute(
-              path: 'forgot-password',
-              builder: (context, state) {
-                final arguments = state.uri.queryParameters;
-                return ForgotPasswordScreen(
-                  email: arguments['email'],
-                  headerMaxExtent: 200,
-                );
-              },
-            ),
-          ],
+        ),
+        GoRoute(
+          path: 'home',
+          builder: (context, state) {
+            return MainNavigation();
+          },
         ),
       ],
     ),
