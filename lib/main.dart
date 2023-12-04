@@ -1,34 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'profile_page.dart';
-import 'home_page.dart';
-import 'login_page.dart';
-import 'singup_page.dart';
+import 'groups_page.dart';
+import 'events_page.dart';
+import 'app_state.dart';
+
+/// Flutter code sample for [NavigationBar].
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => ApplicationState(),
+    builder: ((context, child) => const MyApp()),
+  ));
 }
-
-final GoRouter _router = GoRouter(routes: [
-  GoRoute(path: '/', builder: (context, state) => const HomePage()),
-  GoRoute(path: '/profile', builder: (context, state) => const ProfilePage()),
-  GoRoute(path: '/login', builder: (context, state) => const LogInPage()),
-  GoRoute(path: '/signup', builder: (context, state) => const SignupPage()),
-]);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Testing',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true),
+      home: const MainNavigation(),
+    );
+  }
+}
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+enum Pages { groups, events, profile }
+
+class _MainNavigationState extends State<MainNavigation> {
+  int currentPageIndex = Pages.groups.index;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Scaffold(
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        indicatorColor: theme.primaryColorLight,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          //groups page
+          NavigationDestination(
+            icon: Icon(Icons.diversity_3),
+            label: 'Groups',
+          ),
+          //Events page
+          NavigationDestination(
+            icon: Badge(child: Icon(Icons.list_alt)),
+            label: 'Eventsa ',
+          ),
+          //Profile page
+          NavigationDestination(
+            icon: Badge(
+              child: Icon(Icons.person),
+            ),
+            label: 'Profile',
+          ),
+        ],
       ),
-      routerConfig: _router,
+      body: <Widget>[
+        const Padding(padding: EdgeInsets.all(8.0), child: GroupsPage()),
+        const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
+        const Padding(padding: EdgeInsets.all(8.0), child: ProfilePage()),
+      ][currentPageIndex],
     );
   }
 }
