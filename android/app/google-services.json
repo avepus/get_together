@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "890074561400",
+    "project_id": "avepus-gettogether",
+    "storage_bucket": "avepus-gettogether.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890074561400:android:cc786bfaf1ab2738ea268d",
+        "android_client_info": {
+          "package_name": "com.example.get_together"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9wifhn-Iom7itqnaJUozXZgpr0dQrmnc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:890074561400:android:37579a41daa299c4ea268d",
+        "android_client_info": {
+          "package_name": "com.mycompany.gettogether"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9wifhn-Iom7itqnaJUozXZgpr0dQrmnc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
