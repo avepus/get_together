@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_options.dart';
 
 import 'app_state.dart';
@@ -22,51 +23,24 @@ void main() async {
 
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
-    builder: ((context, child) => const App()),
+    builder: ((context, child) => App()),
   ));
 }
 
 final _router = GoRouter(
   routes: [
     GoRoute(
-      path: '/',
-      builder: (context, state) {
-        return SignInScreen(
-          actions: [
-            ForgotPasswordAction(((context, email) {
-              final uri = Uri(
-                path: '/forgot-password',
-                queryParameters: <String, String?>{
-                  'email': email,
-                },
-              );
-              context.push(uri.toString());
-            })),
-            AuthStateChangeAction(((context, state) {
-              final user = switch (state) {
-                SignedIn state => state.user,
-                UserCreated state => state.credential.user,
-                _ => null
-              };
-              if (user == null) {
-                return;
-              }
-              if (state is UserCreated) {
-                user.updateDisplayName(user.email!.split('@')[0]);
-              }
-              if (!user.emailVerified) {
-                user.sendEmailVerification();
-                const snackBar = SnackBar(
-                    content: Text(
-                        'Please check your email to verify your email address'));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              }
-              context.pushReplacement('/home');
-            })),
-          ],
-        );
-      },
+      path: FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+      builder: FirebaseAuth.instance.currentUser == null
+          ? (context, state) => MySignOnScreen()
+          : (context, state) => MainNavigation(),
       routes: [
+        GoRoute(
+          path: '/sign-in',
+          builder: (context, state) {
+            return MySignOnScreen();
+          },
+        ),
         GoRoute(
           path: 'forgot-password',
           builder: (context, state) {
@@ -88,13 +62,59 @@ final _router = GoRouter(
   ],
 );
 
+class MySignOnScreen extends StatelessWidget {
+  const MySignOnScreen({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SignInScreen(
+      actions: [
+        ForgotPasswordAction(((context, email) {
+          final uri = Uri(
+            path: '/forgot-password',
+            queryParameters: <String, String?>{
+              'email': email,
+            },
+          );
+          context.push(uri.toString());
+        })),
+        AuthStateChangeAction(((context, state) {
+          final user = switch (state) {
+            SignedIn state => state.user,
+            UserCreated state => state.credential.user,
+            _ => null
+          };
+          if (user == null) {
+            return;
+          }
+          if (state is UserCreated) {
+            user.updateDisplayName(user.email!.split('@')[0]);
+          }
+          if (!user.emailVerified) {
+            user.sendEmailVerification();
+            const snackBar = SnackBar(
+                content: Text(
+                    'Please check your email to verify your email address'));
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
+          context.pushReplacement('/home');
+        })),
+      ],
+    );
+  }
+}
+
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key});
+
+  final providers = [EmailAuthProvider()];
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Firebase Meetup',
+      title: 'GetTogether',
       theme: ThemeData(
         buttonTheme: Theme.of(context).buttonTheme.copyWith(
               highlightColor: Colors.deepPurple,
