@@ -30,81 +30,72 @@ void main() async {
 final _router = GoRouter(
   routes: [
     GoRoute(
-      path: FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
-      builder: FirebaseAuth.instance.currentUser == null
-          ? (context, state) => MySignOnScreen()
-          : (context, state) => MainNavigation(),
+      path: '/',
+      builder: (context, state) => const MainNavigation(),
+      redirect: (BuildContext context, GoRouterState state) {
+        if (FirebaseAuth.instance.currentUser == null) {
+          return '/sign-in';
+        } else {
+          //else, remain at login page
+          return null;
+        }
+      },
       routes: [
         GoRoute(
-          path: '/sign-in',
+          path: 'sign-in',
           builder: (context, state) {
-            return MySignOnScreen();
-          },
-        ),
-        GoRoute(
-          path: 'forgot-password',
-          builder: (context, state) {
-            final arguments = state.uri.queryParameters;
-            return ForgotPasswordScreen(
-              email: arguments['email'],
-              headerMaxExtent: 200,
+            return SignInScreen(
+              actions: [
+                ForgotPasswordAction(((context, email) {
+                  final uri = Uri(
+                    path: '/sign-in/forgot-password',
+                    queryParameters: <String, String?>{
+                      'email': email,
+                    },
+                  );
+                  context.push(uri.toString());
+                })),
+                AuthStateChangeAction(((context, state) {
+                  final user = switch (state) {
+                    SignedIn state => state.user,
+                    UserCreated state => state.credential.user,
+                    _ => null
+                  };
+                  if (user == null) {
+                    return;
+                  }
+                  if (state is UserCreated) {
+                    user.updateDisplayName(user.email!.split('@')[0]);
+                  }
+                  if (!user.emailVerified) {
+                    user.sendEmailVerification();
+                    const snackBar = SnackBar(
+                        content: Text(
+                            'Please check your email to verify your email address'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                  context.pushReplacement('/');
+                })),
+              ],
             );
           },
-        ),
-        GoRoute(
-          path: 'home',
-          builder: (context, state) {
-            return MainNavigation();
-          },
+          routes: [
+            GoRoute(
+              path: 'forgot-password',
+              builder: (context, state) {
+                final arguments = state.uri.queryParameters;
+                return ForgotPasswordScreen(
+                  email: arguments['email'],
+                  headerMaxExtent: 200,
+                );
+              },
+            ),
+          ],
         ),
       ],
     ),
   ],
 );
-
-class MySignOnScreen extends StatelessWidget {
-  const MySignOnScreen({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SignInScreen(
-      actions: [
-        ForgotPasswordAction(((context, email) {
-          final uri = Uri(
-            path: '/forgot-password',
-            queryParameters: <String, String?>{
-              'email': email,
-            },
-          );
-          context.push(uri.toString());
-        })),
-        AuthStateChangeAction(((context, state) {
-          final user = switch (state) {
-            SignedIn state => state.user,
-            UserCreated state => state.credential.user,
-            _ => null
-          };
-          if (user == null) {
-            return;
-          }
-          if (state is UserCreated) {
-            user.updateDisplayName(user.email!.split('@')[0]);
-          }
-          if (!user.emailVerified) {
-            user.sendEmailVerification();
-            const snackBar = SnackBar(
-                content: Text(
-                    'Please check your email to verify your email address'));
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          }
-          context.pushReplacement('/home');
-        })),
-      ],
-    );
-  }
-}
 
 class App extends StatelessWidget {
   App({super.key});
@@ -130,36 +121,3 @@ class App extends StatelessWidget {
     );
   }
 }
-
-
-
-/*
-
-// old code below
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'main_navigator.dart';
-import 'app_state.dart';
-
-/// Flutter code sample for [NavigationBar].
-
-void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => ApplicationState(),
-    builder: ((context, child) => const MyApp()),
-  ));
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(useMaterial3: true),
-      home: const MainNavigation(),
-    );
-  }
-}
-*/
