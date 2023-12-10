@@ -44,38 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAA8h1oWRN4td69oJNfdzCseDUkQ2IxT_8',
-    appId: '1:890074561400:web:3060aed5f6d40c0dea268d',
-    messagingSenderId: '890074561400',
-    projectId: 'avepus-gettogether',
-    authDomain: 'avepus-gettogether.firebaseapp.com',
-    storageBucket: 'avepus-gettogether.appspot.com',
-    measurementId: 'G-MYVS7B8QJ9',
+    apiKey: 'AIzaSyAj4Q9rzICUtz9qhGLmEp9DCem2i-VitlM',
+    appId: '1:769257794479:web:0ec1127e9fa4a4dbe3dd5a',
+    messagingSenderId: '769257794479',
+    projectId: 'avepus-get-together',
+    authDomain: 'avepus-get-together.firebaseapp.com',
+    storageBucket: 'avepus-get-together.appspot.com',
+    measurementId: 'G-8V3Z6XHRP7',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD9wifhn-Iom7itqnaJUozXZgpr0dQrmnc',
-    appId: '1:890074561400:android:cc786bfaf1ab2738ea268d',
-    messagingSenderId: '890074561400',
-    projectId: 'avepus-gettogether',
-    storageBucket: 'avepus-gettogether.appspot.com',
+    apiKey: 'AIzaSyD7ftRuCQqARtMgI-8q7j18dPMxkM0jvQE',
+    appId: '1:769257794479:android:12ea0f270e230a27e3dd5a',
+    messagingSenderId: '769257794479',
+    projectId: 'avepus-get-together',
+    storageBucket: 'avepus-get-together.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC5g_pTosom64mhAXotaBx8c0E-IaMmDto',
-    appId: '1:890074561400:ios:1e95663b9ada74b0ea268d',
-    messagingSenderId: '890074561400',
-    projectId: 'avepus-gettogether',
-    storageBucket: 'avepus-gettogether.appspot.com',
+    apiKey: 'AIzaSyArQKIiW779_kOpnXyRulyH9w07az199vc',
+    appId: '1:769257794479:ios:845c4e5f706311e8e3dd5a',
+    messagingSenderId: '769257794479',
+    projectId: 'avepus-get-together',
+    storageBucket: 'avepus-get-together.appspot.com',
     iosBundleId: 'com.example.getTogether',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC5g_pTosom64mhAXotaBx8c0E-IaMmDto',
-    appId: '1:890074561400:ios:0d9587fef043920dea268d',
-    messagingSenderId: '890074561400',
-    projectId: 'avepus-gettogether',
-    storageBucket: 'avepus-gettogether.appspot.com',
+    apiKey: 'AIzaSyArQKIiW779_kOpnXyRulyH9w07az199vc',
+    appId: '1:769257794479:ios:976750f388f2f935e3dd5a',
+    messagingSenderId: '769257794479',
+    projectId: 'avepus-get-together',
+    storageBucket: 'avepus-get-together.appspot.com',
     iosBundleId: 'com.example.getTogether.RunnerTests',
   );
 }
