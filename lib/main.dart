@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_options.dart';
 
+import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
 
@@ -66,9 +67,10 @@ final _router = GoRouter(
                   }
                   if (state is UserCreated) {
                     user.updateDisplayName(user.email!.split('@')[0]);
+                    createFirestoreUser(user.email!.split('@')[0], user.uid);
                   }
                   if (!user.emailVerified) {
-                    user.sendEmailVerification();
+                    //user.sendEmailVerification();
                     const snackBar = SnackBar(
                         content: Text(
                             'Please check your email to verify your email address'));
