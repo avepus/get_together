@@ -50,7 +50,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: <Widget>[
         const Padding(padding: EdgeInsets.all(8.0), child: GroupsPage()),
         const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
-        const Padding(padding: EdgeInsets.all(8.0), child: ProfilePage()),
+        Padding(padding: EdgeInsets.all(8.0), child: ProfilePage()),
       ][currentPageIndex],
     );
   }
