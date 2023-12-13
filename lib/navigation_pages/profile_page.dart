@@ -1,8 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
+import '../app_state.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({super.key});
@@ -15,34 +20,39 @@ class _ProfilePageState extends State<ProfilePage> {
   final String uid = FirebaseAuth.instance.currentUser!.uid;
   final _picker = ImagePicker();
 
-  Stream<QuerySnapshot> getUserDetails() {
-    return FirebaseFirestore.instance
-        .collection('users')
-        .where('uid', isEqualTo: uid)
-        .snapshots();
+  Stream<DocumentSnapshot> getUserDetails() {
+    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
   }
 
   Future<void> uploadImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery, maxWidth: 200, maxHeight: 200);
 
     if (pickedFile != null) {
       debugPrint(pickedFile.path);
-      /*
-      var file = File(pickedFile.path);
-      
-      var snapshot = await FirebaseStorage.instance
-          .ref()
-          .child('images/${widget.uid}')
-          .putFile(pickedFile.path);
 
-      var downloadUrl = await snapshot.ref.getDownloadURL();
+      UploadTask uploadTask;
+
+      Reference ref =
+          await FirebaseStorage.instance.ref().child('user_images/$uid');
+
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {'picked-file-path': pickedFile.path},
+      );
+
+      if (kIsWeb) {
+        uploadTask = ref.putData(await pickedFile.readAsBytes(), metadata);
+      } else {
+        uploadTask = ref.putFile(File(pickedFile.path), metadata);
+      }
+
+      var downloadUrl = await ref.getDownloadURL();
 
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.uid)
+          .doc(uid)
           .update({'image_url': downloadUrl});
-      */
     }
   }
 
@@ -52,25 +62,29 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<DocumentSnapshot>(
         stream: getUserDetails(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
-          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          } else if (!snapshot.hasData) {
             return Text("No data found");
           } else {
-            var userDocument = snapshot.data!.docs.first.data() as Map;
+            var userDocument = snapshot.data!.data() as Map;
             return ListView(
               children: <Widget>[
-                userDocument['image_url'] != null
-                    ? Image.network(userDocument['image_url'])
-                    : IconButton(
-                        icon: Icon(Icons.add_a_photo),
-                        onPressed: uploadImage,
-                      ),
+                InkWell(
+                  onTap: uploadImage,
+                  splashColor: Colors.white10,
+                  child: userDocument['image_url'] != null
+                      ? CircleAvatar(
+                          backgroundImage:
+                              NetworkImage((userDocument['image_url'])),
+                          radius: 50)
+                      : Icon(Icons.add_a_photo),
+                ),
                 ListTile(
                     title: Text('Display Name'),
                     subtitle: Text(userDocument['display_name'])),
@@ -85,6 +99,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 ListTile(
                     title: Text('Created Time'),
                     subtitle: Text(userDocument['created_time'].toString())),
+                ListTile(
+                  title: ElevatedButton(
+                      child: Text('Sign Out'),
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        context.pushReplacement('/sign-in');
+                      }),
+                ),
               ],
             );
           }
