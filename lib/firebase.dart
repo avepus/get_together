@@ -5,10 +5,9 @@ Future<void> createFirestoreUser(String displayName, String uid) async {
   final timestamp = DateTime.now().millisecondsSinceEpoch;
   var values = {
     'display_name': displayName,
-    'uid': uid,
     'created_time': timestamp,
   };
 
-  users.add(values);
+  users.doc(uid).set(values);
   return;
 }
