@@ -13,6 +13,7 @@ import 'firebase_options.dart';
 import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
+import 'navigation_pages/profile_page_edit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,11 @@ final _router = GoRouter(
       },
       routes: [
         GoRoute(
+            path: 'profile/edit',
+            builder: (context, state) {
+              return ProfilePageEdit();
+            }),
+        GoRoute(
           path: 'sign-in',
           builder: (context, state) {
             return SignInScreen(
@@ -67,7 +73,9 @@ final _router = GoRouter(
                   }
                   if (state is UserCreated) {
                     user.updateDisplayName(user.email!.split('@')[0]);
-                    createFirestoreUser(user.email!.split('@')[0], user.uid);
+                    //I don't know for sure that the follwing user.email! is safe. It should be according to https://firebase.google.com/docs/auth/users
+                    createFirestoreUser(
+                        user.email!.split('@')[0], user.email!, user.uid);
                   }
                   if (!user.emailVerified) {
                     //user.sendEmailVerification();
