@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-import '../app_state.dart';
 import '../firebase.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -32,8 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
     if (pickedFile != null) {
       debugPrint(pickedFile.path);
 
-      UploadTask uploadTask;
-
       Reference ref =
           await FirebaseStorage.instance.ref().child('user_images/$uid');
 
@@ -43,9 +40,9 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 
       if (kIsWeb) {
-        uploadTask = ref.putData(await pickedFile.readAsBytes(), metadata);
+        await ref.putData(await pickedFile.readAsBytes(), metadata);
       } else {
-        uploadTask = ref.putFile(File(pickedFile.path), metadata);
+        await ref.putFile(File(pickedFile.path), metadata);
       }
 
       var downloadUrl = await ref.getDownloadURL();
@@ -102,14 +99,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     title: Text(UserFields.created_time.label),
                     subtitle: Text(
                         userDocument[UserFields.created_time.name].toString())),
-                ListTile(
-                  title: ElevatedButton(
+                Row(children: [
+                  ElevatedButton(
+                      child: Text('Edit Profile'),
+                      onPressed: () {
+                        context.push('/profile/edit');
+                      }),
+                  ElevatedButton(
                       child: Text('Sign Out'),
                       onPressed: () {
                         FirebaseAuth.instance.signOut();
                         context.pushReplacement('/sign-in');
                       }),
-                ),
+                ]),
               ],
             );
           }

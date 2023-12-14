@@ -16,12 +16,14 @@ enum UserFields {
   final String label;
 }
 
-Future<void> createFirestoreUser(String displayName, String uid) async {
+Future<void> createFirestoreUser(
+    String displayName, String email, String uid) async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   final timestamp = DateTime.now().millisecondsSinceEpoch;
   var values = {
-    'display_name': displayName,
-    'created_time': timestamp,
+    UserFields.display_name.name: displayName,
+    UserFields.email.name: email,
+    UserFields.created_time.name: timestamp,
   };
 
   users.doc(uid).set(values);
