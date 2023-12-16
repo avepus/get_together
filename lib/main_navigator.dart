@@ -36,7 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
           //Events page
           NavigationDestination(
             icon: Badge(child: Icon(Icons.list_alt)),
-            label: 'Eventsa ',
+            label: 'Events ',
           ),
           //Profile page
           NavigationDestination(

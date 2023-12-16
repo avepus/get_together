@@ -94,7 +94,10 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
                 child: Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: saveData,
+                onPressed: () {
+                  saveData();
+                  Navigator.pop(context);
+                },
                 child: Text('Save'),
               ),
             ],
