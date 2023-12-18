@@ -4,6 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../firebase.dart';
 
 class ProfilePageEdit extends StatefulWidget {
+  final String userDocumentID;
+  const ProfilePageEdit({Key? key, required this.userDocumentID})
+      : super(key: key);
   @override
   _ProfilePageEditState createState() => _ProfilePageEditState();
 }
@@ -12,8 +15,6 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
-
-  final String uid = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   void initState() {
@@ -24,8 +25,10 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
 
   void fetchData() async {
     // Fetch data from Firestore and populate the text fields
-    DocumentSnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.userDocumentID)
+        .get();
 
     if (snapshot.exists) {
       setState(() {
@@ -39,7 +42,10 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
 
   void saveData() async {
     // Save the updated data to Firestore
-    await FirebaseFirestore.instance.collection('users').doc(uid).update({
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.userDocumentID)
+        .update({
       UserFields.display_name.name: _nameController.text,
       UserFields.email.name: _emailController.text,
       UserFields.phone_number.name: _phoneNumberController.text,

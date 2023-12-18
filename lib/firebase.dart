@@ -16,6 +16,23 @@ enum UserFields {
   final String label;
 }
 
+enum GroupFields {
+  name(label: "Name"),
+  description(label: "Description"),
+  members(label: "Members"),
+  admins(label: "Admins"),
+  days_between_meets(label: "Meeting Frequency"),
+  days_of_week(label: "Meeting Days"),
+  created_time(label: "Created Time"),
+  image_url(label: "Group Picture Link");
+
+  const GroupFields({
+    required this.label,
+  });
+
+  final String label;
+}
+
 Future<void> createFirestoreUser(
     String displayName, String email, String uid) async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');

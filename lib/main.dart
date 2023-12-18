@@ -14,6 +14,8 @@ import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
 import 'navigation_pages/profile_page_edit.dart';
+import 'navigation_pages/group_details_page.dart';
+import 'navigation_pages/group_edit_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,19 +36,35 @@ final _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const MainNavigation(),
-      redirect: (BuildContext context, GoRouterState state) {
+      redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser == null) {
           return '/sign-in';
         } else {
-          //else, remain at login page
+          //else, remain at current page
           return null;
         }
       },
       routes: [
         GoRoute(
-            path: 'profile/edit',
+            path: 'profile/edit/:userDocumentId',
+            name: 'profile-edit',
             builder: (context, state) {
-              return ProfilePageEdit();
+              return ProfilePageEdit(
+                  userDocumentID: state.pathParameters['userDocumentId']!);
+            }),
+        GoRoute(
+            path: 'group/:groupDocumentId',
+            name: 'group',
+            builder: (context, state) {
+              return GroupDetailsPage(
+                  groupDocumentId: state.pathParameters['groupDocumentId']!);
+            }),
+        GoRoute(
+            path: 'group/edit/:groupDocumentId',
+            name: 'group-edit',
+            builder: (context, state) {
+              return GroupEditPage(
+                  groupDocumentId: state.pathParameters['groupDocumentId']!);
             }),
         GoRoute(
           path: 'sign-in',

@@ -103,7 +103,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ElevatedButton(
                       child: Text('Edit Profile'),
                       onPressed: () {
-                        context.push('/profile/edit');
+                        context.pushNamed('profile-edit', pathParameters: {
+                          'userDocumentId': snapshot.data!.id
+                        });
                       }),
                   ElevatedButton(
                       child: Text('Sign Out'),
