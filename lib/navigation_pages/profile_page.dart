@@ -8,20 +8,27 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../firebase.dart';
+import '../user.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({super.key});
+  final String userDocumentId;
+  const ProfilePage({Key? key, required this.userDocumentId}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final String uid = FirebaseAuth.instance.currentUser!.uid;
   final _picker = ImagePicker();
+  late Future<DocumentSnapshot> _userSnapshot;
 
-  Stream<DocumentSnapshot> getUserDetails() {
-    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
+  @override
+  void initState() {
+    super.initState();
+    _userSnapshot = FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.userDocumentId)
+        .get();
   }
 
   Future<void> uploadImage() async {
@@ -31,8 +38,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (pickedFile != null) {
       debugPrint(pickedFile.path);
 
-      Reference ref =
-          await FirebaseStorage.instance.ref().child('user_images/$uid');
+      Reference ref = await FirebaseStorage.instance
+          .ref()
+          .child('user_images/${widget.userDocumentId}');
 
       final metadata = SettableMetadata(
         contentType: 'image/jpeg',
@@ -49,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(uid)
+          .doc(widget.userDocumentId)
           .update({UserFields.image_url.name: downloadUrl});
     }
   }
@@ -60,8 +68,8 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Profile'),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: getUserDetails(),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: _userSnapshot,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -70,7 +78,10 @@ class _ProfilePageState extends State<ProfilePage> {
           } else if (!snapshot.hasData) {
             return Text("No data found");
           } else {
+            AppUser user = AppUser.fromDocumentSnapshot(snapshot.data!);
             var userDocument = snapshot.data!.data() as Map;
+            return getDocumentDetailsWidget(
+                user.toDisplayableMap(), 'imageUrl');
             return ListView(
               children: <Widget>[
                 InkWell(
@@ -104,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text('Edit Profile'),
                       onPressed: () {
                         context.pushNamed('profile-edit', pathParameters: {
-                          'userDocumentId': snapshot.data!.id
+                          'userDocumentId': user.documentId
                         });
                       }),
                   ElevatedButton(

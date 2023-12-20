@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../firebase.dart';
 
 class ProfilePageEdit extends StatefulWidget {
-  final String userDocumentID;
-  const ProfilePageEdit({Key? key, required this.userDocumentID})
+  final String userDocumentId;
+  const ProfilePageEdit({Key? key, required this.userDocumentId})
       : super(key: key);
   @override
   _ProfilePageEditState createState() => _ProfilePageEditState();
@@ -27,7 +27,7 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
     // Fetch data from Firestore and populate the text fields
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(widget.userDocumentID)
+        .doc(widget.userDocumentId)
         .get();
 
     if (snapshot.exists) {
@@ -44,7 +44,7 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
     // Save the updated data to Firestore
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(widget.userDocumentID)
+        .doc(widget.userDocumentId)
         .update({
       UserFields.display_name.name: _nameController.text,
       UserFields.email.name: _emailController.text,

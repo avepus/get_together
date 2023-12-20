@@ -1,15 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class User {
+class AppUser {
   String documentId;
   String? displayName;
   String? email;
   String? phoneNumber;
-  String? createdTime;
+  Timestamp? createdTime;
   String? imageUrl;
 
-  User({
+  AppUser({
     required this.documentId,
     this.displayName,
     this.email,
@@ -18,9 +18,9 @@ class User {
     this.imageUrl,
   });
 
-  factory User.fromDocumentSnapshot(DocumentSnapshot snapshot) {
+  factory AppUser.fromDocumentSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
-    return User(
+    return AppUser(
       documentId: snapshot.id,
       displayName: data['displayName'],
       email: data['email'],
@@ -124,19 +124,21 @@ class User {
 
 Widget getDocumentDetailsWidget(Map<String, dynamic> map, String? imageKey) {
   String? imageUrl = map.remove(imageKey);
-  return ListView(children: [
-    imageUrl != null
-        ? Image.network(imageUrl)
-        : const Icon(Icons.image_not_supported),
-    ListView.builder(
-      itemCount: map.length,
-      itemBuilder: (context, index) {
-        var key = map.keys.elementAt(index);
-        dynamic value = map[key];
-        return Card(
-          child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
-        );
-      },
-    ),
-  ]);
+  return Expanded(
+    child: Column(children: [
+      imageUrl != null
+          ? Image.network(imageUrl)
+          : const Icon(Icons.image_not_supported),
+      ListView.builder(
+        itemCount: map.length,
+        itemBuilder: (context, index) {
+          var key = map.keys.elementAt(index);
+          dynamic value = map[key];
+          return Card(
+            child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
+          );
+        },
+      ),
+    ]),
+  );
 }

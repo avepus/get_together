@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/groups_page.dart';
 import 'navigation_pages/events_page.dart';
@@ -50,7 +51,10 @@ class _MainNavigationState extends State<MainNavigation> {
       body: <Widget>[
         Padding(padding: EdgeInsets.all(8.0), child: GroupsPage()),
         const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
-        Padding(padding: EdgeInsets.all(8.0), child: ProfilePage()),
+        Padding(
+            padding: EdgeInsets.all(8.0),
+            child: ProfilePage(
+                userDocumentId: FirebaseAuth.instance.currentUser!.uid)),
       ][currentPageIndex],
     );
   }

@@ -50,7 +50,7 @@ final _router = GoRouter(
             name: 'profile-edit',
             builder: (context, state) {
               return ProfilePageEdit(
-                  userDocumentID: state.pathParameters['userDocumentId']!);
+                  userDocumentId: state.pathParameters['userDocumentId']!);
             }),
         GoRoute(
             path: 'group/:groupDocumentId',
