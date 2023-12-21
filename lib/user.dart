@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AppUser {
   String documentId;
@@ -123,22 +124,26 @@ class AppUser {
 }
 
 Widget getDocumentDetailsWidget(Map<String, dynamic> map, String? imageKey) {
-  String? imageUrl = map.remove(imageKey);
+  //remove the image url from the map
+  //TODO: make it displayed at the top
+  map.remove(imageKey);
   return Expanded(
-    child: Column(children: [
-      imageUrl != null
-          ? Image.network(imageUrl)
-          : const Icon(Icons.image_not_supported),
-      ListView.builder(
-        itemCount: map.length,
-        itemBuilder: (context, index) {
-          var key = map.keys.elementAt(index);
-          dynamic value = map[key];
-          return Card(
-            child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
-          );
-        },
-      ),
-    ]),
+    child: ListView.builder(
+      itemCount: map.length,
+      itemBuilder: (context, index) {
+        var key = map.keys.elementAt(index);
+        dynamic value = map[key];
+        if (value is Timestamp) {
+          // Convert the Timestamp to DateTime
+          DateTime date = value.toDate();
+
+          // Format the DateTime as a string
+          value = DateFormat('yyyy-MM-dd – kk:mm').format(date);
+        }
+        return Card(
+          child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
+        );
+      },
+    ),
   );
 }
