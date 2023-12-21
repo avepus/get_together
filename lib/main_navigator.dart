@@ -19,6 +19,13 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    if (FirebaseAuth.instance.currentUser == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text("Not signed in. Redirecting..."),
+        ),
+      );
+    }
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
