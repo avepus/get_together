@@ -33,9 +33,9 @@ class _ProfilePageEditState extends State<ProfilePageEdit> {
     if (snapshot.exists) {
       setState(() {
         var data = snapshot.data()! as Map;
-        _nameController.text = data[UserFields.display_name.name];
-        _emailController.text = data[UserFields.email.name];
-        _phoneNumberController.text = data[UserFields.phone_number.name];
+        _nameController.text = data["displayName"] ?? "";
+        _emailController.text = data[UserFields.email.name] ?? "";
+        _phoneNumberController.text = data[UserFields.phone_number.name] ?? "";
       });
     }
   }
