@@ -81,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
             AppUser user = AppUser.fromDocumentSnapshot(snapshot.data!);
             var userDocument = snapshot.data!.data() as Map;
             return getDocumentDetailsWidget(
-                user.toDisplayableMap(), 'imageUrl');
+                user.toDisplayableMap(), user.getimageUrlLabel());
             return ListView(
               children: <Widget>[
                 InkWell(
@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text('Edit Profile'),
                       onPressed: () {
                         context.pushNamed('profile-edit', pathParameters: {
-                          'userDocumentId': user.documentId
+                          'userDocumentId': widget.userDocumentId
                         });
                       }),
                   ElevatedButton(
