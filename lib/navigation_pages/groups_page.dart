@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../firebase.dart';
+import '../group.dart';
+import '../user.dart';
 
 class GroupsPage extends StatelessWidget {
   GroupsPage({super.key});

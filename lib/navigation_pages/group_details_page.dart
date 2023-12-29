@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../firebase.dart';
+import '../group.dart';
+import '../user.dart';
 
 class GroupDetailsPage extends StatelessWidget {
   final String groupDocumentId;
