@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 /// displays the details of a document in a ListView.builder
 Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
-  //remove imageUrl from map so it dooesn't get displayed in the
+  //remove imageUrl from map so it doesn't get displayed in the
   //ListView.builder and so it can be displayed separately
   var imageUrl = map.remove(imageKey);
   return Column(
@@ -23,8 +23,13 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
               DateTime date = value.toDate();
               value = DateFormat('yyyy-MM-dd – kk:mm').format(date);
             }
+            //if (value is List) {
+            //  // Concatenate everything in the value list
+            //  value = value.join();
+            //}
             return Card(
-              child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
+              child: ListTile(
+                  title: Text(key), subtitle: Text(value.toString() ?? '')),
             );
           },
         ),

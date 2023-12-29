@@ -31,10 +31,10 @@ class Group {
       documentId: snapshot.id,
       name: data[getNameKey()],
       description: data[getDescriptionKey()],
-      members: data[getMembersKey()],
-      admins: data[getAdminsKey()],
+      members: data[getMembersKey()].cast<String>(),
+      admins: data[getAdminsKey()].cast<String>(),
       daysBetweenMeets: data[getDaysBetweenMeetsKey()],
-      daysOfWeek: data[getDaysOfWeekKey()],
+      daysOfWeek: data[getDaysOfWeekKey()].cast<int>(),
       createdTime: data[getCreatedTimeKey()],
       imageUrl: data[getImageUrlKey()],
     );

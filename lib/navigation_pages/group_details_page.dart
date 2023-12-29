@@ -21,7 +21,7 @@ class _GroupPageState extends State<GroupDetailsPage> {
   void initState() {
     super.initState();
     _groupSnapshot = FirebaseFirestore.instance
-        .collection('users')
+        .collection('groups')
         .doc(widget.groupDocumentId)
         .get();
   }
@@ -40,46 +40,19 @@ class _GroupPageState extends State<GroupDetailsPage> {
             } else if (snapshot.hasError) {
               return Text("Error: ${snapshot.error}");
             } else {
-              if (!snapshot.hasData) {
+              if (!snapshot.hasData ||
+                  snapshot.data == null ||
+                  !snapshot.data!.exists) {
                 return const Text('No data');
               }
 
               var group = Group.fromDocumentSnapshot(snapshot.data!);
-              List<AppUser> members = getUsersFromDocumentIDs(group.members);
+              List<AppUser> members =
+                  getUsersFromDocumentIDs(group.members as List<String>);
               List<AppUser> admins = getUsersFromDocumentIDs(group.admins);
 
               return getDocumentDetailsWidget(
                   group.toDisplayableMap(), Group.getImageUrlKey());
-
-              return ListView(children: [
-                group[GroupFields.image_url.name] != null
-                    ? Image.network(group[GroupFields.image_url.name])
-                    : Icon(Icons.broken_image_outlined),
-                ListTile(
-                  title: Text(GroupFields.name.label),
-                  subtitle: Text(group[GroupFields.name.name]),
-                ),
-                ListTile(
-                  title: Text(GroupFields.description.label),
-                  subtitle: Text(group[GroupFields.description.name]),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: group[GroupFields.members.name].length,
-                  itemBuilder: (context, index) {
-                    var member = group[GroupFields.members.name][index];
-                    return ListTile(
-                      //leading: member[UserFields.image_url.name] != null
-                      //    ? Image.network(member[UserFields.image_url.name])
-                      //    : Icon(Icons.broken_image_outlined),
-                      title: Text(member != null
-                          ? member[UserFields.display_name.name] ?? '<No name>'
-                          : 'Member not found'),
-                    );
-                  },
-                )
-              ]);
             }
           }),
     );
