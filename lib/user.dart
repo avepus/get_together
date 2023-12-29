@@ -2,6 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Represents a user in the application.
+///
+/// Called AppUser because User is already a class in Dart.
+/// The documentId is the same as the user's ID in Firebase Auth.
+/// The profile image imageUrl is also the same as the user's ID in Firebase Auth.
 class AppUser {
   String documentId;
   String? displayName;
@@ -23,11 +28,11 @@ class AppUser {
     final data = snapshot.data() as Map<String, dynamic>;
     return AppUser(
       documentId: snapshot.id,
-      displayName: data['displayName'],
-      email: data['email'],
-      phoneNumber: data['phoneNumber'],
-      createdTime: data['createdTime'],
-      imageUrl: data['imageUrl'],
+      displayName: data[getdisplayNameKey()],
+      email: data[getemailKey()],
+      phoneNumber: data[getphoneNumberKey()],
+      createdTime: data[getcreatedTimeKey()],
+      imageUrl: data[getimageUrlKey()],
     );
   }
 
@@ -35,12 +40,12 @@ class AppUser {
   //not convied that I need this actually
   Map<String, dynamic> toMap() {
     return {
-      'documentId': documentId,
-      'displayName': displayName,
-      'email': email,
-      'phoneNumber': phoneNumber,
-      'createdTime': createdTime,
-      'imageUrl': imageUrl,
+      getdocumentIdKey(): documentId,
+      getdisplayNameKey(): displayName,
+      getemailKey(): email,
+      getphoneNumberKey(): phoneNumber,
+      getcreatedTimeKey(): createdTime,
+      getimageUrlKey(): imageUrl,
     };
   }
 
@@ -56,42 +61,57 @@ class AppUser {
     };
   }
 
-  String getdocumentIdLabel() {
+  static String getdocumentIdKey() {
+    return 'documentId';
+  }
+
+  static String getdisplayNameKey() {
+    return 'displayName';
+  }
+
+  static String getemailKey() {
+    return 'email';
+  }
+
+  static String getphoneNumberKey() {
+    return 'phoneNumber';
+  }
+
+  static String getcreatedTimeKey() {
+    return 'createdTime';
+  }
+
+  static String getimageUrlKey() {
+    return 'imageUrl';
+  }
+
+  static String getdocumentIdLabel() {
     return 'Document ID';
   }
 
-  String getdisplayNameLabel() {
+  static String getdisplayNameLabel() {
     return 'Display Name';
   }
 
-  String getemailLabel() {
+  static String getemailLabel() {
     return 'Email';
   }
 
-  String getphoneNumberLabel() {
+  static String getphoneNumberLabel() {
     return 'Phone Number';
   }
 
-  String getcreatedTimeLabel() {
+  static String getcreatedTimeLabel() {
     return 'Created Time';
   }
 
-  String getimageUrlLabel() {
+  static String getimageUrlLabel() {
     return 'Profile Picture Link';
   }
 
   @override
   String toString() {
     return toMap().toString();
-  }
-
-  ListTile getTile() {
-    return ListTile(
-      leading: imageUrl != null
-          ? Image.network(imageUrl!)
-          : const Icon(Icons.image_not_supported),
-      title: Text(displayName ?? '<no name>'),
-    );
   }
 
   Widget displayEditable() {
@@ -123,33 +143,16 @@ class AppUser {
   }
 }
 
-Widget getDocumentDetailsWidget(Map<String, dynamic> map, String? imageKey) {
-  //remove the image url from the map
-  //TODO: make it displayed at the top
-  var imageUrl = map.remove(imageKey);
-  return Column(
-    children: [
-      imageUrl != null
-          ? Image.network(imageUrl)
-          : const Icon(Icons.image_not_supported),
-      Expanded(
-        child: ListView.builder(
-          itemCount: map.length,
-          itemBuilder: (context, index) {
-            var key = map.keys.elementAt(index);
-            dynamic value = map[key];
-            if (value is Timestamp) {
-              // Convert the Timestamp to DateTime
-              DateTime date = value.toDate();
-              // Format the DateTime as a string
-              value = DateFormat('yyyy-MM-dd – kk:mm').format(date);
-            }
-            return Card(
-              child: ListTile(title: Text(key), subtitle: Text(value ?? '')),
-            );
-          },
-        ),
-      ),
-    ],
-  );
+List<AppUser> getUsersFromDocumentIDs(List<String> documentIDs) {
+  List<AppUser> users = [];
+  documentIDs.forEach((documentID) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(documentID)
+        .get();
+    if (snapshot.exists) {
+      users.add(AppUser.fromDocumentSnapshot(snapshot));
+    }
+  });
+  return users;
 }

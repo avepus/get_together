@@ -6,8 +6,8 @@ class Group {
   String documentId;
   String? name;
   String? description;
-  List<AppUser> members;
-  List<AppUser> admins;
+  List<String> members;
+  List<String> admins;
   int? daysBetweenMeets;
   List<int>? daysOfWeek;
   Timestamp? createdTime;
@@ -87,48 +87,39 @@ class Group {
     return 'imageUrl';
   }
 
-  String getdocumentIdLabel() {
+  static String getdocumentIdLabel() {
     return 'Document ID';
   }
 
-  String getNameLabel() {
+  static String getNameLabel() {
     return 'Name';
   }
 
-  String getDescriptionLabel() {
+  static String getDescriptionLabel() {
     return 'Description';
   }
 
-  String getMembersLabel() {
+  static String getMembersLabel() {
     return 'Members';
   }
 
-  String getAdminsLabel() {
+  static String getAdminsLabel() {
     return 'Admins';
   }
 
-  String getDaysBetweenMeetsLabel() {
+  static String getDaysBetweenMeetsLabel() {
     return 'Meeting Frequency';
   }
 
-  String getDaysOfWeekLabel() {
+  static String getDaysOfWeekLabel() {
     return 'Meeting Days';
   }
 
-  String getCreatedTimeLabel() {
+  static String getCreatedTimeLabel() {
     return 'Created Time';
   }
 
-  String getImageUrlLabel() {
+  static String getImageUrlLabel() {
     return 'Group Picture Link';
-  }
-
-  ListTile getTile() {
-    return ListTile(
-      leading: imageUrl != null
-          ? Image.network(imageUrl!)
-          : const Icon(Icons.image_not_supported),
-      title: Text(name ?? '<no name>'),
-    );
   }
 }

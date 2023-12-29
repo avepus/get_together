@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import '../firebase.dart';
 import '../user.dart';
+import '../document_displayers.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userDocumentId;
@@ -81,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
             AppUser user = AppUser.fromDocumentSnapshot(snapshot.data!);
             var userDocument = snapshot.data!.data() as Map;
             return getDocumentDetailsWidget(
-                user.toDisplayableMap(), user.getimageUrlLabel());
+                user.toDisplayableMap(), AppUser.getimageUrlLabel());
             return ListView(
               children: <Widget>[
                 InkWell(

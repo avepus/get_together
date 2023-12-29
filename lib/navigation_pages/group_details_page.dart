@@ -4,42 +4,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../firebase.dart';
 import '../group.dart';
 import '../user.dart';
+import '../document_displayers.dart';
 
-class GroupDetailsPage extends StatelessWidget {
+class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
   const GroupDetailsPage({super.key, required this.groupDocumentId});
 
-  Future<Map<String, dynamic>> getGroupDetails() async {
-    DocumentSnapshot groupSnapshot = await FirebaseFirestore.instance
-        .collection('groups')
-        .doc(groupDocumentId)
+  @override
+  _GroupPageState createState() => _GroupPageState();
+}
+
+class _GroupPageState extends State<GroupDetailsPage> {
+  late Future<DocumentSnapshot> _groupSnapshot;
+
+  @override
+  void initState() {
+    super.initState();
+    _groupSnapshot = FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.groupDocumentId)
         .get();
-
-    var group = groupSnapshot.data() as Map<String, dynamic>;
-    var members = group[GroupFields.members.name] as List<dynamic>;
-    var admins = group[GroupFields.admins.name] as List<dynamic>;
-
-    // Fetch user details for each member
-    for (int i = 0; i < members.length; i++) {
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(members[i])
-          .get();
-
-      // Replace the member ID with the user details
-      members[i] = userSnapshot.data();
-    }
-
-    // Fetch user details for each admin
-    for (int i = 0; i < admins.length; i++) {
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(admins[i])
-          .get();
-      admins[i] = userSnapshot.data();
-    }
-
-    return group;
   }
 
   @override
@@ -48,8 +32,8 @@ class GroupDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Groups'),
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-          future: getGroupDetails(),
+      body: FutureBuilder<DocumentSnapshot>(
+          future: _groupSnapshot,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -60,7 +44,12 @@ class GroupDetailsPage extends StatelessWidget {
                 return const Text('No data');
               }
 
-              var group = snapshot.data!;
+              var group = Group.fromDocumentSnapshot(snapshot.data!);
+              List<AppUser> members = getUsersFromDocumentIDs(group.members);
+              List<AppUser> admins = getUsersFromDocumentIDs(group.admins);
+
+              return getDocumentDetailsWidget(
+                  group.toDisplayableMap(), Group.getImageUrlKey());
 
               return ListView(children: [
                 group[GroupFields.image_url.name] != null
