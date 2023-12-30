@@ -8,10 +8,17 @@ import 'package:intl/intl.dart';
 /// The documentId is the same as the user's ID in Firebase Auth.
 /// The profile image imageUrl is also the same as the user's ID in Firebase Auth.
 class AppUser {
+  static const String documentIdKey = 'documentId';
+  static const String displayNameKey = 'displayName';
+  static const String emailKey = 'email';
+  static const String phoneNumberKey = 'phoneNumber';
+  static const String createdTimeKey = 'createdTime';
+  static const String imageUrlKey = 'imageUrl';
+
   String documentId;
   String? displayName;
   String? email;
-  String? phoneNumber;
+  int? phoneNumber;
   Timestamp? createdTime;
   String? imageUrl;
 
@@ -28,11 +35,11 @@ class AppUser {
     final data = snapshot.data() as Map<String, dynamic>;
     return AppUser(
       documentId: snapshot.id,
-      displayName: data[getdisplayNameKey()],
-      email: data[getemailKey()],
-      phoneNumber: data[getphoneNumberKey()],
-      createdTime: data[getcreatedTimeKey()],
-      imageUrl: data[getimageUrlKey()],
+      displayName: data[displayNameKey],
+      email: data[emailKey],
+      phoneNumber: data[phoneNumberKey],
+      createdTime: data[createdTimeKey],
+      imageUrl: data[imageUrlKey],
     );
   }
 
@@ -40,12 +47,12 @@ class AppUser {
   //not convied that I need this actually
   Map<String, dynamic> toMap() {
     return {
-      getdocumentIdKey(): documentId,
-      getdisplayNameKey(): displayName,
-      getemailKey(): email,
-      getphoneNumberKey(): phoneNumber,
-      getcreatedTimeKey(): createdTime,
-      getimageUrlKey(): imageUrl,
+      documentIdKey: documentId,
+      displayNameKey: displayName,
+      emailKey: email,
+      phoneNumberKey: phoneNumber,
+      createdTimeKey: createdTime,
+      imageUrlKey: imageUrl,
     };
   }
 
@@ -59,30 +66,6 @@ class AppUser {
       getcreatedTimeLabel(): createdTime,
       getimageUrlLabel(): imageUrl,
     };
-  }
-
-  static String getdocumentIdKey() {
-    return 'documentId';
-  }
-
-  static String getdisplayNameKey() {
-    return 'displayName';
-  }
-
-  static String getemailKey() {
-    return 'email';
-  }
-
-  static String getphoneNumberKey() {
-    return 'phoneNumber';
-  }
-
-  static String getcreatedTimeKey() {
-    return 'createdTime';
-  }
-
-  static String getimageUrlKey() {
-    return 'imageUrl';
   }
 
   static String getdocumentIdLabel() {
@@ -113,46 +96,22 @@ class AppUser {
   String toString() {
     return toMap().toString();
   }
-
-  Widget displayEditable() {
-    final displayNameController = TextEditingController(text: displayName);
-    final emailController = TextEditingController(text: email);
-    final phoneNumberController = TextEditingController(text: phoneNumber);
-    final imageUrlController = TextEditingController(text: imageUrl);
-
-    return Column(
-      children: [
-        imageUrl != null ? Image.network(imageUrl!) : Container(),
-        TextField(controller: displayNameController),
-        TextField(controller: emailController),
-        TextField(controller: phoneNumberController),
-        TextField(controller: imageUrlController),
-        ElevatedButton(
-          onPressed: () {
-            // Update Firestore document with new values
-            displayName = displayNameController.text;
-            email = emailController.text;
-            phoneNumber = phoneNumberController.text;
-            imageUrl = imageUrlController.text;
-            // Save changes to Firestore
-          },
-          child: Text('Save'),
-        ),
-      ],
-    );
-  }
 }
 
-List<AppUser> getUsersFromDocumentIDs(List<String> documentIDs) {
-  List<AppUser> users = [];
-  documentIDs.forEach((documentID) async {
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+Future<List<AppUser>> getUsersFromDocumentIDs(List<String> documentIDs) async {
+  List<Future<AppUser>> futures = [];
+  for (var documentID in documentIDs) {
+    futures.add(FirebaseFirestore.instance
         .collection('users')
         .doc(documentID)
-        .get();
-    if (snapshot.exists) {
-      users.add(AppUser.fromDocumentSnapshot(snapshot));
-    }
-  });
-  return users;
+        .get()
+        .then((snapshot) {
+      if (snapshot.exists) {
+        return AppUser.fromDocumentSnapshot(snapshot);
+      } else {
+        throw Exception('Document does not exist');
+      }
+    }));
+  }
+  return await Future.wait(futures);
 }

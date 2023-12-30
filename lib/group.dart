@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import 'user.dart';
 
 class Group {
+  static const String documentIdKey = 'documentId';
+  static const String nameKey = 'name';
+  static const String descriptionKey = 'description';
+  static const String membersKey = 'members';
+  static const String adminsKey = 'admins';
+  static const String daysBetweenMeetsKey = 'daysBetweenMeets';
+  static const String daysOfWeekKey = 'daysOfWeek';
+  static const String createdTimeKey = 'createdTime';
+  static const String imageUrlKey = 'imageUrl';
+
   String documentId;
   String? name;
   String? description;
@@ -29,62 +39,30 @@ class Group {
     final data = snapshot.data() as Map<String, dynamic>;
     return Group(
       documentId: snapshot.id,
-      name: data[getNameKey()],
-      description: data[getDescriptionKey()],
-      members: data[getMembersKey()].cast<String>(),
-      admins: data[getAdminsKey()].cast<String>(),
-      daysBetweenMeets: data[getDaysBetweenMeetsKey()],
-      daysOfWeek: data[getDaysOfWeekKey()].cast<int>(),
-      createdTime: data[getCreatedTimeKey()],
-      imageUrl: data[getImageUrlKey()],
+      name: data[nameKey],
+      description: data[descriptionKey],
+      members: data[membersKey].cast<String>(),
+      admins: data[adminsKey].cast<String>(),
+      daysBetweenMeets: data[daysBetweenMeetsKey],
+      daysOfWeek: data[daysOfWeekKey].cast<int>(),
+      createdTime: data[createdTimeKey],
+      imageUrl: data[imageUrlKey],
     );
   }
 
   //returns a map which can be used to display the data in the display detail widget
   Map<String, dynamic> toDisplayableMap() {
     return {
-      getdocumentIdLabel(): documentId,
-      getNameLabel(): name,
-      getDescriptionLabel(): description,
-      getMembersLabel(): members,
-      getAdminsLabel(): admins,
-      getDaysBetweenMeetsLabel(): daysBetweenMeets,
-      getDaysOfWeekLabel(): daysOfWeek,
-      getCreatedTimeLabel(): createdTime,
-      getImageUrlLabel(): imageUrl,
+      documentIdKey: documentId,
+      nameKey: name,
+      descriptionKey: description,
+      membersKey: members,
+      adminsKey: admins,
+      daysBetweenMeetsKey: daysBetweenMeets,
+      daysOfWeekKey: daysOfWeek,
+      createdTimeKey: createdTime,
+      imageUrlKey: imageUrl,
     };
-  }
-
-  static String getNameKey() {
-    return 'name';
-  }
-
-  static String getDescriptionKey() {
-    return 'description';
-  }
-
-  static String getMembersKey() {
-    return 'members';
-  }
-
-  static String getAdminsKey() {
-    return 'admins';
-  }
-
-  static String getDaysBetweenMeetsKey() {
-    return 'daysBetweenMeets';
-  }
-
-  static String getDaysOfWeekKey() {
-    return 'daysOfWeek';
-  }
-
-  static String getCreatedTimeKey() {
-    return 'createdTime';
-  }
-
-  static String getImageUrlKey() {
-    return 'imageUrl';
   }
 
   static String getdocumentIdLabel() {
