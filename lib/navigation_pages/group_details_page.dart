@@ -47,12 +47,13 @@ class _GroupPageState extends State<GroupDetailsPage> {
               }
 
               var group = Group.fromDocumentSnapshot(snapshot.data!);
-              List<AppUser> members =
+              Future<List<AppUser>> members =
                   getUsersFromDocumentIDs(group.members as List<String>);
-              List<AppUser> admins = getUsersFromDocumentIDs(group.admins);
+              Future<List<AppUser>> admins =
+                  getUsersFromDocumentIDs(group.admins);
 
               return getDocumentDetailsWidget(
-                  group.toDisplayableMap(), Group.getImageUrlKey());
+                  group.toDisplayableMap(), Group.getImageUrlLabel());
             }
           }),
     );
