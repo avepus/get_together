@@ -1,8 +1,12 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'user.dart';
 
-class Group {
+import 'abstracts.dart';
+
+class Group implements Tile {
   static const String documentIdKey = 'documentId';
   static const String nameKey = 'name';
   static const String descriptionKey = 'description';
@@ -63,6 +67,21 @@ class Group {
       createdTimeKey: createdTime,
       imageUrlKey: imageUrl,
     };
+  }
+
+  @override
+  ListTile getTile(context) {
+    return ListTile(
+        leading: imageUrl != null
+            ? Image.network(imageUrl!)
+            : Icon(Icons.broken_image_outlined),
+        title: Text(name ?? '<No Name>'),
+        subtitle: description != null ? Text(description!) : null,
+        onTap: () {
+          context.pushNamed('group', pathParameters: {
+            'groupDocumentId': documentId,
+          });
+        });
   }
 
   static String getdocumentIdLabel() {

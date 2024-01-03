@@ -38,21 +38,9 @@ class GroupsPage extends StatelessWidget {
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              var group = snapshot.data!.docs[index].data() as Map;
-
-              return Card(
-                child: ListTile(
-                    leading: group[GroupFields.image_url.name] != null
-                        ? Image.network(group[GroupFields.image_url.name])
-                        : Icon(Icons.broken_image_outlined),
-                    title: Text(group[GroupFields.name.name]),
-                    subtitle: Text(group[GroupFields.description.name]),
-                    onTap: () {
-                      context.pushNamed('group', pathParameters: {
-                        'groupDocumentId': snapshot.data!.docs[index].id
-                      });
-                    }),
-              );
+              var group =
+                  Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
+              return group.getTile(context);
             },
           );
         },
