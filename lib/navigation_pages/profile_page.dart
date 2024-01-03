@@ -83,51 +83,6 @@ class _ProfilePageState extends State<ProfilePage> {
             var userDocument = snapshot.data!.data() as Map;
             return getDocumentDetailsWidget(
                 user.toDisplayableMap(), AppUser.getimageUrlLabel());
-            return ListView(
-              children: <Widget>[
-                InkWell(
-                  onTap: uploadImage,
-                  splashColor: Colors.white10,
-                  child: userDocument[UserFields.image_url.name] != null
-                      ? CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              (userDocument[UserFields.image_url.name])),
-                          radius: 50)
-                      : Icon(Icons.add_a_photo),
-                ),
-                ListTile(
-                    title: Text(UserFields.display_name.label),
-                    subtitle: Text(userDocument[UserFields.display_name.name] ??
-                        'No display name provided')),
-                ListTile(
-                    title: Text(UserFields.email.label),
-                    subtitle: Text(userDocument[UserFields.email.name] ??
-                        'No email provided')),
-                ListTile(
-                    title: Text(UserFields.phone_number.label),
-                    subtitle: Text(userDocument[UserFields.phone_number.name] ??
-                        'No phone number provided')),
-                ListTile(
-                    title: Text(UserFields.created_time.label),
-                    subtitle: Text(
-                        userDocument[UserFields.created_time.name].toString())),
-                Row(children: [
-                  ElevatedButton(
-                      child: Text('Edit Profile'),
-                      onPressed: () {
-                        context.pushNamed('profile-edit', pathParameters: {
-                          'userDocumentId': widget.userDocumentId
-                        });
-                      }),
-                  ElevatedButton(
-                      child: Text('Sign Out'),
-                      onPressed: () {
-                        FirebaseAuth.instance.signOut();
-                        context.pushReplacement('/sign-in');
-                      }),
-                ]),
-              ],
-            );
           }
         },
       ),
