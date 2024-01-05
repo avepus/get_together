@@ -78,7 +78,7 @@ class Group implements Tile {
         title: Text(name ?? '<No Name>'),
         subtitle: description != null ? Text(description!) : null,
         onTap: () {
-          context.pushNamed('group', pathParameters: {
+          Navigator.of(context).pushNamed('group', arguments: {
             'groupDocumentId': documentId,
           });
         });
@@ -118,5 +118,41 @@ class Group implements Tile {
 
   static String getImageUrlLabel() {
     return 'Group Picture Link';
+  }
+
+  Future<List<AppUser>> fetchMemberUsers() async {
+    return _fetchUsers(members, membersKey);
+  }
+
+  Future<List<AppUser>> fetchAdminUsers() async {
+    return _fetchUsers(admins, adminsKey);
+  }
+
+  /// Fetches the users from Firestore using the provided user IDs.
+  /// removes the user ID from the input field in Firestore if the user does not exist
+  /// returns a list of users
+  Future<List<AppUser>> _fetchUsers(List userIds, String fieldKey) async {
+    List<AppUser> users = [];
+
+    for (var userId in userIds) {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (snapshot.exists) {
+        AppUser user = AppUser.fromDocumentSnapshot(snapshot);
+        users.add(user);
+      } else {
+        // Remove the document ID from the members field in Firestore
+        await FirebaseFirestore.instance
+            .collection('groups')
+            .doc(documentId)
+            .update({
+          fieldKey: FieldValue.arrayRemove([userId])
+        });
+      }
+    }
+    return users;
   }
 }

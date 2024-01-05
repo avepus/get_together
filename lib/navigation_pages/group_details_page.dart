@@ -47,11 +47,8 @@ class _GroupPageState extends State<GroupDetailsPage> {
               }
 
               var group = Group.fromDocumentSnapshot(snapshot.data!);
-              Future<List<AppUser>> members =
-                  getUsersFromDocumentIDs(group.members as List<String>);
-              Future<List<AppUser>> admins =
-                  getUsersFromDocumentIDs(group.admins);
-
+              Future<List<AppUser>> members = group.fetchMemberUsers();
+              Future<List<AppUser>> admins = group.fetchAdminUsers();
               return getDocumentDetailsWidget(
                   group.toDisplayableMap(), Group.getImageUrlLabel());
             }
