@@ -97,21 +97,3 @@ class AppUser {
     return toMap().toString();
   }
 }
-
-Future<List<AppUser>> getUsersFromDocumentIDs(List<String> documentIDs) async {
-  List<Future<AppUser>> futures = [];
-  for (var documentID in documentIDs) {
-    futures.add(FirebaseFirestore.instance
-        .collection('users')
-        .doc(documentID)
-        .get()
-        .then((snapshot) {
-      if (snapshot.exists) {
-        return AppUser.fromDocumentSnapshot(snapshot);
-      } else {
-        throw Exception('Document does not exist');
-      }
-    }));
-  }
-  return await Future.wait(futures);
-}

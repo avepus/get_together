@@ -40,7 +40,20 @@ class GroupsPage extends StatelessWidget {
             itemBuilder: (context, index) {
               var group =
                   Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
-              return group.getTile(context);
+              //this code relies on knowing the group structure. would be better if it didn't
+              return ListTile(
+                  leading: group.imageUrl != null
+                      ? Image.network(group.imageUrl!)
+                      : Icon(Icons.broken_image_outlined),
+                  title: Text(group.name ?? '<No Name>'),
+                  subtitle: group.description != null
+                      ? Text(group.description!)
+                      : null,
+                  onTap: () {
+                    context.pushNamed('group', pathParameters: {
+                      'groupDocumentId': group.documentId,
+                    });
+                  });
             },
           );
         },
