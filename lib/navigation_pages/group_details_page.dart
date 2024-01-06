@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+
 import '../firebase.dart';
 import '../group.dart';
 import '../user.dart';
@@ -15,7 +17,7 @@ class GroupDetailsPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupDetailsPage> {
-  late Future<DocumentSnapshot> _groupSnapshot;
+  late Future<Group> _groupSnapshot;
 
   @override
   void initState() {
@@ -23,36 +25,103 @@ class _GroupPageState extends State<GroupDetailsPage> {
     _groupSnapshot = FirebaseFirestore.instance
         .collection('groups')
         .doc(widget.groupDocumentId)
-        .get();
+        .get()
+        .then((snapshot) => Group.fromDocumentSnapshot(
+            snapshot)); //TODO: handle document not found
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Groups'),
+        title: GroupTitle(futureGroup: _groupSnapshot),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
+      body: FutureBuilder<Group>(
           future: _groupSnapshot,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+          builder: (context, futureGroup) {
+            if (futureGroup.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Text("Error: ${snapshot.error}");
+            } else if (futureGroup.hasError) {
+              return Text("Error: ${futureGroup.error}");
             } else {
-              if (!snapshot.hasData ||
-                  snapshot.data == null ||
-                  !snapshot.data!.exists) {
+              if (!futureGroup.hasData || futureGroup.data == null) {
                 return const Text('No data');
               }
-
-              var group = Group.fromDocumentSnapshot(snapshot.data!);
+              Group group = futureGroup.data!;
               Future<List<AppUser>> members = group.fetchMemberUsers();
               Future<List<AppUser>> admins = group.fetchAdminUsers();
-              return getDocumentDetailsWidget(
-                  group.toDisplayableMap(), Group.getImageUrlLabel());
+              return Column(
+                children: [
+                  Container(
+                      width: 200,
+                      height: 200,
+                      child: group.imageUrl != null
+                          ? Image.network(group.imageUrl!)
+                          : const Icon(Icons.image_not_supported)),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        Card(
+                          child: ListTile(
+                              title: Text(Group.getDescriptionLabel()),
+                              subtitle: Text(group.description.toString())),
+                        ),
+                        Card(
+                            child: ListTile(
+                                title: Text(Group.getDaysBetweenMeetsLabel()),
+                                subtitle:
+                                    Text(group.daysBetweenMeets.toString()))),
+                        Card(
+                            child: ListTile(
+                                title: Text(Group.getDaysOfWeekLabel()),
+                                subtitle: Text(group.daysOfWeek.toString()))),
+                        Card(
+                            child: ListTile(
+                                title: Text(Group.getCreatedTimeLabel()),
+                                subtitle: Text(group.createdTime != null
+                                    ? formatTimestamp(group.createdTime!)
+                                        .toString()
+                                    : ''))),
+                      ],
+                    ),
+                  ),
+                ],
+              );
             }
           }),
     );
   }
+}
+
+class GroupTitle extends StatelessWidget {
+  final Future<Group> futureGroup;
+
+  const GroupTitle({
+    Key? key,
+    required this.futureGroup,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Group>(
+        future: futureGroup,
+        builder: (context, inFutureGroup) {
+          if (inFutureGroup.connectionState == ConnectionState.waiting) {
+            return Text('');
+          } else if (inFutureGroup.hasError) {
+            return Text("Error: ${inFutureGroup.error}");
+          } else {
+            if (!inFutureGroup.hasData || inFutureGroup.data == null) {
+              return const Text('No data');
+            }
+            return Text(inFutureGroup.data!.name ?? '<No Name>');
+          }
+        });
+  }
+}
+
+String formatTimestamp(Timestamp timestamp) {
+  // Convert the Timestamp to DateTime
+  DateTime date = timestamp.toDate();
+  return DateFormat('yyyy-MM-dd – kk:mm').format(date);
 }
