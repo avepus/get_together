@@ -57,15 +57,15 @@ class Group implements Tile {
   //returns a map which can be used to display the data in the display detail widget
   Map<String, dynamic> toDisplayableMap() {
     return {
-      documentIdKey: documentId,
-      nameKey: name,
-      descriptionKey: description,
-      membersKey: members,
-      adminsKey: admins,
-      daysBetweenMeetsKey: daysBetweenMeets,
-      daysOfWeekKey: daysOfWeek,
-      createdTimeKey: createdTime,
-      imageUrlKey: imageUrl,
+      getdocumentIdLabel(): documentId,
+      getNameLabel(): name,
+      getDescriptionLabel(): description,
+      getMembersLabel(): members,
+      getAdminsLabel(): admins,
+      getDaysBetweenMeetsLabel(): daysBetweenMeets,
+      getDaysOfWeekLabel(): daysOfWeek,
+      getCreatedTimeLabel(): createdTime,
+      getImageUrlLabel(): imageUrl,
     };
   }
 

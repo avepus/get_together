@@ -9,9 +9,12 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
   var imageUrl = map.remove(imageKey);
   return Column(
     children: [
-      imageUrl != null
-          ? Image.network(imageUrl)
-          : const Icon(Icons.image_not_supported),
+      Container(
+          width: 200,
+          height: 200,
+          child: imageUrl != null
+              ? Image.network(imageUrl!)
+              : const Icon(Icons.image_not_supported)),
       Expanded(
         child: ListView.builder(
           itemCount: map.length,
@@ -23,10 +26,6 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
               DateTime date = value.toDate();
               value = DateFormat('yyyy-MM-dd – kk:mm').format(date);
             }
-            //if (value is List) {
-            //  // Concatenate everything in the value list
-            //  value = value.join();
-            //}
             return Card(
               child: ListTile(
                   title: Text(key), subtitle: Text(value.toString() ?? '')),
