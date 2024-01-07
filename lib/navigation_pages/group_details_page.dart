@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
+import 'package:go_router/go_router.dart';
 
 import '../firebase.dart';
-import '../group.dart';
-import '../user.dart';
+import '../Group.dart';
+import '../AppUser.dart';
 import '../document_displayers.dart';
 
 class GroupDetailsPage extends StatefulWidget {
@@ -50,7 +52,7 @@ class _GroupPageState extends State<GroupDetailsPage> {
               Group group = futureGroup.data!;
               Future<List<AppUser>> members = group.fetchMemberUsers();
               Future<List<AppUser>> admins = group.fetchAdminUsers();
-              return Column(
+              return ListView(
                 children: [
                   Container(
                       width: 200,
@@ -58,33 +60,26 @@ class _GroupPageState extends State<GroupDetailsPage> {
                       child: group.imageUrl != null
                           ? Image.network(group.imageUrl!)
                           : const Icon(Icons.image_not_supported)),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        Card(
-                          child: ListTile(
-                              title: Text(Group.getDescriptionLabel()),
-                              subtitle: Text(group.description.toString())),
-                        ),
-                        Card(
-                            child: ListTile(
-                                title: Text(Group.getDaysBetweenMeetsLabel()),
-                                subtitle:
-                                    Text(group.daysBetweenMeets.toString()))),
-                        Card(
-                            child: ListTile(
-                                title: Text(Group.getDaysOfWeekLabel()),
-                                subtitle: Text(group.daysOfWeek.toString()))),
-                        Card(
-                            child: ListTile(
-                                title: Text(Group.getCreatedTimeLabel()),
-                                subtitle: Text(group.createdTime != null
-                                    ? formatTimestamp(group.createdTime!)
-                                        .toString()
-                                    : ''))),
-                      ],
-                    ),
+                  Card(
+                    child: ListTile(
+                        title: Text(Group.getDescriptionLabel()),
+                        subtitle: Text(group.description.toString())),
                   ),
+                  Card(
+                      child: ListTile(
+                          title: Text(Group.getDaysBetweenMeetsLabel()),
+                          subtitle: Text(group.daysBetweenMeets.toString()))),
+                  Card(
+                      child: ListTile(
+                          title: Text(Group.getDaysOfWeekLabel()),
+                          subtitle: Text(group.daysOfWeek.toString()))),
+                  Card(
+                      child: ListTile(
+                          title: Text(Group.getCreatedTimeLabel()),
+                          subtitle: Text(group.createdTime != null
+                              ? formatTimestamp(group.createdTime!).toString()
+                              : ''))),
+                  MembersList(futureMembers: members)
                 ],
               );
             }
@@ -118,6 +113,64 @@ class GroupTitle extends StatelessWidget {
           }
         });
   }
+}
+
+class MembersList extends StatelessWidget {
+  final Future<List<AppUser>> futureMembers;
+
+  const MembersList({
+    Key? key,
+    required this.futureMembers,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<AppUser>>(
+        future: futureMembers,
+        builder: (context, inFutureMembers) {
+          if (inFutureMembers.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (inFutureMembers.hasError) {
+            return Text("Error: ${inFutureMembers.error}");
+          } else {
+            if (!inFutureMembers.hasData || inFutureMembers.data == null) {
+              return const Text('No data');
+            }
+            List<AppUser> members = inFutureMembers.data!;
+            return SizedBox(
+              height: min(200, 72.0 * members.length),
+              child: ListView.builder(
+                itemCount: members.length,
+                itemBuilder: (context, index) {
+                  AppUser member = members[index];
+                  return Card(
+                    child: ListTile(
+                      leading: ImageWithNullAndErrorHandling(member.imageUrl),
+                      title: Text(member.displayName ?? '<No Name>'),
+                      onTap: () {
+                        context.pushNamed('profile', pathParameters: {
+                          'userDocumentId': member.documentId,
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        });
+  }
+}
+
+Widget ImageWithNullAndErrorHandling(String? imageUrl) {
+  return imageUrl != null
+      ? Image.network(
+          imageUrl,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.image_not_supported);
+          },
+        )
+      : const Icon(Icons.account_circle);
 }
 
 String formatTimestamp(Timestamp timestamp) {

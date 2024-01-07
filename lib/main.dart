@@ -14,6 +14,7 @@ import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
 import 'navigation_pages/profile_page_edit.dart';
+import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
 import 'navigation_pages/group_edit_page.dart';
 
@@ -45,6 +46,13 @@ final _router = GoRouter(
         }
       },
       routes: [
+        GoRoute(
+            path: 'profile/:userDocumentId',
+            name: 'profile',
+            builder: (context, state) {
+              return ProfilePage(
+                  userDocumentId: state.pathParameters['userDocumentId']!);
+            }),
         GoRoute(
             path: 'profile/edit/:userDocumentId',
             name: 'profile-edit',

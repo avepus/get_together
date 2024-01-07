@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../firebase.dart';
-import '../group.dart';
-import '../user.dart';
+import '../Group.dart';
+import '../AppUser.dart';
 
 class GroupsPage extends StatelessWidget {
   GroupsPage({super.key});
@@ -41,10 +41,11 @@ class GroupsPage extends StatelessWidget {
               var group =
                   Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
               //this code relies on knowing the group structure. would be better if it didn't
+              //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
               return ListTile(
                   leading: group.imageUrl != null
                       ? Image.network(group.imageUrl!)
-                      : Icon(Icons.broken_image_outlined),
+                      : Icon(Icons.image_not_supported),
                   title: Text(group.name ?? '<No Name>'),
                   subtitle: group.description != null
                       ? Text(group.description!)
