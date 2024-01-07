@@ -78,8 +78,14 @@ class _GroupPageState extends State<GroupDetailsPage> {
                           subtitle: Text(group.createdTime != null
                               ? formatTimestamp(group.createdTime!).toString()
                               : ''))),
-                  UsersListView(futureMembers: members),
-                  UsersListView(futureMembers: admins),
+                  Card(
+                      child: ListTile(
+                          title: Text("Members"),
+                          subtitle: UsersListView(futureMembers: members))),
+                  Card(
+                      child: ListTile(
+                          title: Text("Admins"),
+                          subtitle: UsersListView(futureMembers: admins))),
                 ],
               );
             }
