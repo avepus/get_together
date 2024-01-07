@@ -79,7 +79,8 @@ class _GroupPageState extends State<GroupDetailsPage> {
                           subtitle: Text(group.createdTime != null
                               ? formatTimestamp(group.createdTime!).toString()
                               : ''))),
-                  MembersList(futureMembers: members)
+                  UsersListView(futureMembers: members),
+                  UsersListView(futureMembers: admins),
                 ],
               );
             }
@@ -115,10 +116,10 @@ class GroupTitle extends StatelessWidget {
   }
 }
 
-class MembersList extends StatelessWidget {
+class UsersListView extends StatelessWidget {
   final Future<List<AppUser>> futureMembers;
 
-  const MembersList({
+  const UsersListView({
     Key? key,
     required this.futureMembers,
   }) : super(key: key);
@@ -138,20 +139,23 @@ class MembersList extends StatelessWidget {
             }
             List<AppUser> members = inFutureMembers.data!;
             return SizedBox(
-              height: min(200, 72.0 * members.length),
+              height: min(200, 50.0 * members.length),
               child: ListView.builder(
                 itemCount: members.length,
                 itemBuilder: (context, index) {
                   AppUser member = members[index];
-                  return Card(
-                    child: ListTile(
-                      leading: ImageWithNullAndErrorHandling(member.imageUrl),
-                      title: Text(member.displayName ?? '<No Name>'),
-                      onTap: () {
-                        context.pushNamed('profile', pathParameters: {
-                          'userDocumentId': member.documentId,
-                        });
-                      },
+                  return Container(
+                    height: 50,
+                    child: Card(
+                      child: ListTile(
+                        leading: ImageWithNullAndErrorHandling(member.imageUrl),
+                        title: Text(member.displayName ?? '<No Name>'),
+                        onTap: () {
+                          context.pushNamed('profile', pathParameters: {
+                            'userDocumentId': member.documentId,
+                          });
+                        },
+                      ),
                     ),
                   );
                 },
