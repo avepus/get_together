@@ -7,6 +7,7 @@ import 'ImageWithNullErrorHandling.dart';
 
 class UsersListView extends StatelessWidget {
   final Future<List<AppUser>> futureMembers;
+  static const double _fourAndOneHalfTiles = 230.0;
 
   const UsersListView({
     Key? key,
@@ -28,7 +29,8 @@ class UsersListView extends StatelessWidget {
             }
             List<AppUser> members = inFutureMembers.data!;
             return SizedBox(
-              height: min(200, 50.0 * members.length),
+              //having the min be over by a half gives a visual indicator that there are more users
+              height: min(_fourAndOneHalfTiles, 50.0 * members.length),
               child: ListView.builder(
                 itemCount: members.length,
                 itemBuilder: (context, index) {
