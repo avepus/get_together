@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 /// The documentId is the same as the user's ID in Firebase Auth.
 /// The profile image imageUrl is also the same as the user's ID in Firebase Auth.
 class AppUser {
+  static const String collectionName = 'users';
   static const String documentIdKey = 'documentId';
   static const String displayNameKey = 'displayName';
   static const String emailKey = 'email';
