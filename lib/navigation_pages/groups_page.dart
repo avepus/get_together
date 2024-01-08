@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../firebase.dart';
 import '../Group.dart';
 import '../AppUser.dart';
+import '../widgets/ImageWithNullErrorHandling.dart';
 
 class GroupsPage extends StatelessWidget {
   GroupsPage({super.key});
@@ -43,9 +44,7 @@ class GroupsPage extends StatelessWidget {
               //this code relies on knowing the group structure. would be better if it didn't
               //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
               return ListTile(
-                  leading: group.imageUrl != null
-                      ? Image.network(group.imageUrl!)
-                      : Icon(Icons.image_not_supported),
+                  leading: ImageWithNullAndErrorHandling(group.imageUrl),
                   title: Text(group.name ?? '<No Name>'),
                   subtitle: group.description != null
                       ? Text(group.description!)

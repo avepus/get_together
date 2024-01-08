@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/UsersListView.dart';
 import '../firebase.dart';
 import '../Group.dart';
 import '../AppUser.dart';
 import '../document_displayers.dart';
+import '../utils.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -44,10 +44,9 @@ class _GroupPageState extends State<GroupDetailsPage> {
               return Center(child: CircularProgressIndicator());
             } else if (futureGroup.hasError) {
               return Text("Error: ${futureGroup.error}");
+            } else if (!futureGroup.hasData || futureGroup.data == null) {
+              return Text("No data found");
             } else {
-              if (!futureGroup.hasData || futureGroup.data == null) {
-                return const Text('No data');
-              }
               Group group = futureGroup.data!;
               Future<List<AppUser>> members = group.fetchMemberUsers();
               Future<List<AppUser>> admins = group.fetchAdminUsers();
@@ -119,10 +118,4 @@ class GroupTitle extends StatelessWidget {
           }
         });
   }
-}
-
-String formatTimestamp(Timestamp timestamp) {
-  // Convert the Timestamp to DateTime
-  DateTime date = timestamp.toDate();
-  return DateFormat('yyyy-MM-dd – kk:mm').format(date);
 }
