@@ -10,6 +10,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../firebase.dart';
 import '../AppUser.dart';
 import '../document_displayers.dart';
+import '../widgets/ImageWithNullErrorHandling.dart';
+import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userDocumentId;
@@ -21,7 +23,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _picker = ImagePicker();
-  late Future<DocumentSnapshot> _userSnapshot;
+  late Future<AppUser> _userSnapshot;
 
   @override
   void initState() {
@@ -29,7 +31,8 @@ class _ProfilePageState extends State<ProfilePage> {
     _userSnapshot = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.userDocumentId)
-        .get();
+        .get()
+        .then((snapshot) => AppUser.fromDocumentSnapshot(snapshot));
   }
 
   Future<void> uploadImage() async {
@@ -67,25 +70,77 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: AppUserTitle(futureUser: _userSnapshot),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
+      body: FutureBuilder<AppUser>(
         future: _userSnapshot,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, futureAppUser) {
+          if (futureAppUser.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}");
-          } else if (!snapshot.hasData) {
+          } else if (futureAppUser.hasError) {
+            return Text("Error: ${futureAppUser.error}");
+          } else if (!futureAppUser.hasData || futureAppUser.data == null) {
             return Text("No data found");
           } else {
-            AppUser user = AppUser.fromDocumentSnapshot(snapshot.data!);
-            var userDocument = snapshot.data!.data() as Map;
-            return getDocumentDetailsWidget(
-                user.toDisplayableMap(), AppUser.getimageUrlLabel());
+            AppUser user = futureAppUser.data!;
+            return ListView(
+              children: [
+                Container(
+                    width: 200,
+                    height: 200,
+                    child: ImageWithNullAndErrorHandling(user.imageUrl)),
+                Card(
+                  child: ListTile(
+                      title: Text(AppUser.getdisplayNameLabel()),
+                      subtitle: Text(user.displayName.toString())),
+                ),
+                Card(
+                    child: ListTile(
+                        title: Text(AppUser.getemailLabel()),
+                        subtitle: Text(user.email.toString()))),
+                Card(
+                    child: ListTile(
+                        title: Text(AppUser.getphoneNumberLabel()),
+                        subtitle: Text(user.phoneNumber.toString()))),
+                Card(
+                    child: ListTile(
+                        title: Text(AppUser.getcreatedTimeLabel()),
+                        subtitle: Text(user.createdTime != null
+                            ? formatTimestamp(user.createdTime!).toString()
+                            : ''))),
+              ],
+            );
           }
         },
       ),
     );
+  }
+}
+
+//need to make profile page version of this
+class AppUserTitle extends StatelessWidget {
+  final Future<AppUser> futureUser;
+
+  const AppUserTitle({
+    Key? key,
+    required this.futureUser,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<AppUser>(
+        future: futureUser,
+        builder: (context, inFutureUser) {
+          if (inFutureUser.connectionState == ConnectionState.waiting) {
+            return Text('');
+          } else if (inFutureUser.hasError) {
+            return Text("Error: ${inFutureUser.error}");
+          } else {
+            if (!inFutureUser.hasData || inFutureUser.data == null) {
+              return const Text('No data');
+            }
+            return Text(inFutureUser.data!.displayName ?? '<No Name>');
+          }
+        });
   }
 }
