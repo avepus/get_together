@@ -7,6 +7,9 @@ import 'ImageWithNullErrorHandling.dart';
 
 class UsersListView extends StatelessWidget {
   final Future<List<AppUser>> futureMembers;
+  static const double _oneTileHeight = 50.0;
+  //setting _maxHeight to a partial multiplyer gives a visual queue to the user that there's more to scroll
+  static const double _maxHeight = _oneTileHeight * 4.6;
 
   const UsersListView({
     Key? key,
@@ -28,13 +31,13 @@ class UsersListView extends StatelessWidget {
             }
             List<AppUser> members = inFutureMembers.data!;
             return SizedBox(
-              height: min(200, 50.0 * members.length),
+              height: min(_maxHeight, _oneTileHeight * members.length),
               child: ListView.builder(
                 itemCount: members.length,
                 itemBuilder: (context, index) {
                   AppUser member = members[index];
                   return Container(
-                    height: 50,
+                    height: _oneTileHeight,
                     child: Card(
                       child: ListTile(
                         leading: ImageWithNullAndErrorHandling(member.imageUrl),
