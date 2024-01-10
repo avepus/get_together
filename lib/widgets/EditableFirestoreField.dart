@@ -12,8 +12,7 @@ class EditableFirestoreField extends StatefulWidget {
   final String documentId;
   final dynamic currentValue;
   final bool hasSecurity;
-  final List<TextInputFormatter> formatters;
-  final TextEditingController textController = TextEditingController();
+  final Type dataType;
   bool isEditing = false;
 
   EditableFirestoreField({
@@ -23,7 +22,7 @@ class EditableFirestoreField extends StatefulWidget {
     required this.documentId,
     required this.currentValue,
     required this.hasSecurity,
-    this.formatters = const <TextInputFormatter>[],
+    required this.dataType,
   });
 
   @override
@@ -31,6 +30,23 @@ class EditableFirestoreField extends StatefulWidget {
 }
 
 class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
+  final List<TextInputFormatter> formatters = <TextInputFormatter>[];
+  late TextEditingController textController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.dataType == int) {
+      formatters.add(FilteringTextInputFormatter.digitsOnly);
+    }
+    if (widget.dataType == double) {
+      formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')));
+    }
+    textController = TextEditingController(
+        text:
+            widget.currentValue != null ? widget.currentValue.toString() : '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -39,7 +55,8 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
           child: ListTile(
             title: Text(widget.label),
             subtitle: widget.isEditing
-                ? TextField(controller: widget.textController)
+                ? TextField(
+                    controller: textController, inputFormatters: formatters)
                 : Text(widget.currentValue.toString()),
           ),
         ),
@@ -54,12 +71,22 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                       IconButton(
                         icon: Icon(Icons.check),
                         onPressed: () {
+                          dynamic convertedValue;
+                          if (widget.dataType == int) {
+                            convertedValue =
+                                int.tryParse(textController.text) ??
+                                    widget.currentValue;
+                          } else if (widget.dataType == double) {
+                            convertedValue =
+                                double.tryParse(textController.text) ??
+                                    widget.currentValue;
+                          } else {
+                            convertedValue = textController.text;
+                          }
                           FirebaseFirestore.instance
                               .collection(widget.collection)
                               .doc(widget.documentId)
-                              .update({
-                            widget.fieldKey: widget.textController.text
-                          });
+                              .update({widget.fieldKey: convertedValue});
                           setState(() {
                             widget.isEditing = false;
                           });

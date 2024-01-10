@@ -96,45 +96,44 @@ class _ProfilePageState extends State<ProfilePage> {
             return Text("No data found");
           } else {
             AppUser user = futureAppUser.data!;
+            bool hasEditSecurity = loggedInUidMatches(user.documentId);
             return ListView(
               children: [
                 Container(
                     width: 200,
                     height: 200,
                     child: ImageWithNullAndErrorHandling(user.imageUrl)),
-                Card(
-                  child: ListTile(
-                      title: Text(AppUser.getdisplayNameLabel()),
-                      subtitle: Text(user.displayName.toString())),
-                ),
-                Card(
-                    child: ListTile(
-                        title: Text(AppUser.getemailLabel()),
-                        subtitle: Text(user.email.toString()))),
-                Card(
-                    child: ListTile(
-                        title: Text(AppUser.getphoneNumberLabel()),
-                        subtitle: Text(user.phoneNumber.toString()))),
-                Card(
-                    child: ListTile(
-                        title: Text(AppUser.getcreatedTimeLabel()),
-                        subtitle: Text(user.createdTime != null
-                            ? formatTimestamp(user.createdTime!).toString()
-                            : ''))),
+                EditableFirestoreField(
+                    collection: AppUser.collectionName,
+                    fieldKey: AppUser.emailKey,
+                    label: AppUser.getdisplayNameLabel(),
+                    documentId: user.documentId,
+                    currentValue: user.displayName,
+                    hasSecurity: hasEditSecurity,
+                    //TODO: don't like hard-coded types here
+                    dataType: String),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.emailKey,
                     label: AppUser.getemailLabel(),
                     documentId: user.documentId,
                     currentValue: user.email,
-                    hasSecurity: loggedInUidMatches(user.documentId)),
+                    hasSecurity: hasEditSecurity,
+                    dataType: String),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
-                    fieldKey: AppUser.displayNameKey,
-                    label: AppUser.getdisplayNameLabel(),
+                    fieldKey: AppUser.phoneNumberKey,
+                    label: AppUser.getphoneNumberLabel(),
                     documentId: user.documentId,
-                    currentValue: user.displayName,
-                    hasSecurity: loggedInUidMatches(user.documentId)),
+                    currentValue: user.phoneNumber,
+                    hasSecurity: hasEditSecurity,
+                    dataType: int),
+                Card(
+                    child: ListTile(
+                        title: Text(AppUser.getcreatedTimeLabel()),
+                        subtitle: Text(user.createdTime != null
+                            ? formatTimestamp(user.createdTime!).toString()
+                            : ''))),
               ],
             );
           }
