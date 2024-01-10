@@ -12,6 +12,7 @@ import '../firebase.dart';
 import '../AppUser.dart';
 import '../document_displayers.dart';
 import '../widgets/ImageWithNullErrorHandling.dart';
+import '../widgets/EditableFirestoreField.dart';
 import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -126,73 +127,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     label: AppUser.getemailLabel(),
                     documentId: user.documentId,
                     currentValue: user.email,
-                    hasSecurity: _loggedInUserMatches(user.documentId)),
+                    hasSecurity: loggedInUidMatches(user.documentId)),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.displayNameKey,
                     label: AppUser.getdisplayNameLabel(),
                     documentId: user.documentId,
                     currentValue: user.displayName,
-                    hasSecurity: _loggedInUserMatches(user.documentId)),
-                Stack(
-                  children: <Widget>[
-                    Card(
-                      child: ListTile(
-                        title: Text(AppUser.getcreatedTimeLabel()),
-                        subtitle: _isEditing
-                            ? TextField(
-                                controller: _phoneNumberController,
-                                inputFormatters: _phoneNumberInputFormatters,
-                              )
-                            : Text(user.phoneNumber.toString()),
-                      ),
-                    ),
-                    Visibility(
-                      visible: _loggedInUserMatches('user.documentId'),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: _isEditing
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.check),
-                                    onPressed: () {
-                                      int phoneNumber = int.parse(
-                                          _phoneNumberController.text);
-                                      FirebaseFirestore.instance
-                                          .collection(AppUser.collectionName)
-                                          .doc(user.documentId)
-                                          .update({
-                                        AppUser.phoneNumberKey: phoneNumber
-                                      });
-                                      setState(() {
-                                        _isEditing = false;
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isEditing = false;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              )
-                            : IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  setState(() {
-                                    _isEditing = true;
-                                  });
-                                },
-                              ),
-                      ),
-                    ),
-                  ],
-                )
+                    hasSecurity: loggedInUidMatches(user.documentId)),
               ],
             );
           }
@@ -227,104 +169,4 @@ class AppUserTitle extends StatelessWidget {
           }
         });
   }
-}
-
-class EditableFirestoreField extends StatefulWidget {
-  final String collection;
-  final String fieldKey;
-  final String label;
-  final String documentId;
-  final dynamic currentValue;
-  final bool hasSecurity;
-  final List<TextInputFormatter> formatters;
-  final TextEditingController textController = TextEditingController();
-  bool isEditing = false;
-
-  EditableFirestoreField({
-    required this.collection,
-    required this.fieldKey,
-    required this.label,
-    required this.documentId,
-    required this.currentValue,
-    required this.hasSecurity,
-    this.formatters = const <TextInputFormatter>[],
-  });
-
-  @override
-  _EditableFirestoreFieldState createState() => _EditableFirestoreFieldState();
-}
-
-class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Card(
-          child: ListTile(
-            title: Text(widget.label),
-            subtitle: widget.isEditing
-                ? TextField(controller: widget.textController)
-                : Text(widget.currentValue.toString()),
-          ),
-        ),
-        Visibility(
-          visible: widget.hasSecurity, // replace with your own logic
-          child: Align(
-            alignment: Alignment.topRight,
-            child: widget.isEditing
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.check),
-                        onPressed: () {
-                          FirebaseFirestore.instance
-                              .collection(widget.collection)
-                              .doc(widget.documentId)
-                              .update({
-                            widget.fieldKey: widget.textController.text
-                          });
-                          setState(() {
-                            widget.isEditing = false;
-                          });
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            widget.isEditing = false;
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      setState(() {
-                        widget.isEditing = true;
-                      });
-                    },
-                  ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  bool _isCurrentUser(String userId) {
-    // replace with your own logic to check if the current user is the logged-in user
-    return true;
-  }
-}
-
-bool _loggedInUserMatches(String uid) {
-  if (FirebaseAuth.instance.currentUser == null) {
-    return false;
-  }
-  if (FirebaseAuth.instance.currentUser!.uid != uid) {
-    return false;
-  }
-  return true;
 }
