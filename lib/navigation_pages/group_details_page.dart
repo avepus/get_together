@@ -4,6 +4,7 @@ import '../widgets/users_list_view.dart';
 import '../group.dart';
 import '../app_user.dart';
 import '../utils.dart';
+import '../widgets/editable_firestore_field.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -54,15 +55,30 @@ class _GroupPageState extends State<GroupDetailsPage> {
                       child: group.imageUrl != null
                           ? Image.network(group.imageUrl!)
                           : const Icon(Icons.image_not_supported)),
-                  Card(
-                    child: ListTile(
-                        title: const Text(Group.descriptionLabel),
-                        subtitle: Text(group.description.toString())),
-                  ),
-                  Card(
-                      child: ListTile(
-                          title: const Text(Group.daysBetweenMeetsLabel),
-                          subtitle: Text(group.daysBetweenMeets.toString()))),
+                  EditableFirestoreField(
+                      collection: Group.collectionName,
+                      fieldKey: Group.nameKey,
+                      label: Group.nameLabel,
+                      documentId: group.documentId,
+                      currentValue: group.name,
+                      hasSecurity: loggedInUidInArray(group.admins),
+                      dataType: String),
+                  EditableFirestoreField(
+                      collection: Group.collectionName,
+                      fieldKey: Group.descriptionKey,
+                      label: Group.descriptionLabel,
+                      documentId: group.documentId,
+                      currentValue: group.description,
+                      hasSecurity: loggedInUidInArray(group.admins),
+                      dataType: String),
+                  EditableFirestoreField(
+                      collection: Group.collectionName,
+                      fieldKey: Group.daysBetweenMeetsKey,
+                      label: Group.daysBetweenMeetsLabel,
+                      documentId: group.documentId,
+                      currentValue: group.daysBetweenMeets,
+                      hasSecurity: loggedInUidInArray(group.admins),
+                      dataType: String),
                   Card(
                       child: ListTile(
                           title: const Text(Group.daysOfWeekLabel),

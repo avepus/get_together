@@ -18,3 +18,13 @@ bool loggedInUidMatches(String uid) {
   }
   return true;
 }
+
+bool loggedInUidInArray(List<String> uids) {
+  if (FirebaseAuth.instance.currentUser == null) {
+    return false;
+  }
+  if (uids.contains(FirebaseAuth.instance.currentUser!.uid)) {
+    return true;
+  }
+  return false;
+}
