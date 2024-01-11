@@ -12,9 +12,9 @@ class UsersListView extends StatelessWidget {
   static const double _maxHeight = _oneTileHeight * 4.6;
 
   const UsersListView({
-    Key? key,
+    super.key,
     required this.futureMembers,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,8 @@ class UsersListView extends StatelessWidget {
         future: futureMembers,
         builder: (context, inFutureMembers) {
           if (inFutureMembers.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const SizedBox(
+                width: 50, child: CircularProgressIndicator());
           } else if (inFutureMembers.hasError) {
             return Text("Error: ${inFutureMembers.error}");
           } else {
@@ -36,7 +37,7 @@ class UsersListView extends StatelessWidget {
                 itemCount: members.length,
                 itemBuilder: (context, index) {
                   AppUser member = members[index];
-                  return Container(
+                  return SizedBox(
                     height: _oneTileHeight,
                     child: Card(
                       child: ListTile(

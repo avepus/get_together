@@ -56,10 +56,10 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       body: <Widget>[
-        Padding(padding: EdgeInsets.all(8.0), child: GroupsPage()),
+        Padding(padding: const EdgeInsets.all(8.0), child: GroupsPage()),
         const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
         Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: ProfilePage(
                 userDocumentId: FirebaseAuth.instance.currentUser!.uid)),
       ][currentPageIndex],

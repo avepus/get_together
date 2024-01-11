@@ -93,9 +93,9 @@ class GroupTitle extends StatelessWidget {
   final Future<Group> futureGroup;
 
   const GroupTitle({
-    Key? key,
+    super.key,
     required this.futureGroup,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

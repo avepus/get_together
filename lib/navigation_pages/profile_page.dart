@@ -2,22 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
 
-import '../firebase.dart';
 import '../app_user.dart';
-import '../document_displayers.dart';
 import '../widgets/image_with_null_error_handling.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userDocumentId;
-  const ProfilePage({Key? key, required this.userDocumentId}) : super(key: key);
+  const ProfilePage({super.key, required this.userDocumentId});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -51,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (pickedFile != null) {
       debugPrint(pickedFile.path);
 
-      Reference ref = await FirebaseStorage.instance
+      Reference ref = FirebaseStorage.instance
           .ref()
           .child('user_images/${widget.userDocumentId}');
 
@@ -71,7 +66,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userDocumentId)
-          .update({UserFields.image_url.name: downloadUrl});
+          .update({AppUser.imageUrlKey: downloadUrl});
     }
   }
 
@@ -144,9 +139,9 @@ class AppUserTitle extends StatelessWidget {
   final Future<AppUser> futureUser;
 
   const AppUserTitle({
-    Key? key,
+    super.key,
     required this.futureUser,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +149,7 @@ class AppUserTitle extends StatelessWidget {
         future: futureUser,
         builder: (context, inFutureUser) {
           if (inFutureUser.connectionState == ConnectionState.waiting) {
-            return Text('');
+            return const Text('');
           } else if (inFutureUser.hasError) {
             return Text("Error: ${inFutureUser.error}");
           } else {

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-import '../firebase.dart';
 import '../group.dart';
-import '../app_user.dart';
 import '../widgets/image_with_null_error_handling.dart';
 
 class GroupsPage extends StatelessWidget {
@@ -29,7 +27,7 @@ class GroupsPage extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
 
           if (!snapshot.hasData) {

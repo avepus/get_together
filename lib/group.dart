@@ -86,7 +86,7 @@ class Group implements Tile {
     return ListTile(
         leading: imageUrl != null
             ? Image.network(imageUrl!)
-            : Icon(Icons.broken_image_outlined),
+            : const Icon(Icons.broken_image_outlined),
         title: Text(name ?? '<No Name>'),
         subtitle: description != null ? Text(description!) : null,
         onTap: () {
