@@ -16,6 +16,13 @@ class AppUser {
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
 
+  static const String documentIdLabel = 'Document ID';
+  static const String displayNameLabel = 'Display Name';
+  static const String emailLabel = 'Email';
+  static const String phoneNumberLabel = 'Phone Number';
+  static const String createdTimeLabel = 'Created Time';
+  static const String imageUrlLabel = 'Profile Picture Link';
+
   String documentId;
   String? displayName;
   String? email;
@@ -60,12 +67,12 @@ class AppUser {
   //returns a map which can be used to display the data in the display detail widget
   Map<String, dynamic> toDisplayableMap() {
     return {
-      getdocumentIdLabel(): documentId,
-      getdisplayNameLabel(): displayName,
-      getemailLabel(): email,
-      getphoneNumberLabel(): phoneNumber,
-      getcreatedTimeLabel(): createdTime,
-      getimageUrlLabel(): imageUrl,
+      documentIdLabel: documentId,
+      displayNameLabel: displayName,
+      emailLabel: email,
+      phoneNumberLabel: phoneNumber,
+      createdTimeLabel: createdTime,
+      imageUrlLabel: imageUrl,
     };
   }
 

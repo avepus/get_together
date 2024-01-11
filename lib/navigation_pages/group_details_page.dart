@@ -60,30 +60,30 @@ class _GroupPageState extends State<GroupDetailsPage> {
                           : const Icon(Icons.image_not_supported)),
                   Card(
                     child: ListTile(
-                        title: Text(Group.getDescriptionLabel()),
+                        title: Text(Group.descriptionLabel),
                         subtitle: Text(group.description.toString())),
                   ),
                   Card(
                       child: ListTile(
-                          title: Text(Group.getDaysBetweenMeetsLabel()),
+                          title: Text(Group.daysBetweenMeetsLabel),
                           subtitle: Text(group.daysBetweenMeets.toString()))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.getDaysOfWeekLabel()),
+                          title: Text(Group.daysOfWeekLabel),
                           subtitle: Text(group.daysOfWeek.toString()))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.getCreatedTimeLabel()),
+                          title: Text(Group.createdTimeLabel),
                           subtitle: Text(group.createdTime != null
                               ? formatTimestamp(group.createdTime!).toString()
                               : ''))),
                   Card(
                       child: ListTile(
-                          title: Text("Members"),
+                          title: Text(Group.membersLabel),
                           subtitle: UsersListView(futureMembers: members))),
                   Card(
                       child: ListTile(
-                          title: Text("Admins"),
+                          title: Text(Group.adminsLabel),
                           subtitle: UsersListView(futureMembers: admins))),
                 ],
               );

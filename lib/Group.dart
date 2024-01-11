@@ -7,6 +7,7 @@ import 'AppUser.dart';
 import 'abstracts.dart';
 
 class Group implements Tile {
+  static const String collectionName = 'groups';
   static const String documentIdKey = 'documentId';
   static const String nameKey = 'name';
   static const String descriptionKey = 'description';
@@ -16,6 +17,16 @@ class Group implements Tile {
   static const String daysOfWeekKey = 'daysOfWeek';
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
+
+  static const String documentIdLabel = 'Document ID';
+  static const String nameLabel = 'Name';
+  static const String descriptionLabel = 'Description';
+  static const String membersLabel = 'Members';
+  static const String adminsLabel = 'Admins';
+  static const String daysBetweenMeetsLabel = 'Meeting Frequency';
+  static const String daysOfWeekLabel = 'Meeting Days';
+  static const String createdTimeLabel = 'Created Time';
+  static const String imageUrlLabel = 'Group Picture Link';
 
   String documentId;
   String? name;
@@ -57,15 +68,15 @@ class Group implements Tile {
   //returns a map which can be used to display the data in the display detail widget
   Map<String, dynamic> toDisplayableMap() {
     return {
-      getdocumentIdLabel(): documentId,
-      getNameLabel(): name,
-      getDescriptionLabel(): description,
-      getMembersLabel(): members,
-      getAdminsLabel(): admins,
-      getDaysBetweenMeetsLabel(): daysBetweenMeets,
-      getDaysOfWeekLabel(): daysOfWeek,
-      getCreatedTimeLabel(): createdTime,
-      getImageUrlLabel(): imageUrl,
+      documentIdLabel: documentId,
+      nameLabel: name,
+      descriptionLabel: description,
+      membersLabel: members,
+      adminsLabel: admins,
+      daysBetweenMeetsLabel: daysBetweenMeets,
+      daysOfWeekLabel: daysOfWeek,
+      createdTimeLabel: createdTime,
+      imageUrlLabel: imageUrl,
     };
   }
 
@@ -85,42 +96,6 @@ class Group implements Tile {
             'groupDocumentId': documentId,
           });
         });
-  }
-
-  static String getdocumentIdLabel() {
-    return 'Document ID';
-  }
-
-  static String getNameLabel() {
-    return 'Name';
-  }
-
-  static String getDescriptionLabel() {
-    return 'Description';
-  }
-
-  static String getMembersLabel() {
-    return 'Members';
-  }
-
-  static String getAdminsLabel() {
-    return 'Admins';
-  }
-
-  static String getDaysBetweenMeetsLabel() {
-    return 'Meeting Frequency';
-  }
-
-  static String getDaysOfWeekLabel() {
-    return 'Meeting Days';
-  }
-
-  static String getCreatedTimeLabel() {
-    return 'Created Time';
-  }
-
-  static String getImageUrlLabel() {
-    return 'Group Picture Link';
   }
 
   Future<List<AppUser>> fetchMemberUsers() async {
