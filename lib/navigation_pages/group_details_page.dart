@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:go_router/go_router.dart';
-import '../widgets/UsersListView.dart';
-import '../firebase.dart';
-import '../Group.dart';
-import '../AppUser.dart';
-import '../document_displayers.dart';
+import '../widgets/users_list_view.dart';
+import '../group.dart';
+import '../app_user.dart';
 import '../utils.dart';
 
 class GroupDetailsPage extends StatefulWidget {
@@ -41,18 +37,18 @@ class _GroupPageState extends State<GroupDetailsPage> {
           future: _groupSnapshot,
           builder: (context, futureGroup) {
             if (futureGroup.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (futureGroup.hasError) {
               return Text("Error: ${futureGroup.error}");
             } else if (!futureGroup.hasData || futureGroup.data == null) {
-              return Text("No data found");
+              return const Text("No data found");
             } else {
               Group group = futureGroup.data!;
               Future<List<AppUser>> members = group.fetchMemberUsers();
               Future<List<AppUser>> admins = group.fetchAdminUsers();
               return ListView(
                 children: [
-                  Container(
+                  SizedBox(
                       width: 200,
                       height: 200,
                       child: group.imageUrl != null
@@ -60,30 +56,30 @@ class _GroupPageState extends State<GroupDetailsPage> {
                           : const Icon(Icons.image_not_supported)),
                   Card(
                     child: ListTile(
-                        title: Text(Group.descriptionLabel),
+                        title: const Text(Group.descriptionLabel),
                         subtitle: Text(group.description.toString())),
                   ),
                   Card(
                       child: ListTile(
-                          title: Text(Group.daysBetweenMeetsLabel),
+                          title: const Text(Group.daysBetweenMeetsLabel),
                           subtitle: Text(group.daysBetweenMeets.toString()))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.daysOfWeekLabel),
+                          title: const Text(Group.daysOfWeekLabel),
                           subtitle: Text(group.daysOfWeek.toString()))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.createdTimeLabel),
+                          title: const Text(Group.createdTimeLabel),
                           subtitle: Text(group.createdTime != null
                               ? formatTimestamp(group.createdTime!).toString()
                               : ''))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.membersLabel),
+                          title: const Text(Group.membersLabel),
                           subtitle: UsersListView(futureMembers: members))),
                   Card(
                       child: ListTile(
-                          title: Text(Group.adminsLabel),
+                          title: const Text(Group.adminsLabel),
                           subtitle: UsersListView(futureMembers: admins))),
                 ],
               );
@@ -107,7 +103,7 @@ class GroupTitle extends StatelessWidget {
         future: futureGroup,
         builder: (context, inFutureGroup) {
           if (inFutureGroup.connectionState == ConnectionState.waiting) {
-            return Text('');
+            return const Text('');
           } else if (inFutureGroup.hasError) {
             return Text("Error: ${inFutureGroup.error}");
           } else {

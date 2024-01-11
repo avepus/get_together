@@ -13,10 +13,8 @@ import 'firebase_options.dart';
 import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
-import 'navigation_pages/profile_page_edit.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
-import 'navigation_pages/group_edit_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,24 +52,10 @@ final _router = GoRouter(
                   userDocumentId: state.pathParameters['userDocumentId']!);
             }),
         GoRoute(
-            path: 'profile/edit/:userDocumentId',
-            name: 'profile-edit',
-            builder: (context, state) {
-              return ProfilePageEdit(
-                  userDocumentId: state.pathParameters['userDocumentId']!);
-            }),
-        GoRoute(
             path: 'group/:groupDocumentId',
             name: 'group',
             builder: (context, state) {
               return GroupDetailsPage(
-                  groupDocumentId: state.pathParameters['groupDocumentId']!);
-            }),
-        GoRoute(
-            path: 'group/edit/:groupDocumentId',
-            name: 'group-edit',
-            builder: (context, state) {
-              return GroupEditPage(
                   groupDocumentId: state.pathParameters['groupDocumentId']!);
             }),
         GoRoute(

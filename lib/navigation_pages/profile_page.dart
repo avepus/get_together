@@ -9,10 +9,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 
 import '../firebase.dart';
-import '../AppUser.dart';
+import '../app_user.dart';
 import '../document_displayers.dart';
-import '../widgets/ImageWithNullErrorHandling.dart';
-import '../widgets/EditableFirestoreField.dart';
+import '../widgets/image_with_null_error_handling.dart';
+import '../widgets/editable_firestore_field.dart';
 import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -25,11 +25,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _picker = ImagePicker();
-  bool _isEditing = false;
   final _phoneNumberController = TextEditingController();
-  final _phoneNumberInputFormatters = <TextInputFormatter>[
-    FilteringTextInputFormatter.digitsOnly
-  ];
   late Future<AppUser> _userSnapshot;
 
   @override
@@ -89,24 +85,25 @@ class _ProfilePageState extends State<ProfilePage> {
         future: _userSnapshot,
         builder: (context, futureAppUser) {
           if (futureAppUser.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const SizedBox(
+                width: 50, child: CircularProgressIndicator());
           } else if (futureAppUser.hasError) {
             return Text("Error: ${futureAppUser.error}");
           } else if (!futureAppUser.hasData || futureAppUser.data == null) {
-            return Text("No data found");
+            return const Text("No data found");
           } else {
             AppUser user = futureAppUser.data!;
             bool hasEditSecurity = loggedInUidMatches(user.documentId);
             return ListView(
               children: [
-                Container(
+                SizedBox(
                     width: 200,
                     height: 200,
                     child: ImageWithNullAndErrorHandling(user.imageUrl)),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.emailKey,
-                    label: AppUser.getdisplayNameLabel(),
+                    label: AppUser.displayNameLabel,
                     documentId: user.documentId,
                     currentValue: user.displayName,
                     hasSecurity: hasEditSecurity,
@@ -115,7 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.emailKey,
-                    label: AppUser.getemailLabel(),
+                    label: AppUser.emailLabel,
                     documentId: user.documentId,
                     currentValue: user.email,
                     hasSecurity: hasEditSecurity,
@@ -123,14 +120,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.phoneNumberKey,
-                    label: AppUser.getphoneNumberLabel(),
+                    label: AppUser.phoneNumberLabel,
                     documentId: user.documentId,
                     currentValue: user.phoneNumber,
                     hasSecurity: hasEditSecurity,
                     dataType: int),
                 Card(
                     child: ListTile(
-                        title: Text(AppUser.getcreatedTimeLabel()),
+                        title: const Text(AppUser.createdTimeLabel),
                         subtitle: Text(user.createdTime != null
                             ? formatTimestamp(user.createdTime!).toString()
                             : ''))),

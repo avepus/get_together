@@ -9,7 +9,7 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
   var imageUrl = map.remove(imageKey);
   return Column(
     children: [
-      Container(
+      SizedBox(
           width: 200,
           height: 200,
           child: imageUrl != null
@@ -27,8 +27,8 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
               value = DateFormat('yyyy-MM-dd – kk:mm').format(date);
             }
             return Card(
-              child: ListTile(
-                  title: Text(key), subtitle: Text(value.toString() ?? '')),
+              child:
+                  ListTile(title: Text(key), subtitle: Text(value.toString())),
             );
           },
         ),

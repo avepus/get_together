@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 
-import '../AppUser.dart';
-import 'ImageWithNullErrorHandling.dart';
+import '../app_user.dart';
+import 'image_with_null_error_handling.dart';
 
 class UsersListView extends StatelessWidget {
   final Future<List<AppUser>> futureMembers;

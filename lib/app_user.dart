@@ -76,30 +76,6 @@ class AppUser {
     };
   }
 
-  static String getdocumentIdLabel() {
-    return 'Document ID';
-  }
-
-  static String getdisplayNameLabel() {
-    return 'Display Name';
-  }
-
-  static String getemailLabel() {
-    return 'Email';
-  }
-
-  static String getphoneNumberLabel() {
-    return 'Phone Number';
-  }
-
-  static String getcreatedTimeLabel() {
-    return 'Created Time';
-  }
-
-  static String getimageUrlLabel() {
-    return 'Profile Picture Link';
-  }
-
   @override
   String toString() {
     return toMap().toString();

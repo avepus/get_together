@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 
 /// A widget that represents a field in Firestore.
@@ -13,9 +12,9 @@ class EditableFirestoreField extends StatefulWidget {
   final dynamic currentValue;
   final bool hasSecurity;
   final Type dataType;
-  bool isEditing = false;
 
-  EditableFirestoreField({
+  const EditableFirestoreField({
+    super.key,
     required this.collection,
     required this.fieldKey,
     required this.label,
@@ -32,6 +31,7 @@ class EditableFirestoreField extends StatefulWidget {
 class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
   final List<TextInputFormatter> formatters = <TextInputFormatter>[];
   late TextEditingController textController;
+  bool isEditing = false;
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
         Card(
           child: ListTile(
             title: Text(widget.label),
-            subtitle: widget.isEditing
+            subtitle: isEditing
                 ? TextField(
                     controller: textController, inputFormatters: formatters)
                 : Text(widget.currentValue.toString()),
@@ -64,12 +64,12 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
           visible: widget.hasSecurity, // replace with your own logic
           child: Align(
             alignment: Alignment.topRight,
-            child: widget.isEditing
+            child: isEditing
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.check),
+                        icon: const Icon(Icons.check),
                         onPressed: () {
                           dynamic convertedValue;
                           if (widget.dataType == int) {
@@ -88,25 +88,25 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                               .doc(widget.documentId)
                               .update({widget.fieldKey: convertedValue});
                           setState(() {
-                            widget.isEditing = false;
+                            isEditing = false;
                           });
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                         onPressed: () {
                           setState(() {
-                            widget.isEditing = false;
+                            isEditing = false;
                           });
                         },
                       ),
                     ],
                   )
                 : IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () {
                       setState(() {
-                        widget.isEditing = true;
+                        isEditing = true;
                       });
                     },
                   ),
