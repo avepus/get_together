@@ -47,6 +47,8 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
             widget.currentValue != null ? widget.currentValue.toString() : '');
   }
 
+  //TODO: make it so pressing enter saves the value
+
   @override
   Widget build(BuildContext context) {
     return Stack(

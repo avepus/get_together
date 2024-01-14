@@ -11,12 +11,59 @@ class GroupsPage extends StatelessWidget {
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
   //TODO: Next step is to add floating action button to create new group
+  void _showAddGroupDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Enter new group name'),
+          content: TextField(
+            controller: controller,
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () => context.pop(),
+            ),
+            IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () => _addGroup(context, controller.text),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addGroup(BuildContext context, String groupName) async {
+    DocumentReference groupRef =
+        await FirebaseFirestore.instance.collection(Group.collectionName).add({
+      Group.nameKey: groupName,
+      Group.createdTimeKey: Timestamp.fromDate(DateTime.now()),
+      Group.adminsKey: [uid],
+      Group.membersKey: [uid],
+      // add other fields as needed
+      //testing to make this not break
+    });
+
+    if (context.mounted) {
+      context.pop(); // close the dialog
+      context.pushNamed('group', pathParameters: {
+        'groupDocumentId': groupRef.id,
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Groups'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddGroupDialog(context),
+        child: Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance

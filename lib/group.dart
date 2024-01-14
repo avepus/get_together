@@ -40,10 +40,10 @@ class Group implements Tile {
     required this.documentId,
     this.name,
     this.description,
-    this.members = const [],
-    this.admins = const [],
+    this.members = const <String>[],
+    this.admins = const <String>[],
     this.daysBetweenMeets,
-    this.daysOfWeek,
+    this.daysOfWeek = const <int>[],
     this.createdTime,
     this.imageUrl,
   });
@@ -57,7 +57,9 @@ class Group implements Tile {
       members: data[membersKey].cast<String>(),
       admins: data[adminsKey].cast<String>(),
       daysBetweenMeets: data[daysBetweenMeetsKey],
-      daysOfWeek: data[daysOfWeekKey].cast<int>(),
+      daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty
+          ? null
+          : data[daysOfWeekKey].cast<int>(),
       createdTime: data[createdTimeKey],
       imageUrl: data[imageUrlKey],
     );
