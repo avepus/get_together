@@ -37,8 +37,6 @@ Widget getDocumentDetailsWidget(Map<String, dynamic> map, String imageKey) {
   );
 }
 
-/// TODO create a getDocumentDetailsWidgetEditable() function
-
 ListTile getDocumentTile(Map<String, dynamic> map, String titleKey,
     String descriptionKey, String imageKey) {
   return ListTile(
