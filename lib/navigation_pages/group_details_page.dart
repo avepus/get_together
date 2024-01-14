@@ -5,6 +5,7 @@ import '../group.dart';
 import '../app_user.dart';
 import '../utils.dart';
 import '../widgets/editable_firestore_field.dart';
+import '../widgets/editable_document_image.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -25,8 +26,6 @@ class _GroupPageState extends State<GroupDetailsPage> {
         .doc(widget.groupDocumentId)
         .snapshots();
   }
-
-  //TODO: implement upload image as group image
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +48,18 @@ class _GroupPageState extends State<GroupDetailsPage> {
               Future<List<AppUser>> admins = group.fetchAdminUsers();
               return ListView(
                 children: [
-                  SizedBox(
+                  Center(
+                    child: SizedBox(
                       width: 200,
                       height: 200,
-                      child: group.imageUrl != null
-                          ? Image.network(group.imageUrl!)
-                          : const Icon(Icons.image_not_supported)),
+                      child: EditableImageField(
+                          collectionName: Group.collectionName,
+                          documentId: group.documentId,
+                          fieldKey: Group.imageUrlKey,
+                          imageUrl: group.imageUrl,
+                          canEdit: loggedInUidInArray(group.admins)),
+                    ),
+                  ),
                   EditableFirestoreField(
                       collection: Group.collectionName,
                       fieldKey: Group.nameKey,

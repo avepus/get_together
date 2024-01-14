@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../app_user.dart';
-import '../widgets/image_with_null_error_handling.dart';
 import '../widgets/editable_firestore_field.dart';
+import '../widgets/editable_document_image.dart';
 import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -84,11 +84,17 @@ class _ProfilePageState extends State<ProfilePage> {
             bool hasEditSecurity = loggedInUidMatches(user.documentId);
             return ListView(
               children: [
-                SizedBox(
-                    width: 200,
-                    height: 200,
-                    child:
-                        ImageWithNullAndErrorHandling(imageUrl: user.imageUrl)),
+                Center(
+                  child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: EditableImageField(
+                          collectionName: AppUser.collectionName,
+                          documentId: user.documentId,
+                          fieldKey: AppUser.imageUrlKey,
+                          imageUrl: user.imageUrl,
+                          canEdit: hasEditSecurity)),
+                ),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.displayNameKey,
