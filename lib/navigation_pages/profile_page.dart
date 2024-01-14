@@ -20,8 +20,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _picker = ImagePicker();
-  final _phoneNumberController = TextEditingController();
-  late Future<AppUser> _userSnapshot;
+  late Stream<DocumentSnapshot> _userSnapshot;
 
   @override
   void initState() {
@@ -29,14 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _userSnapshot = FirebaseFirestore.instance
         .collection('users')
         .doc(widget.userDocumentId)
-        .get()
-        .then((snapshot) => AppUser.fromDocumentSnapshot(snapshot));
-  }
-
-  @override
-  void dispose() {
-    _phoneNumberController.dispose();
-    super.dispose();
+        .snapshots();
   }
 
   //TODO: implement upload image as profile image
@@ -75,20 +67,20 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: AppUserTitle(futureUser: _userSnapshot),
+        title: AppUserTitle(userSnapshot: _userSnapshot),
       ),
-      body: FutureBuilder<AppUser>(
-        future: _userSnapshot,
-        builder: (context, futureAppUser) {
-          if (futureAppUser.connectionState == ConnectionState.waiting) {
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _userSnapshot,
+        builder: (context, appUserSnapshot) {
+          if (appUserSnapshot.connectionState == ConnectionState.waiting) {
             return const SizedBox(
                 width: 50, child: CircularProgressIndicator());
-          } else if (futureAppUser.hasError) {
-            return Text("Error: ${futureAppUser.error}");
-          } else if (!futureAppUser.hasData || futureAppUser.data == null) {
+          } else if (appUserSnapshot.hasError) {
+            return Text("Error: ${appUserSnapshot.error}");
+          } else if (!appUserSnapshot.hasData || appUserSnapshot.data == null) {
             return const Text("No data found");
           } else {
-            AppUser user = futureAppUser.data!;
+            AppUser user = AppUser.fromDocumentSnapshot(appUserSnapshot.data!);
             bool hasEditSecurity = loggedInUidMatches(user.documentId);
             return ListView(
               children: [
@@ -98,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: ImageWithNullAndErrorHandling(user.imageUrl)),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
-                    fieldKey: AppUser.emailKey,
+                    fieldKey: AppUser.displayNameKey,
                     label: AppUser.displayNameLabel,
                     documentId: user.documentId,
                     currentValue: user.displayName,
@@ -137,27 +129,29 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class AppUserTitle extends StatelessWidget {
-  final Future<AppUser> futureUser;
+  final Stream<DocumentSnapshot> userSnapshot;
 
   const AppUserTitle({
     super.key,
-    required this.futureUser,
+    required this.userSnapshot,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<AppUser>(
-        future: futureUser,
-        builder: (context, inFutureUser) {
-          if (inFutureUser.connectionState == ConnectionState.waiting) {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: userSnapshot,
+        builder: (context, inUserSnapshot) {
+          if (inUserSnapshot.connectionState == ConnectionState.waiting) {
             return const Text('');
-          } else if (inFutureUser.hasError) {
-            return Text("Error: ${inFutureUser.error}");
+          } else if (inUserSnapshot.hasError) {
+            return Text("Error: ${inUserSnapshot.error}");
           } else {
-            if (!inFutureUser.hasData || inFutureUser.data == null) {
+            if (!inUserSnapshot.hasData || inUserSnapshot.data == null) {
               return const Text('No data');
             }
-            return Text(inFutureUser.data!.displayName ?? '<No Name>');
+            AppUser appUser =
+                AppUser.fromDocumentSnapshot(inUserSnapshot.data!);
+            return Text(appUser.displayName ?? '<No Name>');
           }
         });
   }

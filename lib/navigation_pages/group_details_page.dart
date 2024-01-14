@@ -15,7 +15,7 @@ class GroupDetailsPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupDetailsPage> {
-  late Future<Group> _groupSnapshot;
+  late Stream<DocumentSnapshot> _groupSnapshot;
 
   @override
   void initState() {
@@ -23,9 +23,7 @@ class _GroupPageState extends State<GroupDetailsPage> {
     _groupSnapshot = FirebaseFirestore.instance
         .collection('groups')
         .doc(widget.groupDocumentId)
-        .get()
-        .then((snapshot) => Group.fromDocumentSnapshot(
-            snapshot)); //TODO: handle document not found
+        .snapshots();
   }
 
   //TODO: implement upload image as group image
@@ -34,19 +32,19 @@ class _GroupPageState extends State<GroupDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: GroupTitle(futureGroup: _groupSnapshot),
+        title: GroupTitle(groupSnapshot: _groupSnapshot),
       ),
-      body: FutureBuilder<Group>(
-          future: _groupSnapshot,
-          builder: (context, futureGroup) {
-            if (futureGroup.connectionState == ConnectionState.waiting) {
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: _groupSnapshot,
+          builder: (context, groupSnapshot) {
+            if (groupSnapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
-            } else if (futureGroup.hasError) {
-              return Text("Error: ${futureGroup.error}");
-            } else if (!futureGroup.hasData || futureGroup.data == null) {
+            } else if (groupSnapshot.hasError) {
+              return Text("Error: ${groupSnapshot.error}");
+            } else if (!groupSnapshot.hasData || groupSnapshot.data == null) {
               return const Text("No data found");
             } else {
-              Group group = futureGroup.data!;
+              Group group = Group.fromDocumentSnapshot(groupSnapshot.data!);
               Future<List<AppUser>> members = group.fetchMemberUsers();
               Future<List<AppUser>> admins = group.fetchAdminUsers();
               return ListView(
@@ -109,27 +107,28 @@ class _GroupPageState extends State<GroupDetailsPage> {
 }
 
 class GroupTitle extends StatelessWidget {
-  final Future<Group> futureGroup;
+  final Stream<DocumentSnapshot> groupSnapshot;
 
   const GroupTitle({
     super.key,
-    required this.futureGroup,
+    required this.groupSnapshot,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Group>(
-        future: futureGroup,
-        builder: (context, inFutureGroup) {
-          if (inFutureGroup.connectionState == ConnectionState.waiting) {
+    return StreamBuilder<DocumentSnapshot>(
+        stream: groupSnapshot,
+        builder: (context, inGroupSnapshot) {
+          if (inGroupSnapshot.connectionState == ConnectionState.waiting) {
             return const Text('');
-          } else if (inFutureGroup.hasError) {
-            return Text("Error: ${inFutureGroup.error}");
+          } else if (inGroupSnapshot.hasError) {
+            return Text("Error: ${inGroupSnapshot.error}");
           } else {
-            if (!inFutureGroup.hasData || inFutureGroup.data == null) {
+            if (!inGroupSnapshot.hasData || inGroupSnapshot.data == null) {
               return const Text('No data');
             }
-            return Text(inFutureGroup.data!.name ?? '<No Name>');
+            Group group = Group.fromDocumentSnapshot(inGroupSnapshot.data!);
+            return Text(group.name ?? '<No Name>');
           }
         });
   }
