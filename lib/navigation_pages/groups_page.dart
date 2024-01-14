@@ -42,7 +42,8 @@ class GroupsPage extends StatelessWidget {
               //this code relies on knowing the group structure. would be better if it didn't
               //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
               return ListTile(
-                  leading: ImageWithNullAndErrorHandling(group.imageUrl),
+                  leading:
+                      ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
                   title: Text(group.name ?? '<No Name>'),
                   subtitle: group.description != null
                       ? Text(group.description!)

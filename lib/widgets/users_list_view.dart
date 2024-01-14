@@ -41,7 +41,8 @@ class UsersListView extends StatelessWidget {
                     height: _oneTileHeight,
                     child: Card(
                       child: ListTile(
-                        leading: ImageWithNullAndErrorHandling(member.imageUrl),
+                        leading: ImageWithNullAndErrorHandling(
+                            imageUrl: member.imageUrl),
                         title: Text(member.displayName ?? '<No Name>'),
                         onTap: () {
                           context.pushNamed('profile', pathParameters: {

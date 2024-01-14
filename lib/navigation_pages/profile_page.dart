@@ -87,7 +87,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(
                     width: 200,
                     height: 200,
-                    child: ImageWithNullAndErrorHandling(user.imageUrl)),
+                    child:
+                        ImageWithNullAndErrorHandling(imageUrl: user.imageUrl)),
                 EditableFirestoreField(
                     collection: AppUser.collectionName,
                     fieldKey: AppUser.displayNameKey,
