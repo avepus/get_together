@@ -28,6 +28,8 @@ class _GroupPageState extends State<GroupDetailsPage> {
             snapshot)); //TODO: handle document not found
   }
 
+  //TODO: implement upload image as group image
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +81,7 @@ class _GroupPageState extends State<GroupDetailsPage> {
                       currentValue: group.daysBetweenMeets,
                       hasSecurity: loggedInUidInArray(group.admins),
                       dataType: String),
+                  //TODO: implement dyasofweek in an editable way
                   Card(
                       child: ListTile(
                           title: const Text(Group.daysOfWeekLabel),

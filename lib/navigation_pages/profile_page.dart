@@ -39,6 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
+  //TODO: implement upload image as profile image
   Future<void> uploadImage() async {
     final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 200, maxHeight: 200);
