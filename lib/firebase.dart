@@ -14,3 +14,9 @@ Future<void> createFirestoreUser(
   users.doc(uid).set(values);
   return;
 }
+
+Future<void> deleteFirestoreGroup(String groupDocumentId) async {
+  CollectionReference groups = FirebaseFirestore.instance.collection('groups');
+  groups.doc(groupDocumentId).delete();
+  return;
+}

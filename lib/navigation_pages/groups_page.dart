@@ -12,22 +12,37 @@ class GroupsPage extends StatelessWidget {
 
   //TODO: Next step is to add floating action button to create new group
   void _showAddGroupDialog(BuildContext context) {
+    var myFocusNode = FocusNode();
     final TextEditingController controller = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
+        Future.delayed(Duration(milliseconds: 100), () {
+          //not sure why I need to check mounted here it was throwing Error: Looking up a deactivated widget's ancestor is unsafe.
+          if (context.mounted) {
+            FocusScope.of(context).requestFocus(myFocusNode);
+          }
+        });
         return AlertDialog(
-          title: Text('Enter new group name'),
+          title: const Text('Enter new group name'),
           content: TextField(
             controller: controller,
+            focusNode: myFocusNode,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                _addGroup(context, controller.text);
+              }
+            },
           ),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               onPressed: () => context.pop(),
             ),
             IconButton(
-              icon: Icon(Icons.check),
+              icon: const Icon(Icons.check),
               onPressed: () => _addGroup(context, controller.text),
             ),
           ],
@@ -43,8 +58,6 @@ class GroupsPage extends StatelessWidget {
       Group.createdTimeKey: Timestamp.fromDate(DateTime.now()),
       Group.adminsKey: [uid],
       Group.membersKey: [uid],
-      // add other fields as needed
-      //testing to make this not break
     });
 
     if (context.mounted) {
