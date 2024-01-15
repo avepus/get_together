@@ -32,6 +32,7 @@ class GroupsPage extends StatelessWidget {
             textInputAction: TextInputAction.done,
             onSubmitted: (value) {
               if (value.isNotEmpty) {
+                context.pop();
                 _addGroup(context, controller.text);
               }
             },
@@ -64,7 +65,6 @@ class GroupsPage extends StatelessWidget {
     });
 
     if (context.mounted) {
-      context.pop(); // close the dialog
       context.pushNamed('group', pathParameters: {
         'groupDocumentId': groupRef.id,
       });
