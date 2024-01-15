@@ -12,10 +12,10 @@ class GroupDetailsPage extends StatefulWidget {
   const GroupDetailsPage({super.key, required this.groupDocumentId});
 
   @override
-  _GroupPageState createState() => _GroupPageState();
+  _GroupDetailsPageState createState() => _GroupDetailsPageState();
 }
 
-class _GroupPageState extends State<GroupDetailsPage> {
+class _GroupDetailsPageState extends State<GroupDetailsPage> {
   late Stream<DocumentSnapshot> _groupSnapshot;
 
   @override
