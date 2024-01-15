@@ -121,24 +121,24 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 }),
           ),
           ElevatedButton(
-            child: Text('Delete Group'),
+            child: const Text('Delete Group'),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text('Confirm Delete'),
-                    content:
-                        Text('Are you sure you want to delete this group?'),
+                    title: const Text('Confirm Delete'),
+                    content: const Text(
+                        'Are you sure you want to delete this group?'),
                     actions: <Widget>[
                       TextButton(
-                        child: Text('Cancel'),
+                        child: const Text('Cancel'),
                         onPressed: () {
                           context.pop();
                         },
                       ),
                       TextButton(
-                        child: Text('Delete'),
+                        child: const Text('Delete'),
                         onPressed: () {
                           deleteFirestoreGroup(widget.groupDocumentId);
                           context.pop();

@@ -32,6 +32,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
   final List<TextInputFormatter> formatters = <TextInputFormatter>[];
   late TextEditingController textController;
   bool isEditing = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -47,8 +48,6 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
             widget.currentValue != null ? widget.currentValue.toString() : '');
   }
 
-  //TODO: make it so pressing enter saves the value
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -58,12 +57,35 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
             title: Text(widget.label),
             subtitle: isEditing
                 ? TextField(
-                    controller: textController, inputFormatters: formatters)
+                    controller: textController,
+                    focusNode: _focusNode,
+                    inputFormatters: formatters,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (value) {
+                      dynamic convertedValue;
+                      if (widget.dataType == int) {
+                        convertedValue =
+                            int.tryParse(value) ?? widget.currentValue;
+                      } else if (widget.dataType == double) {
+                        convertedValue =
+                            double.tryParse(value) ?? widget.currentValue;
+                      } else {
+                        convertedValue = textController.text;
+                      }
+                      FirebaseFirestore.instance
+                          .collection(widget.collection)
+                          .doc(widget.documentId)
+                          .update({widget.fieldKey: convertedValue});
+                      setState(() {
+                        isEditing = false;
+                      });
+                    },
+                  )
                 : Text(widget.currentValue.toString()),
           ),
         ),
         Visibility(
-          visible: widget.hasSecurity, // replace with your own logic
+          visible: widget.hasSecurity,
           child: Align(
             alignment: Alignment.topRight,
             child: isEditing
@@ -107,6 +129,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                 : IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
+                      FocusScope.of(context).requestFocus(_focusNode);
                       setState(() {
                         isEditing = true;
                       });

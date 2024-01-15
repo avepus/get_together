@@ -43,7 +43,10 @@ class GroupsPage extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.check),
-              onPressed: () => _addGroup(context, controller.text),
+              onPressed: () {
+                context.pop();
+                _addGroup(context, controller.text);
+              },
             ),
           ],
         );
