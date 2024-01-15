@@ -110,6 +110,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                 title: const Text(Group.membersLabel),
                                 subtitle:
                                     UsersListView(futureMembers: members))),
+                        Visibility(
+                          visible: loggedInUidInArray(group.admins),
+                          child: SizedBox(
+                            width: 50,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: AddUsersButton(),
+                            ),
+                          ),
+                        ),
                         Card(
                             child: ListTile(
                                 title: const Text(Group.adminsLabel),
@@ -154,6 +164,54 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         ],
       ),
     );
+  }
+}
+
+class AddUsersButton extends StatelessWidget {
+  final String label;
+  final String collectionName;
+  final String groupDocumentId;
+
+  const AddUsersButton({
+    required this.label,
+    required this.collectionName,
+    required this.groupDocumentId,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: const Text(label),
+      onPressed: () onPressed: () async {
+    //var users = await fetchAllUsers(); // Fetch all users from the users collection
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select a User'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(users[index].name), // Display the user's name
+                  onTap: () {
+                    // Add the selected user to the group
+                    //addMemberToGroup(users[index].id, group.id);
+                    context .pop();
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  },
+),
   }
 }
 
