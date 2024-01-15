@@ -99,8 +99,9 @@ class GroupsPage extends StatelessWidget {
             return const Text('No data');
           }
 
-          return ListView.builder(
+          return ListView.separated(
             itemCount: snapshot.data!.docs.length,
+            separatorBuilder: (context, index) => Divider(height: 10),
             itemBuilder: (context, index) {
               var group =
                   Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
