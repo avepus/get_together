@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 
 import '../widgets/users_list_view.dart';
 import '../group.dart';
@@ -115,9 +116,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           child: SizedBox(
                             width: 50,
                             child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: AddUsersButton(),
-                            ),
+                                alignment: Alignment.centerLeft,
+                                child: AddUsersButton(
+                                    label: 'Add Member',
+                                    groupDocumentId: group.documentId,
+                                    members: group.members,
+                                    fieldKey: Group.membersKey,
+                                    users: fetchAllUsers())),
                           ),
                         ),
                         Card(
@@ -125,6 +130,20 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                 title: const Text(Group.adminsLabel),
                                 subtitle:
                                     UsersListView(futureMembers: admins))),
+                        Visibility(
+                          visible: loggedInUidInArray(group.admins),
+                          child: SizedBox(
+                            width: 50,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: AddUsersButton(
+                                    label: 'Add Admin',
+                                    groupDocumentId: group.documentId,
+                                    members: group.admins,
+                                    fieldKey: Group.adminsKey,
+                                    users: members)),
+                          ),
+                        ),
                       ],
                     );
                   }
@@ -169,49 +188,61 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
 class AddUsersButton extends StatelessWidget {
   final String label;
-  final String collectionName;
   final String groupDocumentId;
+  final List<String> members;
+  final String fieldKey;
+  final Future<List<AppUser>> users;
 
   const AddUsersButton({
     required this.label,
-    required this.collectionName,
     required this.groupDocumentId,
+    required this.members,
+    required this.fieldKey,
+    required this.users,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      child: const Text(label),
-      onPressed: () onPressed: () async {
-    //var users = await fetchAllUsers(); // Fetch all users from the users collection
+      child: Text(label),
+      onPressed: () async {
+        List<AppUser> users = await this.users;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select a User'),
-          content: Container(
-            width: double.maxFinite,
-            child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(users[index].name), // Display the user's name
-                  onTap: () {
-                    // Add the selected user to the group
-                    //addMemberToGroup(users[index].id, group.id);
-                    context .pop();
-                  },
-                );
-              },
-            ),
-          ),
-        );
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Select a User'),
+                content: Container(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(users[index].displayName ??
+                            'no name'), // Display the user's name
+                        onTap: () {
+                          if (members.contains(users[index].documentId)) {
+                            context.pop();
+                            return;
+                          }
+                          members.add(users[index].documentId);
+                          storeUserIdsListInGroup(
+                              members, groupDocumentId, fieldKey);
+                          context.pop();
+                        },
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          );
+        }
       },
     );
-  },
-),
   }
 }
 
