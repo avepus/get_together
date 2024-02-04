@@ -144,9 +144,12 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         ),
         bottomNavigationBar: BottomAppBar(
-          child: ElevatedButton(
-            child: Text('Sign Out'),
-            onPressed: () => signOut(context),
+          child: Visibility(
+            visible: loggedInUidMatches(widget.userDocumentId),
+            child: ElevatedButton(
+              child: Text('Sign Out'),
+              onPressed: () => signOut(context),
+            ),
           ),
         ));
   }
