@@ -75,6 +75,8 @@ class GroupsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading:
+            false, //prevent back button from displaying, shouldn't be necessary but this is all I could figure out for now
         title: const Text('Groups'),
       ),
       floatingActionButton: FloatingActionButton(
