@@ -67,14 +67,19 @@ class _EditableImageFieldState extends State<EditableImageField> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      children: <Widget>[
-        ImageWithNullAndErrorHandling(imageUrl: widget.imageUrl),
+    return Flex(
+      direction: Axis.horizontal,
+      children: [
+        Flexible(
+            flex: 4,
+            child: ImageWithNullAndErrorHandling(imageUrl: widget.imageUrl)),
         if (widget.canEdit)
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: uploadImage,
+          Flexible(
+            flex: 1,
+            child: IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: uploadImage,
+            ),
           ),
       ],
     );
