@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:get_together/availability.dart';
+
 //This button will be used to add availability to the group for the logged in user
 //the availability is an array of numbers 0, 1, 2, 3 where
 //  0 = not available
@@ -36,7 +38,7 @@ class AvailabilityPageDay extends StatefulWidget {
 class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
   // This list will store the user's availability
   // It starts with all elements set to 0 (not available)
-  List<int?> availability = List<int?>.filled(336, null);
+  var days = List<bool?>.filled(Days.values.length, false);
 
   @override
   Widget build(BuildContext context) {
@@ -45,23 +47,15 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
           title: Text('Set Availability'),
         ),
         body: ListView.builder(
-          itemCount: 7,
+          itemCount: Days.values.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('30-minute slot $index'),
-              onTap: () {
-                // This is where you'll ask the user for their availability for this 30-minute slot
-                // You'll need to create a new widget for this dialog
-                showDialog(
-                  context: context,
-                  builder: (context) => AvailabilityDialog(
-                    onSelected: (value) {
-                      setState(() {
-                        availability[index] = value;
-                      });
-                    },
-                  ),
-                );
+            return CheckboxListTile(
+              title: Text(Days.values[index].toString().split('.').last),
+              value: days[index],
+              onChanged: (value) {
+                setState(() {
+                  days[index] = value;
+                });
               },
             );
           },
@@ -70,10 +64,18 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
           child: ElevatedButton(
             child: Text('Submit'),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    AvailabilityPageDetail(availability: availability),
-              ));
+              //TODO: need validation and perhaps warning if no days are selected
+
+              //the following line will populate an array of just the indexes of the days that are available. The indices represent the days of the week (with 0 as Sunday)
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                List<int> availabileDays = days
+                    .asMap()
+                    .entries
+                    .where((day) => day.value == true)
+                    .map((day) => day.key)
+                    .toList();
+                return AvailabilityPageDetail(days: availabileDays);
+              }));
             },
           ),
         ));
@@ -81,8 +83,8 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
 }
 
 class AvailabilityPageDetail extends StatefulWidget {
-  List<int?> availability;
-  AvailabilityPageDetail({super.key, required this.availability});
+  List<int> days;
+  AvailabilityPageDetail({super.key, required this.days});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
@@ -90,6 +92,7 @@ class AvailabilityPageDetail extends StatefulWidget {
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   // This list will store the user's availability
   // It starts with all elements set to 0 (not available)
+  var availability = Availability.notSet();
 
   @override
   Widget build(BuildContext context) {
@@ -98,19 +101,20 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
         title: Text('Set Availability'),
       ),
       body: ListView.builder(
-        itemCount: 336,
+        itemCount: Availability.ArrayLength,
         itemBuilder: (context, index) {
           return ListTile(
             title: Text('30-minute slot $index'),
             onTap: () {
               // This is where you'll ask the user for their availability for this 30-minute slot
               // You'll need to create a new widget for this dialog
+              //LEFT OFF HERE. Need to create a dialog that allows the user to select their availability and only display the days passed from the last screen
               showDialog(
                 context: context,
                 builder: (context) => AvailabilityDialog(
                   onSelected: (value) {
                     setState(() {
-                      widget.availability[index] = value;
+                      availability.weekAvailability[index] = value;
                     });
                   },
                 ),

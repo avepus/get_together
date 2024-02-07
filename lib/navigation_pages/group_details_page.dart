@@ -10,6 +10,7 @@ import '../utils.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
+import '../widgets/update_availability.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -189,6 +190,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
+                        AvailabilityButton(),
                       ],
                     );
                   }
