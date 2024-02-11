@@ -29,6 +29,18 @@ class Availability {
     validateArray();
   }
 
+  //get the day of week and half hour timeslot based on the index
+  static get_timeslot_name(int index) {
+    int day = index ~/ 48;
+    int halfHour = (index % 48);
+    int hour = halfHour ~/ 2;
+    String amOrPm = hour < 12 ? 'AM' : 'PM';
+    hour = (hour + 1) % 13;
+    String dayName = Days.values[day].toString().split('.').last;
+    String halfHourName = halfHour % 2 == 0 ? '00' : '30';
+    return '$dayName $hour:$halfHourName $amOrPm';
+  }
+
   validateArray() {
     if (weekAvailability.length != ArrayLength) {
       throw Exception('Array must be of length 336');
