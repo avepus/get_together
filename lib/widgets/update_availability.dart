@@ -104,7 +104,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
         itemCount: Availability.ArrayLength,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(Availability.get_timeslot_name(index)),
+            title: Text(Availability.get_timeslot_name(index, context)),
             onTap: () {
               // This is where you'll ask the user for their availability for this 30-minute slot
               // You'll need to create a new widget for this dialog

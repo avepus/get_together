@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
 //represents a week of availability in half hour increments
@@ -5,6 +7,7 @@ class Availability {
   static const MaxArrayValue = 3;
   static const MinArrayValue = -1;
   static const int ArrayLength = 336;
+  static const int HalfHoursInADay = 48;
   static const ValueDefinitions = {
     -1: 'Not Available',
     0: 'Not Set',
@@ -20,25 +23,31 @@ class Availability {
     validateArray();
   }
 
-  Availability.notSet() {
-    weekAvailability = List<int>.filled(ArrayLength, 0);
-  }
+  Availability.notSet() : weekAvailability = List<int>.filled(ArrayLength, 0);
 
   void updateArray(List<int> newAvailability) {
     weekAvailability = newAvailability;
     validateArray();
   }
 
+  static int getDay(int index) {
+    return index ~/ HalfHoursInADay;
+  }
+
+  static String getDayName(int index) {
+    return Days.values[getDay(index)].toString().split('.').last;
+  }
+
   //get the day of week and half hour timeslot based on the index
-  static get_timeslot_name(int index) {
-    int day = index ~/ 48;
-    int halfHour = (index % 48);
+  static TimeOfDay getTimeOfDay(int index) {
+    int halfHour = (index % Availability.HalfHoursInADay);
     int hour = halfHour ~/ 2;
-    String amOrPm = hour < 12 ? 'AM' : 'PM';
-    hour = (hour + 1) % 13;
-    String dayName = Days.values[day].toString().split('.').last;
-    String halfHourName = halfHour % 2 == 0 ? '00' : '30';
-    return '$dayName $hour:$halfHourName $amOrPm';
+    int minute = halfHour % 2 == 0 ? 0 : 30;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  static String get_timeslot_name(int index, BuildContext context) {
+    return '${getDayName(index)} ${getTimeOfDay(index).format(context)}';
   }
 
   validateArray() {
