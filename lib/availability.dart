@@ -8,12 +8,12 @@ class Availability {
   static const MinArrayValue = -1;
   static const int ArrayLength = 336;
   static const int HalfHoursInADay = 48;
-  static const ValueDefinitions = {
+  static const Map<int, String> ValueDefinitions = {
     -1: 'Not Available',
     0: 'Not Set',
     1: 'Sometimes Available',
     2: 'Usually Available',
-    3: 'Preferred Time'
+    3: 'Preferred Time',
   };
 
   List<int> weekAvailability = List<int>.filled(ArrayLength, 0);

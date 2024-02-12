@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:get_together/availability.dart';
+import '../group.dart';
 
 //This button will be used to add availability to the group for the logged in user
-//the availability is an array of numbers 0, 1, 2, 3 where
-//  0 = not available
-//  1 = sometimes available
-//  2 = usually available
-//  3 = preferred time
+//the availability is an array of numbers -1, 0, 1, 2, 3 where
+//    -1: 'Not Available',
+//    0: 'Not Set',
+//    1: 'Sometimes Available',
+//    2: 'Usually Available',
+//    3: 'Preferred Time'
 //The array will be 336 elements long, one for each 30 minute increment in a week
 //The array will be stored in the group document as a map where the key is the user's documentId
 //when clicked, the user should first be prompted to choose which days of the week they are available
 //Then the user will be prompted to choose which 30 minute increments they are available for the days they indicated they are available
 
 class AvailabilityButton extends StatelessWidget {
+  final String groupDocumentId;
+  const AvailabilityButton({super.key, required this.groupDocumentId});
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -23,7 +31,8 @@ class AvailabilityButton extends StatelessWidget {
         // This is where you'll ask the user for their availability
         // You'll need to create a new widget for this page/dialog
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => AvailabilityPageDay(),
+          builder: (context) =>
+              AvailabilityPageDay(groupDocumentId: groupDocumentId),
         ));
       },
     );
@@ -31,6 +40,8 @@ class AvailabilityButton extends StatelessWidget {
 }
 
 class AvailabilityPageDay extends StatefulWidget {
+  final String groupDocumentId;
+  const AvailabilityPageDay({super.key, required this.groupDocumentId});
   @override
   _AvailabilityPageDayState createState() => _AvailabilityPageDayState();
 }
@@ -74,7 +85,9 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
                     .where((day) => day.value == true)
                     .map((day) => day.key)
                     .toList();
-                return AvailabilityPageDetail(days: availabileDays);
+                return AvailabilityPageDetail(
+                    groupDocumentId: widget.groupDocumentId,
+                    days: availabileDays);
               }));
             },
           ),
@@ -83,8 +96,10 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
 }
 
 class AvailabilityPageDetail extends StatefulWidget {
+  final String groupDocumentId;
   List<int> days;
-  AvailabilityPageDetail({super.key, required this.days});
+  AvailabilityPageDetail(
+      {super.key, required this.days, required this.groupDocumentId});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
@@ -97,33 +112,95 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Set Availability'),
-      ),
-      body: ListView.builder(
-        itemCount: Availability.ArrayLength,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(Availability.get_timeslot_name(index, context)),
-            onTap: () {
-              // This is where you'll ask the user for their availability for this 30-minute slot
-              // You'll need to create a new widget for this dialog
-              //LEFT OFF HERE. Need to create a dialog that allows the user to select their availability and only display the days passed from the last screen
-              showDialog(
-                context: context,
-                builder: (context) => AvailabilityDialog(
-                  onSelected: (value) {
-                    setState(() {
-                      availability.weekAvailability[index] = value;
-                    });
-                  },
+        appBar: AppBar(
+          title: Text('Set Availability'),
+        ),
+        body: ListView.builder(
+          itemCount: Availability.ArrayLength,
+          itemBuilder: (context, index) {
+            return Row(
+              children: [
+                SizedBox(
+                  width: 150,
+                  child: Text(Availability.get_timeslot_name(index, context)),
                 ),
-              );
-            },
-          );
-        },
-      ),
-    );
+                Flexible(
+                  child: RadioListTile(
+                      title: Text(Availability.ValueDefinitions[-1]!),
+                      value: -1,
+                      groupValue: availability.weekAvailability[index],
+                      onChanged: (value) {
+                        setState(() {
+                          availability.weekAvailability[index] = value ?? 0;
+                        });
+                      }),
+                ),
+                Flexible(
+                  child: RadioListTile(
+                      title: Text(Availability.ValueDefinitions[0]!),
+                      value: 0,
+                      groupValue: availability.weekAvailability[index],
+                      onChanged: (value) {
+                        setState(() {
+                          availability.weekAvailability[index] = value ?? 0;
+                        });
+                      }),
+                ),
+                Flexible(
+                  child: RadioListTile(
+                      title: Text(Availability.ValueDefinitions[1]!),
+                      value: 1,
+                      groupValue: availability.weekAvailability[index],
+                      onChanged: (value) {
+                        setState(() {
+                          availability.weekAvailability[index] = value ?? 0;
+                        });
+                      }),
+                ),
+                Flexible(
+                  child: RadioListTile(
+                      title: Text(Availability.ValueDefinitions[2]!),
+                      value: 2,
+                      groupValue: availability.weekAvailability[index],
+                      onChanged: (value) {
+                        setState(() {
+                          availability.weekAvailability[index] = value ?? 0;
+                        });
+                      }),
+                ),
+                Flexible(
+                  child: RadioListTile(
+                      title: Text(Availability.ValueDefinitions[3]!),
+                      value: 3,
+                      groupValue: availability.weekAvailability[index],
+                      onChanged: (value) {
+                        setState(() {
+                          availability.weekAvailability[index] = value ?? 0;
+                        });
+                      }),
+                ),
+              ],
+            );
+          },
+        ),
+        floatingActionButton: ElevatedButton(
+            child: Text('Submit'),
+            onPressed: () async {
+              final User? user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                await FirebaseFirestore.instance
+                    .collection(Group.collectionName)
+                    .doc(widget.groupDocumentId)
+                    .update({
+                  'availability.${user.uid}': availability.weekAvailability
+                });
+              }
+
+              if (context.mounted) {
+                context.pop();
+                context.pop();
+              }
+            }));
   }
 }
 

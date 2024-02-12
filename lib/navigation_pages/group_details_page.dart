@@ -190,7 +190,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
-                        AvailabilityButton(),
+                        AvailabilityButton(
+                            groupDocumentId: widget.groupDocumentId),
                       ],
                     );
                   }
