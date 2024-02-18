@@ -18,6 +18,8 @@ import '../group.dart';
 //when clicked, the user should first be prompted to choose which days of the week they are available
 //Then the user will be prompted to choose which 30 minute increments they are available for the days they indicated they are available
 
+//TODO: this entire interface should be made not terrible
+//perhaps a calendar view
 class AvailabilityButton extends StatelessWidget {
   final String groupDocumentId;
   const AvailabilityButton({super.key, required this.groupDocumentId});
@@ -32,80 +34,16 @@ class AvailabilityButton extends StatelessWidget {
         // You'll need to create a new widget for this page/dialog
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
-              AvailabilityPageDay(groupDocumentId: groupDocumentId),
+              AvailabilityPageDetail(groupDocumentId: groupDocumentId),
         ));
       },
     );
   }
 }
 
-class AvailabilityPageDay extends StatefulWidget {
-  final String groupDocumentId;
-  const AvailabilityPageDay({super.key, required this.groupDocumentId});
-  @override
-  _AvailabilityPageDayState createState() => _AvailabilityPageDayState();
-}
-
-class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
-  // This list will store the user's availability
-  // It starts with all elements set to 0 (not available)
-  var days = List<bool?>.filled(Days.values.length, false);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Set Availability'),
-        ),
-        body: ListView.builder(
-          itemCount: Days.values.length,
-          itemBuilder: (context, index) {
-            return CheckboxListTile(
-              title: Text(Days.values[index].toString().split('.').last),
-              value: days[index],
-              onChanged: (value) {
-                setState(() {
-                  days[index] = value;
-                });
-              },
-            );
-          },
-        ),
-        bottomNavigationBar: BottomAppBar(
-          child: ElevatedButton(
-            child: Text('Submit'),
-            onPressed: () {
-              if (!days.contains(true)) {
-                // Show snackbar message
-                const snackBar =
-                    SnackBar(content: Text('Please select at least one day.'));
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                return;
-              }
-
-              //the following line will populate an array of just the indexes of the days that are available. The indices represent the days of the week (with 0 as Sunday)
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                List<int> availabileDays = days
-                    .asMap()
-                    .entries
-                    .where((day) => day.value == true)
-                    .map((day) => day.key)
-                    .toList();
-                return AvailabilityPageDetail(
-                    groupDocumentId: widget.groupDocumentId,
-                    days: availabileDays);
-              }));
-            },
-          ),
-        ));
-  }
-}
-
 class AvailabilityPageDetail extends StatefulWidget {
   final String groupDocumentId;
-  List<int> days;
-  AvailabilityPageDetail(
-      {super.key, required this.days, required this.groupDocumentId});
+  const AvailabilityPageDetail({super.key, required this.groupDocumentId});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
@@ -113,6 +51,7 @@ class AvailabilityPageDetail extends StatefulWidget {
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   // This list will store the user's availability
   // It starts with all elements set to 0 (not available)
+  //TODO: This should be able to accept a passed in availability
   var availability = Availability.notSet();
 
   @override
@@ -190,7 +129,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
           },
         ),
         floatingActionButton: ElevatedButton(
-            child: Text('Submit'),
+            child: const Text('Submit'),
             onPressed: () async {
               final User? user = FirebaseAuth.instance.currentUser;
               if (user != null) {
@@ -203,7 +142,6 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
               }
 
               if (context.mounted) {
-                context.pop();
                 context.pop();
               }
             }));
