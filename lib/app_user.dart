@@ -62,18 +62,6 @@ class AppUser {
     };
   }
 
-  //returns a map which can be used to display the data in the display detail widget
-  Map<String, dynamic> toDisplayableMap() {
-    return {
-      documentIdLabel: documentId,
-      displayNameLabel: displayName,
-      emailLabel: email,
-      phoneNumberLabel: phoneNumber,
-      createdTimeLabel: createdTime,
-      imageUrlLabel: imageUrl,
-    };
-  }
-
   @override
   String toString() {
     return toMap().toString();

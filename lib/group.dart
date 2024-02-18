@@ -69,21 +69,6 @@ class Group implements Tile {
     );
   }
 
-  //returns a map which can be used to display the data in the display detail widget
-  Map<String, dynamic> toDisplayableMap() {
-    return {
-      documentIdLabel: documentId,
-      nameLabel: name,
-      descriptionLabel: description,
-      membersLabel: members,
-      adminsLabel: admins,
-      daysBetweenMeetsLabel: daysBetweenMeets,
-      daysOfWeekLabel: daysOfWeek,
-      createdTimeLabel: createdTime,
-      imageUrlLabel: imageUrl,
-    };
-  }
-
   ///this gives me a the follwoing error when used
   ///Navigator.onGenerateRoute was null, but the route named "group" was referenced.
   ///TODO; fix this and replace the getTile method in groups_page.dart
