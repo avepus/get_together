@@ -15,6 +15,7 @@ class Group implements Tile {
   static const String daysOfWeekKey = 'daysOfWeek';
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
+  static const String availabilityKey = 'availability';
 
   static const String documentIdLabel = 'Document ID';
   static const String nameLabel = 'Name';
@@ -25,6 +26,7 @@ class Group implements Tile {
   static const String daysOfWeekLabel = 'Meeting Days';
   static const String createdTimeLabel = 'Created Time';
   static const String imageUrlLabel = 'Group Picture Link';
+  static const String availabilityLabel = 'Availability';
 
   String documentId;
   String? name;
@@ -35,6 +37,7 @@ class Group implements Tile {
   List<int>? daysOfWeek;
   Timestamp? createdTime;
   String? imageUrl;
+  List<int>? availability;
 
   Group({
     required this.documentId,
@@ -46,6 +49,7 @@ class Group implements Tile {
     this.daysOfWeek = const <int>[],
     this.createdTime,
     this.imageUrl,
+    this.availability,
   });
 
   factory Group.fromDocumentSnapshot(DocumentSnapshot snapshot) {
