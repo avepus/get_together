@@ -22,7 +22,8 @@ import '../group.dart';
 //perhaps a calendar view
 class AvailabilityButton extends StatelessWidget {
   final String groupDocumentId;
-  const AvailabilityButton({super.key, required this.groupDocumentId});
+  final Availability availability = Availability.notSet();
+  AvailabilityButton({super.key, required this.groupDocumentId, availability});
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +34,8 @@ class AvailabilityButton extends StatelessWidget {
         // This is where you'll ask the user for their availability
         // You'll need to create a new widget for this page/dialog
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) =>
-              AvailabilityPageDetail(groupDocumentId: groupDocumentId),
+          builder: (context) => AvailabilityPageDetail(
+              groupDocumentId: groupDocumentId, availability: availability),
         ));
       },
     );
@@ -43,16 +44,21 @@ class AvailabilityButton extends StatelessWidget {
 
 class AvailabilityPageDetail extends StatefulWidget {
   final String groupDocumentId;
-  const AvailabilityPageDetail({super.key, required this.groupDocumentId});
+  final Availability availability = Availability.notSet();
+  AvailabilityPageDetail(
+      {super.key, required this.groupDocumentId, availability});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
 
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
-  // This list will store the user's availability
-  // It starts with all elements set to 0 (not available)
-  //TODO: This should be able to accept a passed in availability
-  var availability = Availability.notSet();
+  Availability _availability = Availability.notSet();
+
+  @override
+  void initState() {
+    super.initState();
+    _availability = widget.availability; // Initialize with the widget's value
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +79,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   child: RadioListTile(
                       title: Text(Availability.ValueDefinitions[-1]!),
                       value: -1,
-                      groupValue: availability.weekAvailability[index],
+                      groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
-                          availability.weekAvailability[index] = value ?? 0;
+                          _availability.weekAvailability[index] = value ?? 0;
                         });
                       }),
                 ),
@@ -84,10 +90,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   child: RadioListTile(
                       title: Text(Availability.ValueDefinitions[0]!),
                       value: 0,
-                      groupValue: availability.weekAvailability[index],
+                      groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
-                          availability.weekAvailability[index] = value ?? 0;
+                          _availability.weekAvailability[index] = value ?? 0;
                         });
                       }),
                 ),
@@ -95,10 +101,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   child: RadioListTile(
                       title: Text(Availability.ValueDefinitions[1]!),
                       value: 1,
-                      groupValue: availability.weekAvailability[index],
+                      groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
-                          availability.weekAvailability[index] = value ?? 0;
+                          _availability.weekAvailability[index] = value ?? 0;
                         });
                       }),
                 ),
@@ -106,10 +112,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   child: RadioListTile(
                       title: Text(Availability.ValueDefinitions[2]!),
                       value: 2,
-                      groupValue: availability.weekAvailability[index],
+                      groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
-                          availability.weekAvailability[index] = value ?? 0;
+                          _availability.weekAvailability[index] = value ?? 0;
                         });
                       }),
                 ),
@@ -117,10 +123,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   child: RadioListTile(
                       title: Text(Availability.ValueDefinitions[3]!),
                       value: 3,
-                      groupValue: availability.weekAvailability[index],
+                      groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
-                          availability.weekAvailability[index] = value ?? 0;
+                          _availability.weekAvailability[index] = value ?? 0;
                         });
                       }),
                 ),
@@ -137,7 +143,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                     .collection(Group.collectionName)
                     .doc(widget.groupDocumentId)
                     .update({
-                  'availability.${user.uid}': availability.weekAvailability
+                  'availability.${user.uid}': _availability.weekAvailability
                 });
               }
 

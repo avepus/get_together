@@ -11,6 +11,7 @@ import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
+import '../availability.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -95,7 +96,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             currentValue: group.daysBetweenMeets,
                             hasSecurity: loggedInUidInArray(group.admins),
                             dataType: String),
-                        //TODO: implement dyasofweek in an editable way
+                        AvailabilityButton(
+                            groupDocumentId: widget.groupDocumentId,
+                            availability: group.availability != null
+                                ? Availability(
+                                    weekAvailability: group.availability!)
+                                : Availability.notSet()),
+                        //TODO: implement daysofweek in an editable way
                         Card(
                             child: ListTile(
                                 title: const Text(Group.daysOfWeekLabel),
@@ -190,8 +197,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
-                        AvailabilityButton(
-                            groupDocumentId: widget.groupDocumentId),
                       ],
                     );
                   }

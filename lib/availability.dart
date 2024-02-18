@@ -18,10 +18,11 @@ class Availability {
 
   List<int> weekAvailability = List<int>.filled(ArrayLength, 0);
 
-  Availability(this.weekAvailability) {
-    this.weekAvailability = weekAvailability;
+  Availability({required this.weekAvailability}) {
     validateArray();
   }
+
+  Availability.pass() : weekAvailability = List<int>.filled(ArrayLength, 0);
 
   Availability.notSet() : weekAvailability = List<int>.filled(ArrayLength, 0);
 

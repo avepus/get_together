@@ -66,6 +66,9 @@ class Group implements Tile {
           : data[daysOfWeekKey].cast<int>(),
       createdTime: data[createdTimeKey],
       imageUrl: data[imageUrlKey],
+      availability: data[availabilityKey] == null
+          ? data[availabilityKey].cast<List<int>>()
+          : null,
     );
   }
 
