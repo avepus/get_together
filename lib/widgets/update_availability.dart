@@ -75,7 +75,13 @@ class _AvailabilityPageDayState extends State<AvailabilityPageDay> {
           child: ElevatedButton(
             child: Text('Submit'),
             onPressed: () {
-              //TODO: need validation and perhaps warning if no days are selected
+              if (!days.contains(true)) {
+                // Show snackbar message
+                const snackBar =
+                    SnackBar(content: Text('Please select at least one day.'));
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                return;
+              }
 
               //the following line will populate an array of just the indexes of the days that are available. The indices represent the days of the week (with 0 as Sunday)
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
