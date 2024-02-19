@@ -22,8 +22,6 @@ class Availability {
     validateArray();
   }
 
-  Availability.pass() : weekAvailability = List<int>.filled(ArrayLength, 0);
-
   Availability.notSet() : weekAvailability = List<int>.filled(ArrayLength, 0);
 
   void updateArray(List<int> newAvailability) {

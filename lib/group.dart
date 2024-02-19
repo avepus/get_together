@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_together/availability.dart';
 import 'app_user.dart';
 
 import 'abstracts.dart';
@@ -37,7 +38,7 @@ class Group implements Tile {
   List<int>? daysOfWeek;
   Timestamp? createdTime;
   String? imageUrl;
-  List<int>? availability;
+  Map<String, List<int>>? memberAvailability;
 
   Group({
     required this.documentId,
@@ -49,27 +50,35 @@ class Group implements Tile {
     this.daysOfWeek = const <int>[],
     this.createdTime,
     this.imageUrl,
-    this.availability,
+    this.memberAvailability,
   });
 
   factory Group.fromDocumentSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
     return Group(
-      documentId: snapshot.id,
-      name: data[nameKey],
-      description: data[descriptionKey],
-      members: data[membersKey].cast<String>(),
-      admins: data[adminsKey].cast<String>(),
-      daysBetweenMeets: data[daysBetweenMeetsKey],
-      daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty
-          ? null
-          : data[daysOfWeekKey].cast<int>(),
-      createdTime: data[createdTimeKey],
-      imageUrl: data[imageUrlKey],
-      availability: data[availabilityKey] == null
-          ? data[availabilityKey].cast<List<int>>()
-          : null,
-    );
+        documentId: snapshot.id,
+        name: data[nameKey],
+        description: data[descriptionKey],
+        members: data[membersKey].cast<String>(),
+        admins: data[adminsKey].cast<String>(),
+        daysBetweenMeets: data[daysBetweenMeetsKey],
+        daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty
+            ? null
+            : data[daysOfWeekKey].cast<int>(),
+        createdTime: data[createdTimeKey],
+        imageUrl: data[imageUrlKey],
+        memberAvailability: data[availabilityKey] == null
+            ? null
+            // craziness below needed because Firestore returns a Map<String, dynamic> instead of Map<String, List<int>>
+            : (data[availabilityKey] as Map<String, dynamic>)
+                .map((key, value) => MapEntry(key, List<int>.from(value))));
+  }
+
+  Availability getAvailability(String uid) {
+    if (memberAvailability == null || memberAvailability![uid] == null) {
+      return Availability.notSet();
+    }
+    return Availability(weekAvailability: memberAvailability![uid]!);
   }
 
   ///this gives me a the follwoing error when used
@@ -99,7 +108,7 @@ class Group implements Tile {
   }
 
   /// Fetches the users from Firestore using the provided user IDs.
-  /// removes the user ID from the input field in Firestore if the user does not exist
+  /// removes the user ID from the input field in Firestore if the user does not exist to handle cases in which the is deleted
   /// returns a list of users
   Future<List<AppUser>> _fetchUsers(List userIds, String fieldKey) async {
     List<AppUser> users = [];
@@ -125,4 +134,12 @@ class Group implements Tile {
     }
     return users;
   }
+}
+
+class GroupAvailability {
+  Map<String, List<Availability>>? memberAvailabilities;
+
+  GroupAvailability({
+    this.memberAvailabilities,
+  });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../widgets/users_list_view.dart';
 import '../group.dart';
@@ -11,7 +12,6 @@ import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
-import '../availability.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -97,11 +97,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             hasSecurity: loggedInUidInArray(group.admins),
                             dataType: String),
                         AvailabilityButton(
-                            groupDocumentId: widget.groupDocumentId,
-                            availability: group.availability != null
-                                ? Availability(
-                                    weekAvailability: group.availability!)
-                                : Availability.notSet()),
+                          groupDocumentId: widget.groupDocumentId,
+                          availability: group.getAvailability(
+                              FirebaseAuth.instance.currentUser!.uid),
+                        ),
                         //TODO: implement daysofweek in an editable way
                         Card(
                             child: ListTile(
