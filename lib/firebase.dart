@@ -39,7 +39,7 @@ Future<void> storeUserListInGroup(
 Future<void> createFirestoreUser(
     String displayName, String email, String uid) async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final timestamp = DateTime.now();
   var values = {
     AppUser.displayNameKey: displayName,
     AppUser.emailKey: email,
