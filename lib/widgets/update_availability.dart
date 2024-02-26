@@ -22,17 +22,15 @@ import '../group.dart';
 //perhaps a calendar view
 class AvailabilityButton extends StatelessWidget {
   final String groupDocumentId;
-  final Availability availability = Availability.notSet();
-  AvailabilityButton({super.key, required this.groupDocumentId, availability});
+  final Availability availability;
+  AvailabilityButton(
+      {super.key, required this.groupDocumentId, required this.availability});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      child: Text('Set Availability'),
+      child: const Text('Set Availability'),
       onPressed: () {
-        // Navigate to a new page or open a dialog here
-        // This is where you'll ask the user for their availability
-        // You'll need to create a new widget for this page/dialog
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => AvailabilityPageDetail(
               groupDocumentId: groupDocumentId, availability: availability),
@@ -44,15 +42,15 @@ class AvailabilityButton extends StatelessWidget {
 
 class AvailabilityPageDetail extends StatefulWidget {
   final String groupDocumentId;
-  final Availability availability = Availability.notSet();
+  final Availability availability;
   AvailabilityPageDetail(
-      {super.key, required this.groupDocumentId, availability});
+      {super.key, required this.groupDocumentId, required this.availability});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
 
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
-  Availability _availability = Availability.notSet();
+  late Availability _availability;
 
   @override
   void initState() {
