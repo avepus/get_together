@@ -19,7 +19,7 @@ import '../group.dart';
 //Then the user will be prompted to choose which 30 minute increments they are available for the days they indicated they are available
 
 //TODO: this entire interface should be made not terrible
-//perhaps a calendar view
+//perhaps a calendar view/grid view. Each tap on the grid would rotatthrough the availability options
 class AvailabilityButton extends StatelessWidget {
   final String groupDocumentId;
   final Availability availability;

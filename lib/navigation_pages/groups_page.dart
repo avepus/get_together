@@ -10,7 +10,6 @@ class GroupsPage extends StatelessWidget {
 
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  //TODO: Next step is to add floating action button to create new group
   void _showAddGroupDialog(BuildContext context) {
     var myFocusNode = FocusNode();
     final TextEditingController controller = TextEditingController();
