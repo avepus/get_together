@@ -4,12 +4,11 @@ enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
 //represents a week of availability in half hour increments
 class Availability {
-  static const MaxArrayValue = 3;
-  static const MinArrayValue = -1;
+  static const List<int> validArrayValues = [-3, 0, 1, 2, 3];
   static const int ArrayLength = 336;
   static const int HalfHoursInADay = 48;
   static const Map<int, String> ValueDefinitions = {
-    -1: 'Not Available',
+    -3: 'Not Available',
     0: 'Not Set',
     1: 'Sometimes Available',
     2: 'Usually Available',
@@ -29,6 +28,18 @@ class Availability {
     validateArray();
   }
 
+  validateArray() {
+    if (weekAvailability.length != ArrayLength) {
+      throw Exception('Array must be of length 336');
+    }
+    for (int i = 0; i < weekAvailability.length; i++) {
+      if (!validArrayValues.contains(weekAvailability[i])) {
+        throw Exception(
+            'Invalid array value of ${weekAvailability[i]} at index $i which is day ${getDayName(i)} timeslot ${getTimeOfDay(i)}');
+      }
+    }
+  }
+
   static int getDay(int index) {
     return index ~/ HalfHoursInADay;
   }
@@ -45,23 +56,7 @@ class Availability {
     return TimeOfDay(hour: hour, minute: minute);
   }
 
-  static String get_timeslot_name(int index, BuildContext context) {
+  static String getTimeslotName(int index, BuildContext context) {
     return '${getDayName(index)} ${getTimeOfDay(index).format(context)}';
-  }
-
-  validateArray() {
-    if (weekAvailability.length != ArrayLength) {
-      throw Exception('Array must be of length 336');
-    }
-    int minimum =
-        weekAvailability.reduce((curr, next) => curr < next ? curr : next);
-    if (minimum < MinArrayValue) {
-      throw Exception('Minimum Availability array value is $MinArrayValue');
-    }
-    int maxNumber =
-        weekAvailability.reduce((curr, next) => curr > next ? curr : next);
-    if (maxNumber > MaxArrayValue) {
-      throw Exception('Max Availability array value is $MaxArrayValue');
-    }
   }
 }
