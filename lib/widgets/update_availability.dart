@@ -71,7 +71,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
               children: [
                 SizedBox(
                   width: 150,
-                  child: Text(Availability.get_timeslot_name(index, context)),
+                  child: Text(Availability.getTimeslotName(index, context)),
                 ),
                 Flexible(
                   child: RadioListTile(
