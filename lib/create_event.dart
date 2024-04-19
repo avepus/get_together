@@ -10,17 +10,17 @@ import 'event.dart';
 ///
 /// [userAvailabilities] A map of user availabilities. The keys are user IDs.
 ///
-/// Returns a list of events representing the time slots.
-List findTimeSlots(
-    Map<String, Availability> userAvailabilities, int timeSlotDuration) {
+/// Returns a list of the best timeslots for this group's availabilties
+List<int> findTimeSlots(Map<String, Availability> userAvailabilities,
+    int timeSlotDuration, int numberOfSlots) {
   List<Event> events = [];
   List<Availability> availabilities = userAvailabilities.values.toList();
   List<int> convergedAvailability = convergeAvailabilities(availabilities);
   List<int> timeSlotScores =
       calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
   List<int> sortedTimeSlotScores = sortTimeSlotScores(timeSlotScores);
-  //TODO: do the rest of the stuff to get events
-  return events;
+  //using timeSlotDuration as the minimum distance might not be ideal for longer durations. May want to consider using timeSlotDuration/2 or soemthing like that
+  return getTopTimeSlots(sortedTimeSlotScores, timeSlotDuration, numberOfSlots);
 }
 
 /// Converges availabilities into a single list equal to the sume of all availabilities values
