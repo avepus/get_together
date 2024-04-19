@@ -12,6 +12,8 @@ import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
+import '../availability.dart';
+import '../create_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -196,6 +198,40 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
+                        ElevatedButton(
+                          child: const Text('Suggest Times'),
+                          onPressed: () {
+                            Map<String, Availability> memberAvailabilities = {};
+                            for (String member in group.members) {
+                              memberAvailabilities[member] =
+                                  group.getAvailability(member);
+                            }
+                            List<int> timeSlots =
+                                findTimeSlots(memberAvailabilities, 2, 3);
+                            List<String> timeSlotStrings = timeSlots
+                                .map((int timeSlot) =>
+                                    Availability.getTimeslotName(
+                                        timeSlot, context))
+                                .toList();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Possible Times'),
+                                  content: Text(timeSlotStrings.toString()),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        context.pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        )
                       ],
                     );
                   }
