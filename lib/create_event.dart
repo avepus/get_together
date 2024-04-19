@@ -14,7 +14,12 @@ import 'event.dart';
 List findTimeSlots(
     Map<String, Availability> userAvailabilities, int timeSlotDuration) {
   List<Event> events = [];
-  //TOTO; do some calculations on availability to generate events
+  List<Availability> availabilities = userAvailabilities.values.toList();
+  List<int> convergedAvailability = convergeAvailabilities(availabilities);
+  List<int> timeSlotScores =
+      calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
+  List<int> sortedTimeSlotScores = sortTimeSlotScores(timeSlotScores);
+  //TODO: do the rest of the stuff to get events
   return events;
 }
 
@@ -41,4 +46,50 @@ List<int> calculateTimeSlotScores(
     }
   }
   return timeSlotScores;
+}
+
+/// Sorts the time slot scores in descending order in a map that maps the time slot index to the score
+List<int> sortTimeSlotScores(List<int> timeSlotScores) {
+  // Create a list of indexes
+  List<int> indicies =
+      List<int>.generate(timeSlotScores.length, (index) => index);
+
+  // Sort the list of indexes based on the values in the scores list
+  indicies.sort((a, b) => timeSlotScores[b].compareTo(timeSlotScores[a]));
+
+  return indicies;
+}
+
+int minAbsDifference(List<int> numbers, int num) {
+  if (numbers.isEmpty) {
+    throw ArgumentError('List must not be empty');
+  }
+
+  int minDiff = (numbers[0] - num).abs();
+  for (int i = 1; i < numbers.length; i++) {
+    int diff = (numbers[i] - num).abs();
+    if (diff < minDiff) {
+      minDiff = diff;
+    }
+  }
+
+  return minDiff;
+}
+
+///Filters out time slots that would be too close together
+///TODO: might want to filter out the lowest scores in case we hit the lowest score and end up suggesting random times
+List<int> getTopTimeSlots(
+    List<int> sortedIndicies, int minDistance, int slots) {
+  List<int> topSlots = [];
+  for (int i in sortedIndicies) {
+    if (topSlots.isEmpty) {
+      topSlots.add(i);
+    } else if (minAbsDifference(topSlots, i) >= minDistance) {
+      topSlots.add(i);
+    }
+    if (topSlots.length >= slots) {
+      break;
+    }
+  }
+  return topSlots;
 }

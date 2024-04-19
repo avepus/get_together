@@ -137,4 +137,87 @@ void main() {
 
     expect(converged, expectedConvergedAvailability);
   });
+
+  test('sortTimeSlotScores basic test', () {
+    List<int> scores = [1, 2, -2];
+    List<int> expectedSortedIndexes = [1, 0, 2];
+    List<int> sortedIndexes = sortTimeSlotScores(scores);
+
+    expect(sortedIndexes, expectedSortedIndexes);
+  });
+
+  test('sortTimeSlotScores base one item test', () {
+    List<int> scores = [1];
+    List<int> expectedSortedIndexes = [0];
+    List<int> sortedIndexes = sortTimeSlotScores(scores);
+
+    expect(sortedIndexes, expectedSortedIndexes);
+  });
+
+  test('sortTimeSlotScores base one item test', () {
+    List<int> scores = [1, 2, 4, 5, 9, -1, 3];
+    List<int> expectedSortedIndexes = [4, 3, 2, 6, 1, 0, 5];
+    List<int> sortedIndexes = sortTimeSlotScores(scores);
+
+    expect(sortedIndexes, expectedSortedIndexes);
+  });
+
+  test('sortTimeSlotScores with repeated scores', () {
+    ///expectation here for repeated values is that first index with that value is first
+    List<int> scores = [1, 2, 2, 3, 2];
+    List<int> expectedSortedIndexes = [3, 1, 2, 4, 0];
+    List<int> sortedIndexes = sortTimeSlotScores(scores);
+
+    expect(sortedIndexes, expectedSortedIndexes);
+  });
+
+  test('minAbsDifference test 1', () {
+    ///expectation here for repeated values is that first index with that value is first
+    List<int> numbers = [1, 5, 2, 3, 2];
+    int num = 1;
+    int actual = minAbsDifference(numbers, num);
+    int expected = 0;
+
+    expect(actual, expected);
+  });
+
+  test('minAbsDifference test 2', () {
+    ///expectation here for repeated values is that first index with that value is first
+    List<int> numbers = [1, 5, 2, 3, 2];
+    int num = 10;
+    int actual = minAbsDifference(numbers, num);
+    int expected = 5;
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test base test', () {
+    int minDistance = 2;
+    int slots = 3;
+    List<int> sortedIndicies = [1, 5, 8, 3, 2];
+    List<int> expected = [1, 5, 8];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test exclude one too close together', () {
+    int minDistance = 2;
+    int slots = 3;
+    List<int> sortedIndicies = [1, 2, 8, 3, 5];
+    List<int> expected = [1, 8, 3];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test exclude two too close together', () {
+    int minDistance = 2;
+    int slots = 3;
+    List<int> sortedIndicies = [2, 1, 8, 7, 5];
+    List<int> expected = [2, 8, 5];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
 }
