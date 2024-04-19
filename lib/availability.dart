@@ -23,6 +23,10 @@ class Availability {
 
   Availability.notSet() : weekAvailability = List<int>.filled(ArrayLength, 0);
 
+  int getTimeSlotValue(int index) {
+    return weekAvailability[index];
+  }
+
   void updateArray(List<int> newAvailability) {
     weekAvailability = newAvailability;
     validateArray();

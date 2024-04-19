@@ -10,6 +10,7 @@
 ///having a two timeslot minimum should not return 2
 ///
 ///
+import 'package:get_together/availability.dart';
 import 'package:test/test.dart';
 import 'package:get_together/create_event.dart';
 
@@ -105,5 +106,35 @@ void main() {
         calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
 
     expect(actualScores, expectedScores);
+  });
+
+  test(
+      'convergeAvailabilities base case return input availability when only one availability is given',
+      () {
+    List<Availability> availabilities = [Availability.notSet()];
+
+    List<int> expectedConvergedAvailability =
+        List<int>.filled(Availability.ArrayLength, 0); //all values should be 0
+
+    List<int> converged = convergeAvailabilities(availabilities);
+
+    expect(converged, expectedConvergedAvailability);
+  });
+
+  test('convergeAvailabilities add multiple should sum values', () {
+    List<int> allOnesList = List<int>.filled(Availability.ArrayLength, 1);
+    Availability allOnesAvailability =
+        Availability(weekAvailability: allOnesList);
+    List<Availability> availabilities = [
+      allOnesAvailability,
+      allOnesAvailability
+    ];
+
+    List<int> expectedConvergedAvailability =
+        List<int>.filled(Availability.ArrayLength, 2);
+
+    List<int> converged = convergeAvailabilities(availabilities);
+
+    expect(converged, expectedConvergedAvailability);
   });
 }

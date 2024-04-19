@@ -23,7 +23,7 @@ List<int> convergeAvailabilities(List<Availability> availabilities) {
   List<int> converge = List<int>.filled(Availability.ArrayLength, 0);
   for (Availability availability in availabilities) {
     for (int i = 0; i < Availability.ArrayLength; i++) {
-      converge[i] += availability.weekAvailability[i];
+      converge[i] += availability.getTimeSlotValue(i);
     }
   }
   return converge;
