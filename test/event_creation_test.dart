@@ -214,8 +214,38 @@ void main() {
   test('getTopTimeSlots test exclude two too close together', () {
     int minDistance = 2;
     int slots = 3;
+    List<int> sortedIndicies = [2, 1, 8, 7, 6];
+    List<int> expected = [2, 8, 6];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test one slot', () {
+    int minDistance = 2;
+    int slots = 1;
     List<int> sortedIndicies = [2, 1, 8, 7, 5];
-    List<int> expected = [2, 8, 5];
+    List<int> expected = [2];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test larger minDistance', () {
+    int minDistance = 4;
+    int slots = 3;
+    List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8, 12];
+    List<int> expected = [1, 6, 12];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
+
+  test('getTopTimeSlots test cannot get as many timeslots as requested', () {
+    int minDistance = 4;
+    int slots = 3;
+    List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8];
+    List<int> expected = [1, 6];
     List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
 
     expect(actual, expected);
