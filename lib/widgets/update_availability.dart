@@ -73,10 +73,11 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   width: 150,
                   child: Text(Availability.getTimeslotName(index, context)),
                 ),
+                //TODO: this should generate by iterating Availability.ValueDefinitions
                 Flexible(
                   child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[-1]!),
-                      value: -1,
+                      title: Text(Availability.ValueDefinitions[-3]!),
+                      value: -3,
                       groupValue: _availability.weekAvailability[index],
                       onChanged: (value) {
                         setState(() {
