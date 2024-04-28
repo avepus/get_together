@@ -2,8 +2,6 @@ import 'availability.dart';
 import 'event.dart';
 
 ///TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability
-///TODO: create a "smoothing" function to expand a converaged availability with nearby timeslots and take the lowest availability score
-///TODO: handle edge cases where the best availability spans a very long period of time. For now, there will be no maximum
 /// Finds time slots based on user availabilities.
 ///
 /// The function takes a map of user availabilities and returns a list of events representing the time slots.

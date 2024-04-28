@@ -198,6 +198,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
+                        //left off here. Need to make times selectable and jump to create event
                         ElevatedButton(
                           child: const Text('Suggest Times'),
                           onPressed: () {
@@ -207,6 +208,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                   group.getAvailability(member);
                             }
                             List<int> timeSlots =
+                                //TODO: make magic numbers below into configuragble values
                                 findTimeSlots(memberAvailabilities, 2, 3);
                             List<String> timeSlotStrings = timeSlots
                                 .map((int timeSlot) =>
