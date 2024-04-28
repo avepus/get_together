@@ -107,10 +107,11 @@ class Group implements Tile {
     return _fetchUsers(admins, adminsKey);
   }
 
-  /// Fetches the users from Firestore using the provided user IDs.
-  /// removes the user ID from the input field in Firestore if the user does not exist to handle cases in which the is deleted
+  /// Fetches the users from Firestore using the provided user IDs
+  /// removes the user ID from the input field in Firestore if the user does not exist to handle cases in which the user is deleted
   /// returns a list of users
-  Future<List<AppUser>> _fetchUsers(List userIds, String fieldKey) async {
+  Future<List<AppUser>> _fetchUsers(
+      List<String> userIds, String fieldKey) async {
     List<AppUser> users = [];
 
     for (var userId in userIds) {
