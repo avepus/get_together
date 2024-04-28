@@ -18,6 +18,7 @@ List<int> findTimeSlots(Map<String, Availability> userAvailabilities,
       calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
   List<int> sortedTimeSlotScores = sortTimeSlotScores(timeSlotScores);
   //using timeSlotDuration as the minimum distance might not be ideal for longer durations. May want to consider using timeSlotDuration/2 or soemthing like that
+  //For example suggesting a 4 hour event might have good start times of 6 and 8 but we wouldn't display 8 with the current configuration
   return getTopTimeSlots(sortedTimeSlotScores, timeSlotDuration, numberOfSlots);
 }
 

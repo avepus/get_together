@@ -245,8 +245,19 @@ class GenerateEventButten extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Possible Times'),
-              content: Text(timeSlotStrings.toString()),
+              title: const Text('Best Times'),
+              content: SizedBox(
+                height: 200,
+                width: 200,
+                child: ListView.builder(
+                  itemCount: timeSlotStrings.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text('${index + 1} - ${timeSlotStrings[index]}'),
+                    );
+                  },
+                ),
+              ),
               actions: <Widget>[
                 TextButton(
                   child: const Text('Cancel'),
@@ -263,6 +274,7 @@ class GenerateEventButten extends StatelessWidget {
   }
 }
 
+///TODO: add a little X to the alert window when adding a user
 class AddUsersButton extends StatelessWidget {
   final String label;
   final String groupDocumentId;
