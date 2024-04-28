@@ -153,6 +153,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                     users: members)),
                           ),
                         ),
+                        //TODO: make magic numbers below into configuragble values
+                        GenerateEventButten(
+                            group: group,
+                            timeSlotDuration: 2,
+                            numberOfSlotsToReturn: 3),
                         Visibility(
                           visible: loggedInUidInArray(group.admins),
                           child: Padding(
@@ -198,42 +203,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
-                        //left off here. Need to make times selectable and jump to create event
-                        ElevatedButton(
-                          child: const Text('Suggest Times'),
-                          onPressed: () {
-                            Map<String, Availability> memberAvailabilities = {};
-                            for (String member in group.members) {
-                              memberAvailabilities[member] =
-                                  group.getAvailability(member);
-                            }
-                            List<int> timeSlots =
-                                //TODO: make magic numbers below into configuragble values
-                                findTimeSlots(memberAvailabilities, 2, 3);
-                            List<String> timeSlotStrings = timeSlots
-                                .map((int timeSlot) =>
-                                    Availability.getTimeslotName(
-                                        timeSlot, context))
-                                .toList();
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Possible Times'),
-                                  content: Text(timeSlotStrings.toString()),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: const Text('Cancel'),
-                                      onPressed: () {
-                                        context.pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        )
                       ],
                     );
                   }
@@ -241,6 +210,55 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class GenerateEventButten extends StatelessWidget {
+  final Group group;
+  final int timeSlotDuration;
+  final int numberOfSlotsToReturn;
+
+  const GenerateEventButten({
+    required this.group,
+    required this.timeSlotDuration,
+    required this.numberOfSlotsToReturn,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: const Text('Suggest Times'),
+      onPressed: () {
+        Map<String, Availability> memberAvailabilities = {};
+        for (String member in group.members) {
+          memberAvailabilities[member] = group.getAvailability(member);
+        }
+        List<int> timeSlots = findTimeSlots(
+            memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
+        List<String> timeSlotStrings = timeSlots
+            .map((int timeSlot) =>
+                Availability.getTimeslotName(timeSlot, context))
+            .toList();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Possible Times'),
+              content: Text(timeSlotStrings.toString()),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
