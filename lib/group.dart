@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_together/availability.dart';
 import 'app_user.dart';
 
-import 'abstracts.dart';
-
-class Group implements Tile {
+class Group {
   static const String collectionName = 'groups';
   static const String documentIdKey = 'documentId';
   static const String nameKey = 'name';
