@@ -13,7 +13,7 @@ import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
 import '../classes/availability.dart';
-import '../create_event.dart';
+import '../findTime.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;

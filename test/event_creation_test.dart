@@ -12,7 +12,7 @@
 ///
 import 'package:get_together/classes/availability.dart';
 import 'package:test/test.dart';
-import 'package:get_together/create_event.dart';
+import 'package:get_together/findTime.dart';
 
 void main() {
   test(

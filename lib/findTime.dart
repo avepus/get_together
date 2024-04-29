@@ -44,9 +44,8 @@ List<int> calculateTimeSlotScores(
   List<int> timeSlotScores = List<int>.filled(convergedAvailability.length, 0);
   for (int i = 0; i < convergedAvailability.length; i++) {
     for (int j = i; j < i + timeSlotDuration; j++) {
-      int index = j %
-          convergedAvailability
-              .length; //note we need to wrap around if availability at the end of the week continues into the next week morning
+      //note we need to wrap around if availability at the end of the week continues into the next week morning
+      int index = j % convergedAvailability.length;
       timeSlotScores[i] += convergedAvailability[index];
     }
   }
