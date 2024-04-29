@@ -235,29 +235,70 @@ class GenerateEventButten extends StatelessWidget {
         for (String member in group.members) {
           memberAvailabilities[member] = group.getAvailability(member);
         }
-        List<int> timeSlots = findTimeSlots(
+        Map<int, int> timeSlotsAndScores = findTimeSlots(
             memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
-        List<String> timeSlotStrings = timeSlots
-            .map((int timeSlot) =>
-                Availability.getTimeslotName(timeSlot, context))
-            .toList();
+        List<int> timeSlots = timeSlotsAndScores.keys.toList();
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Best Times'),
               content: SizedBox(
-                height: 200,
-                width: 200,
-                child: ListView.builder(
-                  itemCount: timeSlotStrings.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text('${index + 1} - ${timeSlotStrings[index]}'),
-                    );
-                  },
-                ),
-              ),
+                  height: 200,
+                  width: 300,
+                  child: ListView.builder(
+                    itemCount:
+                        timeSlots.length + 1, // Add one for the header row
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index == 0) {
+                        // This is the header row
+                        return ListTile(
+                          title: Table(
+                            columnWidths: const {
+                              0: FractionColumnWidth(0.2),
+                              1: FractionColumnWidth(0.6),
+                              2: FractionColumnWidth(0.2),
+                            },
+                            children: const [
+                              TableRow(
+                                children: [
+                                  Text('Rank'),
+                                  Text('Start Time'),
+                                  Text('Score'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        // This is a data row
+                        String timeSlotName = Availability.getTimeslotName(
+                            timeSlots[index - 1], context);
+                        return ListTile(
+                          title: Table(
+                            columnWidths: const {
+                              0: FractionColumnWidth(0.2),
+                              1: FractionColumnWidth(0.6),
+                              2: FractionColumnWidth(0.2),
+                            },
+                            children: [
+                              TableRow(
+                                children: [
+                                  Text('$index'),
+                                  Text(timeSlotName),
+                                  Text(
+                                      '${timeSlotsAndScores[timeSlots[index - 1]]}'),
+                                ],
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            //go to create event page
+                          },
+                        );
+                      }
+                    },
+                  )),
               actions: <Widget>[
                 TextButton(
                   child: const Text('Cancel'),
