@@ -5,14 +5,14 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../widgets/users_list_view.dart';
-import '../group.dart';
-import '../app_user.dart';
+import '../classes/group.dart';
+import '../classes/app_user.dart';
 import '../utils.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
-import '../availability.dart';
+import '../classes/availability.dart';
 import '../create_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {

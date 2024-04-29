@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get_together/availability.dart';
+import 'package:get_together/classes/availability.dart';
 import 'app_user.dart';
 
 class Group {

@@ -10,7 +10,7 @@
 ///having a two timeslot minimum should not return 2
 ///
 ///
-import 'package:get_together/availability.dart';
+import 'package:get_together/classes/availability.dart';
 import 'package:test/test.dart';
 import 'package:get_together/create_event.dart';
 

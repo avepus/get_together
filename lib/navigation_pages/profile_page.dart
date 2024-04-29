@@ -7,7 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
-import '../app_user.dart';
+import '../classes/app_user.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../utils.dart';

@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:get_together/availability.dart';
-import '../group.dart';
+import 'package:get_together/classes/availability.dart';
+import '../classes/group.dart';
 
 //This button will be used to add availability to the group for the logged in user
 //the availability is an array of numbers -1, 0, 1, 2, 3 where

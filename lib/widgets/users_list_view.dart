@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 
-import '../app_user.dart';
+import '../classes/app_user.dart';
 import 'image_with_null_error_handling.dart';
 
 class UsersListView extends StatelessWidget {

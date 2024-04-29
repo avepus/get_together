@@ -1,5 +1,5 @@
-import 'availability.dart';
-import 'event.dart';
+import 'classes/availability.dart';
+import 'classes/event.dart';
 
 ///TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability
 /// Finds time slots based on user availabilities.

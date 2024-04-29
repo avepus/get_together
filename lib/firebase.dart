@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'app_user.dart';
+import 'classes/app_user.dart';
 
-import 'group.dart';
+import 'classes/group.dart';
 
 Future<List<AppUser>> fetchAllUsers() async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
