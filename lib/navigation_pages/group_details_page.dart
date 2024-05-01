@@ -158,6 +158,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             group: group,
                             timeSlotDuration: 2,
                             numberOfSlotsToReturn: 3),
+                        ElevatedButton(
+                            onPressed: () {
+                              context.goNamed('newevent',
+                                  extra: {'group': group, 'timeSlot': null});
+                            },
+                            child: Text('Create Event')),
                         Visibility(
                           visible: loggedInUidInArray(group.admins),
                           child: Padding(

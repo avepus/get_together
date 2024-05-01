@@ -15,6 +15,8 @@ import 'app_state.dart';
 import 'main_navigator.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
+import 'create_event.dart';
+import 'classes/group.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +59,22 @@ final _router = GoRouter(
             builder: (context, state) {
               return GroupDetailsPage(
                   groupDocumentId: state.pathParameters['groupDocumentId']!);
+            }),
+        GoRoute(
+            path: 'newevent',
+            name: 'newevent',
+            builder: (context, state) {
+              if (state.extra == null) {
+                throw Exception('CreateEventPage requires extra parameters');
+              }
+              Map<String, dynamic> map = state.extra! as Map<String, dynamic>;
+              if (map['group'] == null) {
+                throw Exception(
+                    'CreateEventPage requires a group passed in extra parameters');
+              }
+              Group group = map['group'] as Group;
+              int? slot = map['timeSlot'];
+              return CreateEventPage(group: group, timeSlot: slot);
             }),
         GoRoute(
           path: 'sign-in',
