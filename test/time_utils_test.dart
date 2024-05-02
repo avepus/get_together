@@ -28,11 +28,11 @@ void main() {
   test(
       'getBeginningOfWeekUTC corner case UTC is next week (Chicago time zone which is utc-6)',
       () {
-    final detroit = getLocation('America/Chicago');
-    setLocalLocation(detroit);
+    final chicago = getLocation('America/Chicago');
+    setLocalLocation(chicago);
 
     //Test a Saturday at 10pm which would actually be the next Sunday day in UTC
-    TZDateTime testDateTime = TZDateTime(detroit, 2024, 5, 4, 22, 0, 0);
+    TZDateTime testDateTime = TZDateTime(chicago, 2024, 5, 4, 22, 0, 0);
 
     DateTime result = getBeginningOfWeekUTC(testDateTime);
 
@@ -104,5 +104,27 @@ void main() {
     DateTime expected = DateTime.utc(2024, 5, 27, 12);
 
     expect(result, expected);
+  });
+
+  test('getNextDateTime case where Sunday is a daylight savings change)', () {
+    //this is a Wednesday which is after the Monday that's the timeslot
+    //TODO: implement this test
+    final chicago = getLocation('America/Chicago');
+    setLocalLocation(chicago);
+
+    //Test a Monday at 10pm on the week of daylight savings time change
+    TZDateTime date = TZDateTime(chicago, 2024, 3, 11, 22, 0, 0);
+
+    //Friday at midnight
+    Duration timeSlotAsDuration = Duration(days: 5);
+
+    DateTime resultOne = getNextDateTime(date, timeSlotAsDuration);
+
+    //Test a Monday at 10pm on the week before daylight savings time change
+    date = TZDateTime(chicago, 2024, 3, 4, 22, 0, 0);
+
+    DateTime resultTwo = getNextDateTime(date, timeSlotAsDuration);
+
+    expect(resultOne.toLocal().hour, resultTwo.toLocal().hour);
   });
 }
