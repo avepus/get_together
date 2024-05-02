@@ -89,4 +89,20 @@ void main() {
 
     expect(result, expected);
   });
+
+  test('getNextDateTime case with big buffer)', () {
+    //this is a Wednesday which is after the Monday that's the timeslot
+    DateTime date = DateTime.utc(2024, 5, 1);
+
+    //this should be Monday at noon timeslot
+    Duration timeSlotAsDuration = Duration(hours: 36);
+
+    Duration bigBuffer = Duration(days: 25);
+
+    DateTime result = getNextDateTime(date, timeSlotAsDuration, bigBuffer);
+
+    DateTime expected = DateTime.utc(2024, 5, 27, 12);
+
+    expect(result, expected);
+  });
 }
