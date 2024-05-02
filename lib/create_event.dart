@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'classes/group.dart';
+import 'classes/availability.dart';
 import 'classes/event.dart';
 
 class CreateEventPage extends StatefulWidget {
@@ -16,6 +17,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   @override
   Widget build(BuildContext context) {
+    String? timeSlotName = widget.timeSlot == null
+        ? null
+        : Availability.getTimeslotName(widget.timeSlot!, context);
     return Scaffold(
         appBar: AppBar(
           title: Text('New ${widget.group.name} Event'),
@@ -51,7 +55,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                labelText: 'Start Time',
+                labelText: 'Start Time: $timeSlotName',
               ),
             ),
           ),

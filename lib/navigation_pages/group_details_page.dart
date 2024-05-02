@@ -299,7 +299,10 @@ class GenerateEventButten extends StatelessWidget {
                             ],
                           ),
                           onTap: () {
-                            //go to create event page
+                            context.goNamed('newevent', extra: {
+                              'group': group,
+                              'timeSlot': timeSlots[index - 1]
+                            });
                           },
                         );
                       }
