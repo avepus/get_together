@@ -19,14 +19,19 @@ DateTime getNextDateTime(DateTime anchorDateTime, Duration timeSlotAsDuration,
   DateTime midnightSunday = getBeginningOfWeekUTC(bufferedAnchor);
   DateTime nextDateTime = midnightSunday.add(timeSlotAsDuration);
   if (bufferedAnchor.isBefore(nextDateTime)) {
-    return nextDateTime;
+    //this handles the case where daylight savings occurred beteen sunday and nextDateTime
+    Duration difference = midnightSunday.toLocal().timeZoneOffset -
+        nextDateTime.toLocal().timeZoneOffset;
+    return nextDateTime.add(difference);
   }
 
   DateTime rebufferedAnchor = bufferedAnchor.add(const Duration(days: 7));
   midnightSunday = getBeginningOfWeekUTC(rebufferedAnchor);
   nextDateTime = midnightSunday.add(timeSlotAsDuration);
   if (bufferedAnchor.isBefore(nextDateTime)) {
-    return nextDateTime;
+    Duration difference = midnightSunday.toLocal().timeZoneOffset -
+        nextDateTime.toLocal().timeZoneOffset;
+    return nextDateTime.add(difference);
   }
   throw Exception(
       'getNextDateTime failed to find a valid time. This should not happen.');
