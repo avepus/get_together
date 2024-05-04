@@ -153,4 +153,20 @@ void main() {
 
     expect(resultOne.toLocal().hour, resultTwo.toLocal().hour);
   });
+
+  test('getNextDateTimeFromTimeSlot make sure timeslot works', () {
+    //this is a Wednesday
+    DateTime date = DateTime.utc(2024, 5, 1);
+
+    //this should be Saturday at midnight which is more than 1 day away so it works
+    int saturDayMidnightTimeSlot = 24 * 2 * 6;
+
+    DateTime result =
+        getNextDateTimeFromTimeSlot(date, saturDayMidnightTimeSlot);
+
+    //we expect that Saturday time to work
+    DateTime expected = DateTime.utc(2024, 5, 4);
+
+    expect(result, expected);
+  });
 }
