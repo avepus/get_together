@@ -65,12 +65,11 @@ final _router = GoRouter(
             name: 'newevent',
             builder: (context, state) {
               if (state.extra == null) {
-                throw Exception('CreateEventPage requires extra parameters');
+                context.pushReplacement('/');
               }
               Map<String, dynamic> map = state.extra! as Map<String, dynamic>;
               if (map['group'] == null) {
-                throw Exception(
-                    'CreateEventPage requires a group passed in extra parameters');
+                context.pushReplacement('/');
               }
               Group group = map['group'] as Group;
               int? slot = map['timeSlot'];
