@@ -97,7 +97,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             documentId: group.documentId,
                             currentValue: group.daysBetweenMeets,
                             hasSecurity: loggedInUidInArray(group.admins),
-                            dataType: String),
+                            dataType: int),
+                        EditableFirestoreField(
+                            collection: Group.collectionName,
+                            fieldKey: Group.meetingDurationKey,
+                            label: Group.meetingDurationLabel,
+                            documentId: group.documentId,
+                            currentValue: group.meetingDuration,
+                            hasSecurity: loggedInUidInArray(group.admins),
+                            dataType: double),
                         AvailabilityButton(
                           groupDocumentId: widget.groupDocumentId,
                           availability: group.getAvailability(
