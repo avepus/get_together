@@ -11,6 +11,7 @@ class Group {
   static const String membersKey = 'members';
   static const String adminsKey = 'admins';
   static const String daysBetweenMeetsKey = 'daysBetweenMeets';
+  static const String meetingDurationKey = 'meetingDuration';
   static const String daysOfWeekKey = 'daysOfWeek';
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
@@ -22,6 +23,7 @@ class Group {
   static const String membersLabel = 'Members';
   static const String adminsLabel = 'Admins';
   static const String daysBetweenMeetsLabel = 'Meeting Frequency';
+  static const String meetingDurationLabel = 'Meeting Duration (hours)';
   static const String daysOfWeekLabel = 'Meeting Days';
   static const String createdTimeLabel = 'Created Time';
   static const String imageUrlLabel = 'Group Picture Link';
@@ -33,6 +35,8 @@ class Group {
   List<String> members;
   List<String> admins;
   int? daysBetweenMeets;
+  double? meetingDuration;
+
   List<int>? daysOfWeek;
   Timestamp? createdTime;
   String? imageUrl;
@@ -45,6 +49,7 @@ class Group {
     this.members = const <String>[],
     this.admins = const <String>[],
     this.daysBetweenMeets,
+    this.meetingDuration,
     this.daysOfWeek = const <int>[],
     this.createdTime,
     this.imageUrl,
@@ -60,6 +65,7 @@ class Group {
         members: data[membersKey].cast<String>(),
         admins: data[adminsKey].cast<String>(),
         daysBetweenMeets: data[daysBetweenMeetsKey],
+        meetingDuration: data[meetingDurationKey],
         daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty
             ? null
             : data[daysOfWeekKey].cast<int>(),
@@ -133,12 +139,4 @@ class Group {
     }
     return users;
   }
-}
-
-class GroupAvailability {
-  Map<String, List<Availability>>? memberAvailabilities;
-
-  GroupAvailability({
-    this.memberAvailabilities,
-  });
 }
