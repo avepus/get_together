@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:intl/intl.dart';
 import 'classes/group.dart';
 import 'classes/availability.dart';
 import 'classes/event.dart';
+import 'time_utils.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group group;
@@ -13,13 +16,22 @@ class CreateEventPage extends StatefulWidget {
 }
 
 class _CreateEventPageState extends State<CreateEventPage> {
-  final startTimeController = TextEditingController();
+  final _startTimeController = TextEditingController();
+  final _startDateController = TextEditingController();
+  DateTime start = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    DateTime start = widget.timeSlot == null
+        ? DateTime.now()
+        : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
+    _startDateController.text = DateFormat.yMd().format(start);
+    _startTimeController.text = DateFormat.jm().format(start);
+  }
 
   @override
   Widget build(BuildContext context) {
-    String? timeSlotName = widget.timeSlot == null
-        ? null
-        : Availability.getTimeslotName(widget.timeSlot!, context);
     return Scaffold(
         appBar: AppBar(
           title: Text('New ${widget.group.name} Event'),
@@ -54,10 +66,34 @@ class _CreateEventPageState extends State<CreateEventPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Start Time: $timeSlotName',
-              ),
-            ),
+                controller: _startDateController,
+                decoration: InputDecoration(
+                  labelText: 'Date',
+                  filled: true,
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide.none),
+                  prefixIcon: Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () {
+                  _selectDate(context, start);
+                }),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+                controller: _startTimeController,
+                decoration: InputDecoration(
+                  labelText: 'Start Time',
+                  filled: true,
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide.none),
+                  prefixIcon: Icon(Icons.schedule),
+                ),
+                readOnly: true,
+                onTap: () {
+                  _selectTime(context, TimeOfDay.fromDateTime(start));
+                }),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -72,5 +108,30 @@ class _CreateEventPageState extends State<CreateEventPage> {
               child: ElevatedButton(
                   child: const Text('Create Event'), onPressed: () {})),
         ]));
+  }
+
+  Future<void> _selectDate(BuildContext context, DateTime start) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: start,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2050),
+    );
+    if (picked != null)
+      setState(() {
+        _startDateController.text = picked.toString().split(" ")[0];
+      });
+  }
+
+  Future<void> _selectTime(BuildContext context, TimeOfDay start) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: start,
+    );
+
+    if (picked != null)
+      setState(() {
+        _startTimeController.text = picked.toString();
+      });
   }
 }

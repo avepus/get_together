@@ -63,6 +63,4 @@ class Availability {
   static String getTimeslotName(int index, BuildContext context) {
     return '${getDayName(index)} ${getTimeOfDay(index).format(context)}';
   }
-
-  //function that returns the utc time of the start of the timeslot
 }
