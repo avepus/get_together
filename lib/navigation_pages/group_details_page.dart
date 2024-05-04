@@ -115,7 +115,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         Card(
                             child: ListTile(
                                 title: const Text(Group.daysOfWeekLabel),
-                                subtitle: Text(group.daysOfWeek.toString()))),
+                                subtitle: Text(group.daysOfWeek == null
+                                    ? ''
+                                    : group.daysOfWeek.toString()))),
                         Card(
                             child: ListTile(
                                 title: const Text(Group.createdTimeLabel),
