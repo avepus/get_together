@@ -81,7 +81,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                       });
                     },
                   )
-                : Text(widget.currentValue.toString()),
+                : Text(textController.text),
           ),
         ),
         Visibility(
