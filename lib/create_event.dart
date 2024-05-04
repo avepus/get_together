@@ -36,9 +36,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
         appBar: AppBar(
           title: Text('New ${widget.group.name} Event'),
         ),
-        //left off here
-        //TODO: implement the create event page UI with defaulting the passed in time slot
         body: ListView(children: [
+          //TODO: Create default for event title
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -95,6 +94,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   _selectTime(context, TimeOfDay.fromDateTime(start));
                 }),
           ),
+          //TODO: set up end time to default to group meeting duration + start time
+          //TODO: set up end time to not allow before start time
+          //TODO: set up end time to move when a new start is selected
+          //TODO: set up an end date field for events that span midnight
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
