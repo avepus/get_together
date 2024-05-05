@@ -182,9 +182,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   child: const Text('Create Event'), onPressed: () {})),
-          SizedBox(
-              height: 500,
-              width: 200, //why isn't this width being respected?
+          Container(
+              height: 400,
+              width: 400, //why isn't this width being respected?
               child: ListView.builder(
                 itemCount: timeSlots.length + 1, // Add one for the header row
                 itemBuilder: (BuildContext context, int index) {

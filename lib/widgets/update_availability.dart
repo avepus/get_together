@@ -62,76 +62,95 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Set Availability'),
+          title: const Text('Set Availability'),
         ),
-        body: ListView.builder(
-          itemCount: Availability.ArrayLength,
-          itemBuilder: (context, index) {
-            return Row(
+        body: Column(
+          children: [
+            Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 150,
-                  child: Text(Availability.getTimeslotName(index, context)),
-                ),
-                //TODO: this should generate by iterating Availability.ValueDefinitions
-                Flexible(
-                  child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[-3]!),
-                      value: -3,
-                      groupValue: _availability.weekAvailability[index],
-                      onChanged: (value) {
-                        setState(() {
-                          _availability.weekAvailability[index] = value ?? 0;
-                        });
-                      }),
+                  child: Text('Time Slot'),
                 ),
                 Flexible(
-                  child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[0]!),
-                      value: 0,
-                      groupValue: _availability.weekAvailability[index],
-                      onChanged: (value) {
-                        setState(() {
-                          _availability.weekAvailability[index] = value ?? 0;
-                        });
-                      }),
+                  child: Center(
+                    child: Text(
+                        Availability.ValueDefinitions[Availability.badValue]!),
+                  ),
                 ),
                 Flexible(
-                  child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[1]!),
-                      value: 1,
-                      groupValue: _availability.weekAvailability[index],
-                      onChanged: (value) {
-                        setState(() {
-                          _availability.weekAvailability[index] = value ?? 0;
-                        });
-                      }),
+                  child: Center(
+                    child: Text(
+                        Availability.ValueDefinitions[Availability.goodValue]!),
+                  ),
                 ),
                 Flexible(
-                  child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[2]!),
-                      value: 2,
-                      groupValue: _availability.weekAvailability[index],
-                      onChanged: (value) {
-                        setState(() {
-                          _availability.weekAvailability[index] = value ?? 0;
-                        });
-                      }),
-                ),
-                Flexible(
-                  child: RadioListTile(
-                      title: Text(Availability.ValueDefinitions[3]!),
-                      value: 3,
-                      groupValue: _availability.weekAvailability[index],
-                      onChanged: (value) {
-                        setState(() {
-                          _availability.weekAvailability[index] = value ?? 0;
-                        });
-                      }),
+                  child: Center(
+                    child: Text(Availability
+                        .ValueDefinitions[Availability.greatValue]!),
+                  ),
                 ),
               ],
-            );
-          },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: Availability.ArrayLength,
+                itemBuilder: (context, index) {
+                  return Row(
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child:
+                            Text(Availability.getTimeslotName(index, context)),
+                      ),
+                      Flexible(
+                        child: RadioListTile(
+                            title: Text(Availability
+                                .ValueDefinitions[Availability.badValue]!),
+                            toggleable: true,
+                            value: Availability.badValue,
+                            groupValue: _availability.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability.weekAvailability[index] =
+                                    value ?? 0;
+                              });
+                            }),
+                      ),
+                      Flexible(
+                        child: RadioListTile(
+                            title: Text(Availability
+                                .ValueDefinitions[Availability.goodValue]!),
+                            toggleable: true,
+                            value: Availability.goodValue,
+                            groupValue: _availability.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability.weekAvailability[index] =
+                                    value ?? 0;
+                              });
+                            }),
+                      ),
+                      Flexible(
+                        child: RadioListTile(
+                            title: Text(Availability
+                                .ValueDefinitions[Availability.greatValue]!),
+                            toggleable: true,
+                            value: Availability.greatValue,
+                            groupValue: _availability.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability.weekAvailability[index] =
+                                    value ?? 0;
+                              });
+                            }),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
         floatingActionButton: ElevatedButton(
             child: const Text('Submit'),

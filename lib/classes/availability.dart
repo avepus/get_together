@@ -4,15 +4,23 @@ enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
 //represents a week of availability in half hour increments
 class Availability {
-  static const List<int> validArrayValues = [-3, 0, 1, 2, 3];
   static const int ArrayLength = 336;
   static const int HalfHoursInADay = 48;
+  static const int badValue = -2;
+  static const int notSetValue = 0;
+  static const int goodValue = 1;
+  static const int greatValue = 2;
+  static const List<int> validArrayValues = [
+    badValue,
+    notSetValue,
+    goodValue,
+    greatValue
+  ];
   static const Map<int, String> ValueDefinitions = {
-    -3: 'Not Available',
-    0: 'Not Set',
-    1: 'Sometimes Available',
-    2: 'Usually Available',
-    3: 'Preferred Time',
+    Availability.badValue: 'Bad',
+    Availability.notSetValue: 'Not Set',
+    Availability.goodValue: 'Good',
+    Availability.greatValue: 'Great',
   };
 
   List<int> weekAvailability = List<int>.filled(ArrayLength, 0);
