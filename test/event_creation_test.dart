@@ -250,4 +250,14 @@ void main() {
 
     expect(actual, expected);
   });
+
+  test('getTopTimeSlots test get more than 3 timeslots', () {
+    int minDistance = 1;
+    int slots = 5;
+    List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8];
+    List<int> expected = [1, 2, 6, 4, 5];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+
+    expect(actual, expected);
+  });
 }

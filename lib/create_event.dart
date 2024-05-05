@@ -6,39 +6,57 @@ import 'classes/group.dart';
 import 'classes/availability.dart';
 import 'classes/event.dart';
 import 'time_utils.dart';
+import 'findTime.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group group;
   final int? timeSlot;
-  const CreateEventPage({super.key, required this.group, this.timeSlot});
+  CreateEventPage({super.key, required this.group, this.timeSlot});
 
   @override
   _CreateEventPageState createState() => _CreateEventPageState();
 }
 
 class _CreateEventPageState extends State<CreateEventPage> {
+  final int numberOfSlotsToReturn = 5; //this should probably be configurable
   final _startTimeController = TextEditingController();
   final _startDateController = TextEditingController();
   final _endTimeController = TextEditingController();
   final _endDateController = TextEditingController();
-  DateTime start = DateTime.now();
+  late DateTime start;
   late int duration;
   late DateTime end;
+  Map<String, Availability> memberAvailabilities = {};
+  late Map<int, int> timeSlotsAndScores;
+  late List<int> timeSlots;
+  late int timeSlotDuration = widget.group.meetingDuration == null
+      ? Group.defaultMeetingDuration
+      : widget.group.meetingDuration!.toInt();
 
   @override
   void initState() {
     super.initState();
-    DateTime start = widget.timeSlot == null
+    duration = widget.group.meetingDuration == null
+        ? Group.defaultMeetingDuration
+        : widget.group.meetingDuration!.toInt();
+    start = widget.timeSlot == null
         ? DateTime.now()
         : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
-    duration = widget.group.meetingDuration == null
-        ? 2
-        : widget.group.meetingDuration!.toInt();
     end = start.add(Duration(hours: duration));
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
     _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
     _endTimeController.text = DateFormat.jm().format(end);
+
+    for (String member in widget.group.members) {
+      memberAvailabilities[member] = widget.group.getAvailability(member);
+    }
+
+    timeSlotsAndScores = findTimeSlots(
+        memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
+
+    timeSlots = timeSlotsAndScores.keys.toList();
+    int test = 0;
   }
 
   @override
@@ -81,7 +99,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                       controller: _startDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Start Date',
                         filled: true,
                         enabledBorder:
@@ -90,7 +108,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                       readOnly: true,
                       onTap: () {
-                        _selectStartDate(context, start);
+                        _selectStartDate(context);
                       }),
                 ),
               ),
@@ -100,7 +118,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                       controller: _startTimeController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Start Time',
                         filled: true,
                         enabledBorder:
@@ -109,18 +127,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                       readOnly: true,
                       onTap: () {
-                        _selectStartTime(
-                            context, TimeOfDay.fromDateTime(start));
+                        _selectStartTime(context);
                       }),
                 ),
               ),
             ],
           ),
 
-          //TODO: set up end time to default to group meeting duration + start time
           //TODO: set up end time to not allow before start time
           //TODO: set up end time to move when a new start is selected
-          //TODO: set up an end date field for events that span midnight
           Row(
             children: [
               SizedBox(
@@ -129,7 +144,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                       controller: _endDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'End Date',
                         filled: true,
                         enabledBorder:
@@ -138,7 +153,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                       readOnly: true,
                       onTap: () {
-                        _selectEndDate(context, end);
+                        _selectEndDate(context);
                       }),
                 ),
               ),
@@ -148,7 +163,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
                       controller: _endTimeController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'End Time',
                         filled: true,
                         enabledBorder:
@@ -157,7 +172,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                       readOnly: true,
                       onTap: () {
-                        _selectEndTime(context, TimeOfDay.fromDateTime(end));
+                        _selectEndTime(context);
                       }),
                 ),
               ),
@@ -167,56 +182,164 @@ class _CreateEventPageState extends State<CreateEventPage> {
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
                   child: const Text('Create Event'), onPressed: () {})),
+          SizedBox(
+              height: 500,
+              width: 200, //why isn't this width being respected?
+              child: ListView.builder(
+                itemCount: timeSlots.length + 1, // Add one for the header row
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    // This is the header row
+                    return ListTile(
+                      title: Table(
+                        columnWidths: const {
+                          0: FractionColumnWidth(0.2),
+                          1: FractionColumnWidth(0.6),
+                          2: FractionColumnWidth(0.2),
+                        },
+                        children: const [
+                          TableRow(
+                            children: [
+                              Text('Rank'),
+                              Text('Start Time'),
+                              Text('Score'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    // This is a data row
+                    String timeSlotName = Availability.getTimeslotName(
+                        timeSlots[index - 1], context);
+                    return ListTile(
+                      title: Table(
+                        columnWidths: const {
+                          0: FractionColumnWidth(0.2),
+                          1: FractionColumnWidth(0.6),
+                          2: FractionColumnWidth(0.2),
+                        },
+                        children: [
+                          TableRow(
+                            children: [
+                              Text('$index'),
+                              Text(timeSlotName),
+                              Text(
+                                  '${timeSlotsAndScores[timeSlots[index - 1]]}'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              )),
         ]));
   }
 
-  Future<void> _selectStartDate(BuildContext context, DateTime start) async {
+  //TODO: make this move the end when the start time is changed
+  Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: start,
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
     );
-    if (picked != null)
-      setState(() {
-        _startDateController.text = picked.toString().split(" ")[0];
-      });
+
+    if (picked == null) {
+      return;
+    }
+
+    Duration newStartDifference = picked.difference(start);
+
+    start = start.add(Duration(days: newStartDifference.inDays));
+    end = end.add(Duration(days: newStartDifference.inDays));
+
+    setState(() {
+      _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
+      _startTimeController.text = DateFormat.jm().format(start);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
+      _endTimeController.text = DateFormat.jm().format(end);
+    });
   }
 
-  Future<void> _selectStartTime(BuildContext context, TimeOfDay start) async {
+  Future<void> _selectStartTime(BuildContext context) async {
+    TimeOfDay initialTime = TimeOfDay.fromDateTime(start);
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: start,
+      initialTime: initialTime,
     );
 
-    if (picked != null)
-      setState(() {
-        _startTimeController.text = picked.toString();
-      });
+    if (picked == null) {
+      return;
+    }
+
+    Duration difference = Duration(
+        minutes:
+            ((picked.hour - start.hour) * 60) + (picked.minute - start.minute));
+
+    start = start.add(difference);
+    end = end.add(difference);
+
+    setState(() {
+      _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
+      _startTimeController.text = DateFormat.jm().format(start);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
+      _endTimeController.text = DateFormat.jm().format(end);
+    });
   }
 
-  Future<void> _selectEndDate(BuildContext context, DateTime end) async {
+  //having an issue with trying to move the end date to the next day
+  Future<void> _selectEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: end,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2050),
+      firstDate: start,
+      lastDate: start.add(const Duration(days: 1)),
     );
-    if (picked != null)
-      setState(() {
-        _endDateController.text = picked.toString().split(" ")[0];
-      });
+
+    if (picked == null) {
+      return;
+    }
+
+    Duration newEndDifference = picked.difference(end);
+
+    end = end.add(Duration(days: newEndDifference.inDays));
+
+    if (end.isBefore(start)) {
+      end = start.add(const Duration(minutes: 30));
+    }
+
+    setState(() {
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
+      _endTimeController.text = DateFormat.jm().format(end);
+    });
   }
 
-  Future<void> _selectEndTime(BuildContext context, TimeOfDay end) async {
+  Future<void> _selectEndTime(BuildContext context) async {
+    TimeOfDay initialTime = TimeOfDay.fromDateTime(end);
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: end,
+      initialTime: initialTime,
     );
 
-    if (picked != null)
-      setState(() {
-        _endTimeController.text = picked.toString();
-      });
+    if (picked == null) {
+      return;
+    }
+
+    Duration difference = Duration(
+        minutes:
+            ((picked.hour - end.hour) * 60) + (picked.minute - end.minute));
+
+    end = end.add(difference);
+
+    if (end.isBefore(start)) {
+      end = start.add(const Duration(minutes: 30));
+    }
+
+    setState(() {
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
+      _endTimeController.text = DateFormat.jm().format(end);
+    });
   }
 }
