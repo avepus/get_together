@@ -1,15 +1,15 @@
 import 'classes/availability.dart';
-import 'classes/event.dart';
+import 'dart:math';
 
-///TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability
 /// Finds time slots based on user availabilities.
 ///
-/// The function takes a map of user availabilities and returns a list of events representing the time slots.
+/// The function takes a map of user document IDs to availabilities and returns a list the best start times for a meet.
 ///
 /// [userAvailabilities] A map of user availabilities. The keys are user IDs.
+/// [timeSlotDuration] The duration of the meeting in half hours. e.g. this would be 4 for a two hour meeting.
+/// [numberOfSlots] The number of time slots to return.
 ///
 /// Returns a list of the best timeslots for this group's availabilties
-/// Next - return a map of the best times mapped to the associated scores so the scores can be displayed.
 Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
     int timeSlotDuration, int numberOfSlots) {
   List<Availability> availabilities = userAvailabilities.values.toList();
@@ -20,15 +20,21 @@ Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
   //using timeSlotDuration as the minimum distance might not be ideal for longer durations. May want to consider using timeSlotDuration/2 or soemthing like that
   //For example suggesting a 4 hour event might have good start times of 6 and 8 but we wouldn't display 8 with the current configuration
   Map<int, int> slotsAndScores = {};
+
+  //We have a minDistance to avoid suggesting times that are too close together
+  //we divide by 2 to help avoid one good time slot from hiding another one close by
+  int minDistance = max(1, timeSlotDuration ~/ 2);
+
   List<int> topTimeSlots =
-      getTopTimeSlots(sortedTimeSlotScores, timeSlotDuration, numberOfSlots);
+      getTopTimeSlots(sortedTimeSlotScores, minDistance, numberOfSlots);
   for (int i in topTimeSlots) {
     slotsAndScores[i] = timeSlotScores[i];
   }
   return slotsAndScores;
+  //TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability. This theoretically should be pretty easy. Flatten any available timeslots to 1 and everything else to 0
 }
 
-/// Converges availabilities into a single list equal to the sume of all availabilities values
+/// Converges availabilities into a single list equal to the sum of all availabilities values
 List<int> convergeAvailabilities(List<Availability> availabilities) {
   List<int> converge = List<int>.filled(Availability.ArrayLength, 0);
   for (Availability availability in availabilities) {
@@ -39,6 +45,13 @@ List<int> convergeAvailabilities(List<Availability> availabilities) {
   return converge;
 }
 
+///calculates a score for each time slot if it was the start time for an event
+///It sums the next [timeSlotDuration] availabilities for each timeslot
+///
+///[convergedAvailability] a list of timeslot availability scores for each user
+///[timeSlotDuration] the duration of the meeting in half hours
+///
+///Returns a the total availability score for each timeslot if the event started at that time
 List<int> calculateTimeSlotScores(
     List<int> convergedAvailability, int timeSlotDuration) {
   List<int> timeSlotScores = List<int>.filled(convergedAvailability.length, 0);
@@ -52,7 +65,9 @@ List<int> calculateTimeSlotScores(
   return timeSlotScores;
 }
 
-/// Sorts the time slot scores in descending order in a map that maps the time slot index to the score
+/// Sorts the time slot scores in descending order so the highest scores are first
+/// [timeSlotScores] a list of scores for each time slot returned by calculateTimeSlotScores
+/// Returns a list of indexes of the sorted scores
 List<int> sortTimeSlotScores(List<int> timeSlotScores) {
   // Create a list of indexes
   List<int> indicies =
@@ -64,6 +79,7 @@ List<int> sortTimeSlotScores(List<int> timeSlotScores) {
   return indicies;
 }
 
+/// Returns the minimum absolute difference between a number and a list of numbers
 int minAbsDifference(List<int> numbers, int num) {
   if (numbers.isEmpty) {
     throw ArgumentError('List must not be empty');
