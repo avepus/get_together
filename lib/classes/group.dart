@@ -29,6 +29,8 @@ class Group {
   static const String imageUrlLabel = 'Group Picture Link';
   static const String availabilityLabel = 'Availability';
 
+  static const int defaultMeetingDuration = 2; //unit is hours
+
   String documentId;
   String? name;
   String? description;
@@ -138,5 +140,12 @@ class Group {
       }
     }
     return users;
+  }
+
+  ///This is a helper function to get the duration of the meeting in half hours
+  int get meetingDurationAsTimeSlotDuration {
+    return meetingDuration == null
+        ? defaultMeetingDuration * 2
+        : (meetingDuration! * 2).toInt();
   }
 }

@@ -166,7 +166,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         //TODO: make magic numbers below into configuragble values
                         GenerateEventButten(
                             group: group,
-                            timeSlotDuration: 2,
+                            timeSlotDuration:
+                                group.meetingDurationAsTimeSlotDuration,
                             numberOfSlotsToReturn: 3),
                         ElevatedButton(
                             onPressed: () {
