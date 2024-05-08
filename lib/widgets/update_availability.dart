@@ -53,7 +53,8 @@ class AvailabilityPageDetail extends StatefulWidget {
 
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   late Availability _availability;
-  final double boxWidth = 120;
+  final double radioWidth = 100;
+  final double timeSlotWidth = 150;
 
   @override
   void initState() {
@@ -73,25 +74,25 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: boxWidth,
+                  width: timeSlotWidth,
                   child: Text('Time Slot'),
                 ),
                 SizedBox(
-                  width: boxWidth,
+                  width: radioWidth,
                   child: ListTile(
                     title: Text(
                         Availability.ValueDefinitions[Availability.badValue]!),
                   ),
                 ),
                 SizedBox(
-                  width: boxWidth,
+                  width: radioWidth,
                   child: ListTile(
                     title: Text(
                         Availability.ValueDefinitions[Availability.goodValue]!),
                   ),
                 ),
                 SizedBox(
-                  width: boxWidth,
+                  width: radioWidth,
                   child: ListTile(
                     title: Text(Availability
                         .ValueDefinitions[Availability.greatValue]!),
@@ -107,11 +108,11 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                          width: boxWidth,
+                          width: timeSlotWidth,
                           child: Text(
                               Availability.getTimeslotName(index, context))),
                       SizedBox(
-                        width: 120,
+                        width: radioWidth,
                         child: RadioListTile(
                             toggleable: true,
                             value: Availability.badValue,
@@ -124,7 +125,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                             }),
                       ),
                       SizedBox(
-                        width: boxWidth,
+                        width: radioWidth,
                         child: RadioListTile(
                             toggleable: true,
                             value: Availability.goodValue,
@@ -137,7 +138,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                             }),
                       ),
                       SizedBox(
-                        width: boxWidth,
+                        width: radioWidth,
                         child: RadioListTile(
                             toggleable: true,
                             value: Availability.greatValue,
