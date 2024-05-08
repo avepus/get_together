@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:get_together/classes/availability.dart';
@@ -43,6 +44,7 @@ class AvailabilityButton extends StatelessWidget {
 class AvailabilityPageDetail extends StatefulWidget {
   final String groupDocumentId;
   final Availability availability;
+
   AvailabilityPageDetail(
       {super.key, required this.groupDocumentId, required this.availability});
   @override
@@ -51,6 +53,7 @@ class AvailabilityPageDetail extends StatefulWidget {
 
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   late Availability _availability;
+  final double boxWidth = 120;
 
   @override
   void initState() {
@@ -67,26 +70,30 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
         body: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
-                  width: 150,
+                SizedBox(
+                  width: boxWidth,
                   child: Text('Time Slot'),
                 ),
-                Flexible(
-                  child: Center(
-                    child: Text(
+                SizedBox(
+                  width: boxWidth,
+                  child: ListTile(
+                    title: Text(
                         Availability.ValueDefinitions[Availability.badValue]!),
                   ),
                 ),
-                Flexible(
-                  child: Center(
-                    child: Text(
+                SizedBox(
+                  width: boxWidth,
+                  child: ListTile(
+                    title: Text(
                         Availability.ValueDefinitions[Availability.goodValue]!),
                   ),
                 ),
-                Flexible(
-                  child: Center(
-                    child: Text(Availability
+                SizedBox(
+                  width: boxWidth,
+                  child: ListTile(
+                    title: Text(Availability
                         .ValueDefinitions[Availability.greatValue]!),
                   ),
                 ),
@@ -97,16 +104,15 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                 itemCount: Availability.ArrayLength,
                 itemBuilder: (context, index) {
                   return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 150,
-                        child:
-                            Text(Availability.getTimeslotName(index, context)),
-                      ),
-                      Flexible(
+                          width: boxWidth,
+                          child: Text(
+                              Availability.getTimeslotName(index, context))),
+                      SizedBox(
+                        width: 120,
                         child: RadioListTile(
-                            title: Text(Availability
-                                .ValueDefinitions[Availability.badValue]!),
                             toggleable: true,
                             value: Availability.badValue,
                             groupValue: _availability.weekAvailability[index],
@@ -117,10 +123,9 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                               });
                             }),
                       ),
-                      Flexible(
+                      SizedBox(
+                        width: boxWidth,
                         child: RadioListTile(
-                            title: Text(Availability
-                                .ValueDefinitions[Availability.goodValue]!),
                             toggleable: true,
                             value: Availability.goodValue,
                             groupValue: _availability.weekAvailability[index],
@@ -131,10 +136,9 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                               });
                             }),
                       ),
-                      Flexible(
+                      SizedBox(
+                        width: boxWidth,
                         child: RadioListTile(
-                            title: Text(Availability
-                                .ValueDefinitions[Availability.greatValue]!),
                             toggleable: true,
                             value: Availability.greatValue,
                             groupValue: _availability.weekAvailability[index],
