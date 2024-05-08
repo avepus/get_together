@@ -169,6 +169,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             timeSlotDuration:
                                 group.meetingDurationAsTimeSlotDuration,
                             numberOfSlotsToReturn: 3),
+                        //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         ElevatedButton(
                             onPressed: () {
                               context.goNamed('newevent',
