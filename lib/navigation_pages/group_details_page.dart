@@ -166,8 +166,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         //TODO: make magic numbers below into configuragble values
                         GenerateEventButten(
                             group: group,
-                            timeSlotDuration:
-                                group.meetingDurationAsTimeSlotDuration,
+                            timeSlotDuration: group.meetingDurationTimeSlots,
                             numberOfSlotsToReturn: 3),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         ElevatedButton(

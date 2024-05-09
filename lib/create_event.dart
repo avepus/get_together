@@ -29,16 +29,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Map<String, Availability> memberAvailabilities = {};
   late Map<int, int> timeSlotsAndScores;
   late List<int> timeSlots;
-  late int timeSlotDuration;
 
   @override
   void initState() {
     super.initState();
-    timeSlotDuration = widget.group.meetingDurationAsTimeSlotDuration;
     start = widget.timeSlot == null
         ? DateTime.now()
         : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
-    end = start.add(Duration(hours: timeSlotDuration * 2));
+    end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
     _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
@@ -48,8 +46,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
       memberAvailabilities[member] = widget.group.getAvailability(member);
     }
 
-    timeSlotsAndScores = findTimeSlots(
-        memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
+    timeSlotsAndScores = findTimeSlots(memberAvailabilities,
+        widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn);
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }

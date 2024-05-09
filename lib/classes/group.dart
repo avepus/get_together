@@ -29,7 +29,7 @@ class Group {
   static const String imageUrlLabel = 'Group Picture Link';
   static const String availabilityLabel = 'Availability';
 
-  static const int defaultMeetingDuration = 2; //unit is hours
+  static const double defaultMeetingDuration = 2; //unit is hours
 
   String documentId;
   String? name;
@@ -142,10 +142,17 @@ class Group {
     return users;
   }
 
-  ///This is a helper function to get the duration of the meeting in half hours
-  int get meetingDurationAsTimeSlotDuration {
-    return meetingDuration == null
-        ? defaultMeetingDuration * 2
-        : (meetingDuration! * 2).toInt();
+  ///Gets the default meeting duration in hours and handles null values
+  double get meetingDurationHours {
+    return meetingDuration == null ? defaultMeetingDuration : meetingDuration!;
+  }
+
+  int get meetingDurationMinutes {
+    return (meetingDurationHours * 60).toInt();
+  }
+
+  ///Gets the default meeting duration in half hours and handles null values
+  int get meetingDurationTimeSlots {
+    return meetingDurationHours.toInt() * 2;
   }
 }
