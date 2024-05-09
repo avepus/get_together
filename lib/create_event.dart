@@ -240,10 +240,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
       return;
     }
 
-    Duration newStartDifference = picked.difference(start);
+    DateTime startMidnight = DateTime(start.year, start.month, start.day);
+    Duration newStartDifference = picked.difference(startMidnight);
 
-    start = start.add(Duration(days: newStartDifference.inDays));
-    end = end.add(Duration(days: newStartDifference.inDays));
+    start = start.add(newStartDifference);
+    end = end.add(newStartDifference);
 
     setState(() {
       _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
@@ -292,9 +293,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
       return;
     }
 
-    Duration newEndDifference = picked.difference(end);
+    //when selecting a date, the time is set to midnight. We want an even comparison so we compare it to our current end time at midnight
+    DateTime endMidnight = DateTime(end.year, end.month, end.day);
 
-    end = end.add(Duration(days: newEndDifference.inDays));
+    Duration newEndDifference = picked.difference(endMidnight);
+
+    end = end.add(newEndDifference);
 
     if (end.isBefore(start)) {
       end = start.add(const Duration(minutes: 30));
