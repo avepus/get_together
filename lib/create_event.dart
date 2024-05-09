@@ -29,20 +29,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Map<String, Availability> memberAvailabilities = {};
   late Map<int, int> timeSlotsAndScores;
   late List<int> timeSlots;
-  late int timeSlotDuration = widget.group.meetingDuration == null
-      ? Group.defaultMeetingDuration
-      : widget.group.meetingDuration!.toInt();
+  late int timeSlotDuration;
 
   @override
   void initState() {
     super.initState();
-    duration = widget.group.meetingDuration == null
-        ? Group.defaultMeetingDuration
-        : widget.group.meetingDuration!.toInt();
+    timeSlotDuration = widget.group.meetingDurationAsTimeSlotDuration;
     start = widget.timeSlot == null
         ? DateTime.now()
         : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
-    end = start.add(Duration(hours: duration));
+    end = start.add(Duration(hours: timeSlotDuration * 2));
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
     _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
@@ -56,7 +52,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
         memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
 
     timeSlots = timeSlotsAndScores.keys.toList();
-    int test = 0;
   }
 
   @override
@@ -133,9 +128,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
-
-          //TODO: set up end time to not allow before start time
-          //TODO: set up end time to move when a new start is selected
           Row(
             children: [
               SizedBox(
