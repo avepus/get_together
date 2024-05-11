@@ -24,12 +24,22 @@ class Availability {
   };
 
   List<int> weekAvailability = List<int>.filled(ArrayLength, 0);
+  String timeZoneName;
+  int timeZoneOffsetMinutes;
+  //left off here: need to make sure these data are passed to this function
 
-  Availability({required this.weekAvailability}) {
+  Availability(
+      {required this.weekAvailability,
+      required this.timeZoneName,
+      required this.timeZoneOffsetMinutes}) {
     validateArray();
   }
 
-  Availability.notSet() : weekAvailability = List<int>.filled(ArrayLength, 0);
+  //left of here too: need to probably get rid of this
+  Availability.notSet()
+      : this.weekAvailability = List<int>.filled(ArrayLength, 0),
+        this.timeZoneName = 'UTC',
+        this.timeZoneOffsetMinutes = 0;
 
   int getTimeSlotValue(int index) {
     return weekAvailability[index];
