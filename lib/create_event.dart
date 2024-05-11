@@ -19,6 +19,9 @@ class CreateEventPage extends StatefulWidget {
 
 class _CreateEventPageState extends State<CreateEventPage> {
   final int numberOfSlotsToReturn = 5; //this should probably be configurable
+  final _eventTitleController = TextEditingController();
+  final _eventDescriptionController = TextEditingController();
+  final _eventLocationController = TextEditingController();
   final _startTimeController = TextEditingController();
   final _startDateController = TextEditingController();
   final _endTimeController = TextEditingController();
@@ -63,6 +66,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _eventTitleController,
               decoration: InputDecoration(
                 labelText: '${widget.group.name} Event Title',
               ),
@@ -71,6 +75,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _eventDescriptionController,
               decoration: InputDecoration(
                 labelText: 'Event Description',
               ),
@@ -79,6 +84,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _eventLocationController,
               decoration: InputDecoration(
                 labelText: 'Event Location',
               ),
