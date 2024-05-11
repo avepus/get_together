@@ -16,6 +16,9 @@ DateTime getNextDateTimeFromTimeSlot(DateTime anchorDateTime, int timeSlot) {
   return getNextDateTime(anchorDateTime, timeSlotAsDuration);
 }
 
+/// Given an anchor date and a time slot, this function will return the next date time that fits the time slot.
+/// The DateTime returned must have at least [buffer] between now and that future time.
+///
 DateTime getNextDateTime(DateTime anchorDateTime, Duration timeSlotAsDuration,
     [Duration buffer = const Duration()]) {
   //there must be a minimum buffer of 1 day to prevent timezone issues grabbing the wrong day
