@@ -154,6 +154,29 @@ void main() {
     expect(resultOne.toLocal().hour, resultTwo.toLocal().hour);
   });
 
+  test(
+      'getNextDateTimeFromTimeSlot case where first evaluation is before daylight savings and second evaluation is after. These should both recommend the same time.',
+      () {
+    //this is a Wednesday which is after the Monday that's the timeslot
+    //TODO: implement this test
+    final chicago = getLocation('America/Chicago');
+    setLocalLocation(chicago);
+
+    //Test a Monday at 10pm two weeks after daylight savings time ends
+    TZDateTime date = TZDateTime(chicago, 2023, 11, 20, 22, 0, 0);
+    int timeSlot = 6;
+
+    //Friday at midnight
+    DateTime resultOne = getNextDateTimeFromTimeSlot(date, timeSlot);
+
+    //Test a Monday at 10pm on the week before daylight savings time change
+    date = TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
+
+    DateTime resultTwo = getNextDateTimeFromTimeSlot(date, timeSlot);
+
+    expect(resultOne.toLocal().hour, resultTwo.toLocal().hour);
+  });
+
   test('getNextDateTimeFromTimeSlot make sure timeslot works', () {
     //this is a Wednesday
     DateTime date = DateTime.utc(2024, 5, 1);
