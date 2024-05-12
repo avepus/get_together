@@ -13,6 +13,7 @@
 import 'package:get_together/classes/availability.dart';
 import 'package:test/test.dart';
 import 'package:get_together/findTime.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   test(
