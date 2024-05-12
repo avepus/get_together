@@ -10,7 +10,7 @@ Duration maxDuration(Duration a, Duration b) {
   return a.compareTo(b) >= 0 ? a : b;
 }
 
-/// Given an
+/// Given a UTC DateTime and UTC shifted time slot
 DateTime getNextDateTimeFromTimeSlot(DateTime anchorDateTime, int timeSlot) {
   Duration timeSlotAsDuration = Duration(minutes: timeSlot * 30);
   return getNextDateTime(anchorDateTime, timeSlotAsDuration);

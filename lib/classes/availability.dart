@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
@@ -78,5 +80,23 @@ class Availability {
 
   static String getTimeslotName(int index, BuildContext context) {
     return '${getDayName(index)} ${getTimeOfDay(index).format(context)}';
+  }
+
+  Availability getUtcAvailability(DateTime anchorDateTime) {
+    if (timeZoneName == 'UTC') {
+      return this;
+    }
+
+    tz.Location location = tz.getLocation(timeZoneName);
+    tz.TZDateTime availabilityDateTime =
+        tz.TZDateTime.from(anchorDateTime, location);
+    int offset = availabilityDateTime.timeZoneOffset.inMinutes;
+    int halfHourOffset = offset ~/ 30;
+    List<int> newAvailability = _rollContents(weekAvailability, halfHourOffset);
+    return Availability(weekAvailability: newAvailability, timeZoneName: 'UTC');
+  }
+
+  List<int> _rollContents(List<int> input, int roll) {
+    return input.sublist(roll)..addAll(input.sublist(0, roll));
   }
 }
