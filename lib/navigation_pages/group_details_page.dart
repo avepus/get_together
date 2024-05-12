@@ -250,7 +250,10 @@ class GenerateEventButten extends StatelessWidget {
       onPressed: () {
         Map<String, Availability> memberAvailabilities = {};
         for (String member in group.members) {
-          memberAvailabilities[member] = group.getAvailability(member);
+          Availability? availability = group.getAvailability(member);
+          if (availability != null) {
+            memberAvailabilities[member] = availability;
+          }
         }
         Map<int, int> timeSlotsAndScores = findTimeSlots(
             memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);

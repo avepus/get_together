@@ -112,7 +112,12 @@ void main() {
   test(
       'convergeAvailabilities base case return input availability when only one availability is given',
       () {
-    List<Availability> availabilities = [Availability.notSet()];
+    String timezone = 'America/Chicago';
+    List<Availability> availabilities = [
+      Availability(
+          weekAvailability: List.filled(Availability.ArrayLength, 0),
+          timeZoneName: timezone)
+    ];
 
     List<int> expectedConvergedAvailability =
         List<int>.filled(Availability.ArrayLength, 0); //all values should be 0
@@ -123,9 +128,10 @@ void main() {
   });
 
   test('convergeAvailabilities add multiple should sum values', () {
+    String timezone = 'America/Chicago';
     List<int> allOnesList = List<int>.filled(Availability.ArrayLength, 1);
     Availability allOnesAvailability =
-        Availability(weekAvailability: allOnesList);
+        Availability(weekAvailability: allOnesList, timeZoneName: timezone);
     List<Availability> availabilities = [
       allOnesAvailability,
       allOnesAvailability

@@ -35,10 +35,9 @@ class Availability {
     validateArray();
   }
 
-  //left of here too: need to probably get rid of this
-  Availability.notSet()
-      : this.weekAvailability = List<int>.filled(ArrayLength, 0),
-        this.timeZoneName = 'UTC';
+  static List<int> emptyWeekArray() {
+    return List<int>.filled(ArrayLength, notSetValue);
+  }
 
   int getTimeSlotValue(int index) {
     return weekAvailability[index];

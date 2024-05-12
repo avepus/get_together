@@ -108,12 +108,12 @@ class Group {
   }
 
   //TODO: this should return null if there is no availability
-  Availability getAvailability(String uid) {
+  Availability? getAvailability(String uid) {
     String? timeZone = getTimeZone(uid);
     if (memberAvailability == null ||
         memberAvailability![uid] == null ||
         timeZone == null) {
-      return Availability.notSet();
+      return null;
     }
     return Availability(
         weekAvailability: memberAvailability![uid]!, timeZoneName: timeZone);

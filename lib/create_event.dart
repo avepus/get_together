@@ -46,7 +46,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
     _endTimeController.text = DateFormat.jm().format(end);
 
     for (String member in widget.group.members) {
-      memberAvailabilities[member] = widget.group.getAvailability(member);
+      Availability? availability = widget.group.getAvailability(member);
+      if (availability != null) {
+        memberAvailabilities[member] = availability;
+      }
     }
 
     timeSlotsAndScores = findTimeSlots(memberAvailabilities,
