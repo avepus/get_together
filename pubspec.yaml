@@ -47,11 +47,12 @@ dependencies:
   intl: ^0.18.1
   test: ^1.24.9
   syncfusion_flutter_datepicker: ^25.1.42
+  flutter_native_timezone: ^2.0.0
+  timezone: ^0.9.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  timezone: any
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -23,23 +23,22 @@ class Availability {
     Availability.greatValue: 'Great',
   };
 
+  //this is the availability for the week in the user's timezone
+  //storing in the user's timezone allows for easier calculations because of daylight savings time
+  //you only need to convert the user's availability to UTC to compare with the group's availability
   List<int> weekAvailability = List<int>.filled(ArrayLength, 0);
-  String timeZoneName;
-  int timeZoneOffsetMinutes;
-  //left off here: need to make sure these data are passed to this function
 
-  Availability(
-      {required this.weekAvailability,
-      required this.timeZoneName,
-      required this.timeZoneOffsetMinutes}) {
+  //timezone name per the Dart Timezone package that can be passed into tz.getLocation
+  String timeZoneName;
+
+  Availability({required this.weekAvailability, required this.timeZoneName}) {
     validateArray();
   }
 
   //left of here too: need to probably get rid of this
   Availability.notSet()
       : this.weekAvailability = List<int>.filled(ArrayLength, 0),
-        this.timeZoneName = 'UTC',
-        this.timeZoneOffsetMinutes = 0;
+        this.timeZoneName = 'UTC';
 
   int getTimeSlotValue(int index) {
     return weekAvailability[index];

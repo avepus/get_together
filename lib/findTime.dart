@@ -1,5 +1,6 @@
 import 'classes/availability.dart';
 import 'dart:math';
+import 'package:timezone/data/latest.dart' as tz;
 
 /// Finds time slots based on user availabilities.
 ///

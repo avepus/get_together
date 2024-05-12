@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:get_together/classes/availability.dart';
 import '../classes/group.dart';
@@ -160,13 +163,18 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
         floatingActionButton: ElevatedButton(
             child: const Text('Submit'),
             onPressed: () async {
+              tz.initializeTimeZones();
+              final String currentTimeZone =
+                  await FlutterNativeTimezone.getLocalTimezone();
               final User? user = FirebaseAuth.instance.currentUser;
               if (user != null) {
                 await FirebaseFirestore.instance
                     .collection(Group.collectionName)
                     .doc(widget.groupDocumentId)
                     .update({
-                  'availability.${user.uid}': _availability.weekAvailability
+                  '${Group.availabilityKey}.${user.uid}':
+                      _availability.weekAvailability,
+                  '${Group.memberTimezonesKey}.${user.uid}': currentTimeZone,
                 });
               }
 

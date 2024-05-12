@@ -16,6 +16,7 @@ class Group {
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
   static const String availabilityKey = 'availability';
+  static const String memberTimezonesKey = 'memberTimezones';
 
   static const String documentIdLabel = 'Document ID';
   static const String nameLabel = 'Name';
@@ -28,6 +29,7 @@ class Group {
   static const String createdTimeLabel = 'Created Time';
   static const String imageUrlLabel = 'Group Picture Link';
   static const String availabilityLabel = 'Availability';
+  static const String memberTimezonesLabel = 'Timezones';
 
   static const double defaultMeetingDuration = 2; //unit is hours
 
@@ -43,6 +45,7 @@ class Group {
   Timestamp? createdTime;
   String? imageUrl;
   Map<String, List<int>>? memberAvailability;
+  Map<String, String>? memberTimezones;
 
   Group({
     required this.documentId,
@@ -56,6 +59,7 @@ class Group {
     this.createdTime,
     this.imageUrl,
     this.memberAvailability,
+    this.memberTimezones,
   });
 
   factory Group.fromDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -73,18 +77,46 @@ class Group {
             : data[daysOfWeekKey].cast<int>(),
         createdTime: data[createdTimeKey],
         imageUrl: data[imageUrlKey],
-        memberAvailability: data[availabilityKey] == null
-            ? null
-            // craziness below needed because Firestore returns a Map<String, dynamic> instead of Map<String, List<int>>
-            : (data[availabilityKey] as Map<String, dynamic>)
-                .map((key, value) => MapEntry(key, List<int>.from(value))));
+        memberAvailability:
+            _convertAvailabilityFromFirestore(data[availabilityKey]),
+        memberTimezones:
+            _convertTimezonesFromFirestore(data[memberTimezonesKey]));
   }
 
+  static Map<String, List<int>>? _convertAvailabilityFromFirestore(
+      Map<String, dynamic>? availability) {
+    if (availability == null) {
+      return null;
+    }
+    return availability.map((key, value) =>
+        MapEntry(key, List<int>.from((value as List<dynamic>).cast<int>())));
+  }
+
+  static Map<String, String>? _convertTimezonesFromFirestore(
+      Map<String, dynamic>? timezones) {
+    if (timezones == null) {
+      return null;
+    }
+    return timezones.map((key, value) => MapEntry(key, value as String));
+  }
+
+  String? getTimeZone(String uid) {
+    if (memberTimezones == null || memberTimezones![uid] == null) {
+      return null;
+    }
+    return memberTimezones![uid]!;
+  }
+
+  //TODO: this should return null if there is no availability
   Availability getAvailability(String uid) {
-    if (memberAvailability == null || memberAvailability![uid] == null) {
+    String? timeZone = getTimeZone(uid);
+    if (memberAvailability == null ||
+        memberAvailability![uid] == null ||
+        timeZone == null) {
       return Availability.notSet();
     }
-    return Availability(weekAvailability: memberAvailability![uid]!);
+    return Availability(
+        weekAvailability: memberAvailability![uid]!, timeZoneName: timeZone);
   }
 
   ///this gives me a the follwoing error when used
