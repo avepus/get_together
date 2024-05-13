@@ -255,6 +255,7 @@ class GenerateEventButten extends StatelessWidget {
             memberAvailabilities[member] = availability;
           }
         }
+        //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
         Map<int, int> timeSlotsAndScores = findTimeSlots(
             memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
         List<int> timeSlots = timeSlotsAndScores.keys.toList();

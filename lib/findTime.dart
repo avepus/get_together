@@ -12,8 +12,12 @@ import 'package:timezone/data/latest.dart' as tz;
 ///
 /// Returns a list of the best timeslots for this group's availabilties
 Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
-    int timeSlotDuration, int numberOfSlots) {
-  List<Availability> availabilities = userAvailabilities.values.toList();
+    int timeSlotDuration, int numberOfSlots,
+    [DateTime? inAnchorDate]) {
+  DateTime anchorDate = inAnchorDate ?? DateTime.now();
+  List<Availability> availabilitiesInLocal = userAvailabilities.values.toList();
+  List<Availability> availabilities =
+      getUTCAvailabilities(availabilitiesInLocal, anchorDate);
   List<int> convergedAvailability = convergeAvailabilities(availabilities);
   List<int> timeSlotScores =
       calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
@@ -33,6 +37,15 @@ Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
   }
   return slotsAndScores;
   //TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability. This theoretically should be pretty easy. Flatten any available timeslots to 1 and everything else to 0
+}
+
+List<Availability> getUTCAvailabilities(
+    List<Availability> availabilities, DateTime anchorDate) {
+  List<Availability> utcAvailabilities = [];
+  for (Availability availability in availabilities) {
+    utcAvailabilities.add(availability.getUtcAvailability(anchorDate));
+  }
+  return utcAvailabilities;
 }
 
 /// Converges availabilities into a single list equal to the sum of all availabilities values
