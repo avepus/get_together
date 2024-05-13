@@ -14,6 +14,7 @@ import 'package:get_together/classes/availability.dart';
 import 'package:test/test.dart';
 import 'package:get_together/findTime.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   test(
@@ -266,5 +267,52 @@ void main() {
     List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
 
     expect(actual, expected);
+  });
+
+  test('findTimeSlots calculate across timezones correctly', () {
+    tz.initializeTimeZones();
+    int utcIndex = 20;
+    int chicagoTimeSlotOffset =
+        -10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
+    String chicagoTimezone = 'America/Chicago';
+    tz.Location chicago = tz.getLocation(chicagoTimezone);
+    List<int> chicagoAvailabilityArray = Availability.emptyWeekArray();
+    chicagoAvailabilityArray[utcIndex + chicagoTimeSlotOffset] =
+        Availability.greatValue;
+
+    Availability chicagoAvailability = Availability(
+      weekAvailability: chicagoAvailabilityArray,
+      timeZoneName: chicagoTimezone,
+    );
+
+    String mawsonTimezone = 'Antarctica/Mawson';
+    int mawsonTimeSlotOffset = 10; //+5 hour offset = 10 time slots
+    List<int> mawsonAvailabilityArray = Availability.emptyWeekArray();
+    mawsonAvailabilityArray[utcIndex + mawsonTimeSlotOffset] =
+        Availability.greatValue;
+
+    Availability mawsonAvailability = Availability(
+      weekAvailability: mawsonAvailabilityArray,
+      timeZoneName: mawsonTimezone,
+    );
+
+    //Monday at 10pm on the week before daylight savings time change which is -5 from UTC
+    tz.TZDateTime anchorDate = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
+
+    //note, keys are user document IDs which aren't relevant for this test
+    Map<String, Availability> availabilityMap = {
+      'abc': chicagoAvailability,
+      'def': mawsonAvailability
+    };
+
+    Map<int, int> actual = findTimeSlots(availabilityMap, 1, 1, anchorDate);
+
+    //the best and only timeslot returned should be utc index 20 (timeslot 21 technically)
+    int actualUtcIndex = actual.keys.first;
+    expect(actualUtcIndex, utcIndex);
+
+    //the score should be 4 because both users have great availability
+    int actualScore = actual[actualUtcIndex]!;
+    expect(actualScore, Availability.greatValue * 2);
   });
 }
