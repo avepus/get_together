@@ -185,6 +185,30 @@ void main() {
           expectedAvailability.weekAvailability);
     });
 
+    test('getUtcAvailability validate no changes when timezone is already UTC',
+        () {
+      String timezone = 'UTC';
+      int index = 50;
+      int indexValue = 2;
+
+      List<int> weekAvailability = Availability.emptyWeekArray();
+      weekAvailability[index] = indexValue;
+
+      final availability = Availability(
+        weekAvailability: weekAvailability.toList(), //use toList to copy
+        timeZoneName: timezone,
+      );
+
+      tz.initializeTimeZones();
+      tz.Location utcLocation = tz.getLocation(timezone);
+      //Monday at 10pm on the week before daylight savings time change
+      TZDateTime date = TZDateTime(utcLocation, 2023, 10, 30, 22, 0, 0);
+
+      final actualAvailability = availability.getUtcAvailability(date);
+      expect(actualAvailability.timeZoneName, timezone);
+      expect(actualAvailability.weekAvailability, weekAvailability);
+    });
+
     test('_rollContents basic tests', () {
       List<int> input = [1, 2, 3, 4, 5];
       List<int> expectedOutput = [5, 1, 2, 3, 4];
