@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/timezone.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:get_together/classes/availability.dart';
@@ -100,7 +99,7 @@ void main() {
       tz.initializeTimeZones();
       tz.Location location = tz.getLocation(timezone);
       //date doesn't really matter since this location doesn't do daylight savings
-      TZDateTime date = TZDateTime(location, 2023, 11, 20, 22, 0, 0);
+      tz.TZDateTime date = tz.TZDateTime(location, 2023, 11, 20, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(date);
       expect(
@@ -138,7 +137,7 @@ void main() {
       tz.initializeTimeZones();
       tz.Location chicago = tz.getLocation(timezone);
       //Monday at 10pm two weeks after daylight savings time ends
-      TZDateTime afterDST = TZDateTime(chicago, 2023, 11, 20, 22, 0, 0);
+      tz.TZDateTime afterDST = tz.TZDateTime(chicago, 2023, 11, 20, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(afterDST);
       expect(
@@ -176,7 +175,7 @@ void main() {
       tz.initializeTimeZones();
       tz.Location chicago = tz.getLocation(timezone);
       //Monday at 10pm on the week before daylight savings time change
-      TZDateTime beforeDST = TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
+      tz.TZDateTime beforeDST = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(beforeDST);
       expect(
@@ -202,7 +201,7 @@ void main() {
       tz.initializeTimeZones();
       tz.Location utcLocation = tz.getLocation(timezone);
       //Monday at 10pm on the week before daylight savings time change
-      TZDateTime date = TZDateTime(utcLocation, 2023, 10, 30, 22, 0, 0);
+      tz.TZDateTime date = tz.TZDateTime(utcLocation, 2023, 10, 30, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(date);
       expect(actualAvailability.timeZoneName, timezone);
