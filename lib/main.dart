@@ -9,6 +9,7 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_options.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'firebase.dart';
 import 'app_state.dart';
@@ -21,6 +22,8 @@ import 'classes/group.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  tz.initializeTimeZones();
 
   FirebaseUIAuth.configureProviders([
     EmailAuthProvider(),
