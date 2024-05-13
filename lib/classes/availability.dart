@@ -92,11 +92,14 @@ class Availability {
         tz.TZDateTime.from(anchorDateTime, location);
     int offset = availabilityDateTime.timeZoneOffset.inMinutes;
     int halfHourOffset = offset ~/ 30;
-    List<int> newAvailability = _rollContents(weekAvailability, halfHourOffset);
-    return Availability(weekAvailability: newAvailability, timeZoneName: 'UTC');
+    List<int> adjustedAvailability =
+        rollContents(weekAvailability, halfHourOffset);
+    return Availability(
+        weekAvailability: adjustedAvailability, timeZoneName: 'UTC');
   }
 
-  List<int> _rollContents(List<int> input, int roll) {
+  static List<int> rollContents(List<int> input, int roll) {
+    if (roll < 0) roll += input.length;
     return input.sublist(roll)..addAll(input.sublist(0, roll));
   }
 }
