@@ -8,19 +8,14 @@ import 'package:timezone/data/latest.dart' as tz;
 ///
 /// [userAvailabilities] A map of user availabilities. The keys are user IDs.
 /// [timeSlotDuration] The duration of the meeting in half hours. e.g. this would be 4 for a two hour meeting.
-/// [numberOfSlots] The number of time slots to return.
 ///
 /// Returns a list of the best timeslots for this group's availabilties
-Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
-    int timeSlotDuration, int numberOfSlots,
-    [DateTime? inAnchorDate]) {
+Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities, int timeSlotDuration, [DateTime? inAnchorDate]) {
   DateTime anchorDate = inAnchorDate ?? DateTime.now();
   List<Availability> availabilitiesInLocal = userAvailabilities.values.toList();
-  List<Availability> availabilities =
-      getUTCAvailabilities(availabilitiesInLocal, anchorDate);
+  List<Availability> availabilities = getUTCAvailabilities(availabilitiesInLocal, anchorDate);
   List<int> convergedAvailability = convergeAvailabilities(availabilities);
-  List<int> timeSlotScores =
-      calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
+  List<int> timeSlotScores = calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
   List<int> sortedTimeSlotScores = sortTimeSlotScores(timeSlotScores);
   //using timeSlotDuration as the minimum distance might not be ideal for longer durations. May want to consider using timeSlotDuration/2 or soemthing like that
   //For example suggesting a 4 hour event might have good start times of 6 and 8 but we wouldn't display 8 with the current configuration
@@ -30,8 +25,7 @@ Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
   //we divide by 2 to help avoid one good time slot from hiding another one close by
   int minDistance = max(1, timeSlotDuration ~/ 2);
 
-  List<int> topTimeSlots =
-      getTopTimeSlots(sortedTimeSlotScores, minDistance, numberOfSlots);
+  List<int> topTimeSlots = getTopTimeSlots(sortedTimeSlotScores, minDistance);
   for (int i in topTimeSlots) {
     slotsAndScores[i] = timeSlotScores[i];
   }
@@ -39,8 +33,30 @@ Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities,
   //TODO: create a version of the function that prioritizes time slots with the most users available rather than the "best" availability. This theoretically should be pretty easy. Flatten any available timeslots to 1 and everything else to 0
 }
 
-List<Availability> getUTCAvailabilities(
-    List<Availability> availabilities, DateTime anchorDate) {
+/// Finds time slots based on user availabilities.
+///
+/// This wraps findTimeSlots and filters the results to only return the top [numberOfSlots] time slots
+///
+/// [userAvailabilities] A map of user availabilities. The keys are user IDs.
+/// [timeSlotDuration] The duration of the meeting in half hours. e.g. this would be 4 for a two hour meeting.
+/// [numberOfSlots] The number of time slots to return.
+///
+/// Returns a list of the best timeslots for this group's availabilties
+Map<int, int> findTimeSlotsFiltered(Map<String, Availability> userAvailabilities, int timeSlotDuration, int numberOfSlots, [DateTime? inAnchorDate]) {
+  Map<int, int> slotsAndScores = findTimeSlots(userAvailabilities, timeSlotDuration, inAnchorDate);
+
+  Map<int, int> filteredslotsAndScores = {};
+
+  for (int i in slotsAndScores.keys) {
+    filteredslotsAndScores[i] = slotsAndScores[i]!;
+    if (filteredslotsAndScores.length >= numberOfSlots) {
+      break;
+    }
+  }
+  return filteredslotsAndScores;
+}
+
+List<Availability> getUTCAvailabilities(List<Availability> availabilities, DateTime anchorDate) {
   List<Availability> utcAvailabilities = [];
   for (Availability availability in availabilities) {
     utcAvailabilities.add(availability.getUtcAvailability(anchorDate));
@@ -66,8 +82,7 @@ List<int> convergeAvailabilities(List<Availability> availabilities) {
 ///[timeSlotDuration] the duration of the meeting in half hours
 ///
 ///Returns a the total availability score for each timeslot if the event started at that time
-List<int> calculateTimeSlotScores(
-    List<int> convergedAvailability, int timeSlotDuration) {
+List<int> calculateTimeSlotScores(List<int> convergedAvailability, int timeSlotDuration) {
   List<int> timeSlotScores = List<int>.filled(convergedAvailability.length, 0);
   for (int i = 0; i < convergedAvailability.length; i++) {
     for (int j = i; j < i + timeSlotDuration; j++) {
@@ -84,8 +99,7 @@ List<int> calculateTimeSlotScores(
 /// Returns a list of indexes of the sorted scores
 List<int> sortTimeSlotScores(List<int> timeSlotScores) {
   // Create a list of indexes
-  List<int> indicies =
-      List<int>.generate(timeSlotScores.length, (index) => index);
+  List<int> indicies = List<int>.generate(timeSlotScores.length, (index) => index);
 
   // Sort the list of indexes based on the values in the scores list
   indicies.sort((a, b) => timeSlotScores[b].compareTo(timeSlotScores[a]));
@@ -112,17 +126,13 @@ int minAbsDifference(List<int> numbers, int num) {
 
 ///Filters out time slots that would be too close together
 ///TODO: might want to filter out the lowest scores in case we hit the lowest score and end up suggesting random times
-List<int> getTopTimeSlots(
-    List<int> sortedIndicies, int minDistance, int slots) {
+List<int> getTopTimeSlots(List<int> sortedIndicies, int minDistance) {
   List<int> topSlots = [];
   for (int i in sortedIndicies) {
     if (topSlots.isEmpty) {
       topSlots.add(i);
     } else if (minAbsDifference(topSlots, i) >= minDistance) {
       topSlots.add(i);
-    }
-    if (topSlots.length >= slots) {
-      break;
     }
   }
   return topSlots;

@@ -17,111 +17,30 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 void main() {
-  test(
-      'calculateTimeSlotScores should return correct values base case timeSlotDuration = 1',
-      () {
+  test('calculateTimeSlotScores should return correct values base case timeSlotDuration = 1', () {
     int timeSlotDuration = 1;
-    List<int> convergedAvailability = [
-      -6,
-      -3,
-      1,
-      0,
-      0,
-      0,
-      3,
-      3,
-      3,
-      3,
-      3,
-      3,
-      1,
-      1,
-      0,
-      0
-    ];
-    List<int> expectedScores = [
-      -6,
-      -3,
-      1,
-      0,
-      0,
-      0,
-      3,
-      3,
-      3,
-      3,
-      3,
-      3,
-      1,
-      1,
-      0,
-      0
-    ];
+    List<int> convergedAvailability = [-6, -3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0];
+    List<int> expectedScores = [-6, -3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0];
 
-    List<int> actualScores =
-        calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
+    List<int> actualScores = calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
 
     expect(actualScores, expectedScores);
   });
-  test(
-      'calculateTimeSlotScores should return correct values timeSlotDuration = 4',
-      () {
+  test('calculateTimeSlotScores should return correct values timeSlotDuration = 4', () {
     int timeSlotDuration = 4;
-    List<int> convergedAvailability = [
-      -6,
-      -3,
-      1,
-      0,
-      0,
-      0,
-      3,
-      3,
-      3,
-      3,
-      3,
-      3,
-      1,
-      1,
-      0,
-      0
-    ];
-    List<int> expectedScores = [
-      -8,
-      -2,
-      1,
-      3,
-      6,
-      9,
-      12,
-      12,
-      12,
-      10,
-      8,
-      5,
-      2,
-      -5,
-      -9,
-      -8
-    ];
+    List<int> convergedAvailability = [-6, -3, 1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 0, 0];
+    List<int> expectedScores = [-8, -2, 1, 3, 6, 9, 12, 12, 12, 10, 8, 5, 2, -5, -9, -8];
 
-    List<int> actualScores =
-        calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
+    List<int> actualScores = calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
 
     expect(actualScores, expectedScores);
   });
 
-  test(
-      'convergeAvailabilities base case return input availability when only one availability is given',
-      () {
+  test('convergeAvailabilities base case return input availability when only one availability is given', () {
     String timezone = 'America/Chicago';
-    List<Availability> availabilities = [
-      Availability(
-          weekAvailability: List.filled(Availability.ArrayLength, 0),
-          timeZoneName: timezone)
-    ];
+    List<Availability> availabilities = [Availability(weekAvailability: List.filled(Availability.ArrayLength, 0), timeZoneName: timezone)];
 
-    List<int> expectedConvergedAvailability =
-        List<int>.filled(Availability.ArrayLength, 0); //all values should be 0
+    List<int> expectedConvergedAvailability = List<int>.filled(Availability.ArrayLength, 0); //all values should be 0
 
     List<int> converged = convergeAvailabilities(availabilities);
 
@@ -131,15 +50,10 @@ void main() {
   test('convergeAvailabilities add multiple should sum values', () {
     String timezone = 'America/Chicago';
     List<int> allOnesList = List<int>.filled(Availability.ArrayLength, 1);
-    Availability allOnesAvailability =
-        Availability(weekAvailability: allOnesList, timeZoneName: timezone);
-    List<Availability> availabilities = [
-      allOnesAvailability,
-      allOnesAvailability
-    ];
+    Availability allOnesAvailability = Availability(weekAvailability: allOnesList, timeZoneName: timezone);
+    List<Availability> availabilities = [allOnesAvailability, allOnesAvailability];
 
-    List<int> expectedConvergedAvailability =
-        List<int>.filled(Availability.ArrayLength, 2);
+    List<int> expectedConvergedAvailability = List<int>.filled(Availability.ArrayLength, 2);
 
     List<int> converged = convergeAvailabilities(availabilities);
 
@@ -201,70 +115,36 @@ void main() {
 
   test('getTopTimeSlots test base test', () {
     int minDistance = 2;
-    int slots = 3;
     List<int> sortedIndicies = [1, 5, 8, 3, 2];
-    List<int> expected = [1, 5, 8];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+    List<int> expected = [1, 5, 8, 3];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance);
 
     expect(actual, expected);
   });
 
   test('getTopTimeSlots test exclude one too close together', () {
     int minDistance = 2;
-    int slots = 3;
     List<int> sortedIndicies = [1, 2, 8, 3, 5];
-    List<int> expected = [1, 8, 3];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+    List<int> expected = [1, 8, 3, 5];
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance);
 
     expect(actual, expected);
   });
 
   test('getTopTimeSlots test exclude two too close together', () {
     int minDistance = 2;
-    int slots = 3;
     List<int> sortedIndicies = [2, 1, 8, 7, 6];
     List<int> expected = [2, 8, 6];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
-
-    expect(actual, expected);
-  });
-
-  test('getTopTimeSlots test one slot', () {
-    int minDistance = 2;
-    int slots = 1;
-    List<int> sortedIndicies = [2, 1, 8, 7, 5];
-    List<int> expected = [2];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance);
 
     expect(actual, expected);
   });
 
   test('getTopTimeSlots test larger minDistance', () {
     int minDistance = 4;
-    int slots = 3;
     List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8, 12];
     List<int> expected = [1, 6, 12];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
-
-    expect(actual, expected);
-  });
-
-  test('getTopTimeSlots test cannot get as many timeslots as requested', () {
-    int minDistance = 4;
-    int slots = 3;
-    List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8];
-    List<int> expected = [1, 6];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
-
-    expect(actual, expected);
-  });
-
-  test('getTopTimeSlots test get more than 3 timeslots', () {
-    int minDistance = 1;
-    int slots = 5;
-    List<int> sortedIndicies = [1, 2, 6, 4, 5, 3, 7, 8];
-    List<int> expected = [1, 2, 6, 4, 5];
-    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance, slots);
+    List<int> actual = getTopTimeSlots(sortedIndicies, minDistance);
 
     expect(actual, expected);
   });
@@ -272,13 +152,11 @@ void main() {
   test('findTimeSlots calculate across timezones correctly', () {
     tz.initializeTimeZones();
     int utcIndex = 20;
-    int chicagoTimeSlotOffset =
-        -10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
+    int chicagoTimeSlotOffset = -10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
     String chicagoTimezone = 'America/Chicago';
     tz.Location chicago = tz.getLocation(chicagoTimezone);
     List<int> chicagoAvailabilityArray = Availability.emptyWeekArray();
-    chicagoAvailabilityArray[utcIndex + chicagoTimeSlotOffset] =
-        Availability.greatValue;
+    chicagoAvailabilityArray[utcIndex + chicagoTimeSlotOffset] = Availability.greatValue;
 
     Availability chicagoAvailability = Availability(
       weekAvailability: chicagoAvailabilityArray,
@@ -288,8 +166,7 @@ void main() {
     String mawsonTimezone = 'Antarctica/Mawson';
     int mawsonTimeSlotOffset = 10; //+5 hour offset = 10 time slots
     List<int> mawsonAvailabilityArray = Availability.emptyWeekArray();
-    mawsonAvailabilityArray[utcIndex + mawsonTimeSlotOffset] =
-        Availability.greatValue;
+    mawsonAvailabilityArray[utcIndex + mawsonTimeSlotOffset] = Availability.greatValue;
 
     Availability mawsonAvailability = Availability(
       weekAvailability: mawsonAvailabilityArray,
@@ -300,12 +177,9 @@ void main() {
     tz.TZDateTime anchorDate = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
 
     //note, keys are user document IDs which aren't relevant for this test
-    Map<String, Availability> availabilityMap = {
-      'abc': chicagoAvailability,
-      'def': mawsonAvailability
-    };
+    Map<String, Availability> availabilityMap = {'abc': chicagoAvailability, 'def': mawsonAvailability};
 
-    Map<int, int> actual = findTimeSlots(availabilityMap, 1, 1, anchorDate);
+    Map<int, int> actual = findTimeSlotsFiltered(availabilityMap, 1, 1, anchorDate);
 
     //the best and only timeslot returned should be utc index 20 (timeslot 21 technically)
     int actualUtcIndex = actual.keys.first;
