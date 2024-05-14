@@ -36,9 +36,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   @override
   void initState() {
     super.initState();
-    start = widget.timeSlot == null
-        ? DateTime.now()
-        : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
+    start = widget.timeSlot == null ? DateTime.now() : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
     end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
@@ -52,8 +50,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
     }
 
-    timeSlotsAndScores = findTimeSlots(memberAvailabilities,
-        widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn);
+    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn);
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }
@@ -104,8 +101,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       decoration: const InputDecoration(
                         labelText: 'Start Date',
                         filled: true,
-                        enabledBorder:
-                            OutlineInputBorder(borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
                         prefixIcon: Icon(Icons.calendar_today),
                       ),
                       readOnly: true,
@@ -123,8 +119,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       decoration: const InputDecoration(
                         labelText: 'Start Time',
                         filled: true,
-                        enabledBorder:
-                            OutlineInputBorder(borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
                         prefixIcon: Icon(Icons.schedule),
                       ),
                       readOnly: true,
@@ -146,8 +141,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       decoration: const InputDecoration(
                         labelText: 'End Date',
                         filled: true,
-                        enabledBorder:
-                            OutlineInputBorder(borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
                         prefixIcon: Icon(Icons.calendar_today),
                       ),
                       readOnly: true,
@@ -165,8 +159,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       decoration: const InputDecoration(
                         labelText: 'End Time',
                         filled: true,
-                        enabledBorder:
-                            OutlineInputBorder(borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
                         prefixIcon: Icon(Icons.schedule),
                       ),
                       readOnly: true,
@@ -177,10 +170,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                  child: const Text('Create Event'), onPressed: () {})),
+          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(child: const Text('Create Event'), onPressed: () {})),
           Container(
               height: 400,
               width: 400, //why isn't this width being respected?
@@ -209,8 +199,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     );
                   } else {
                     // This is a data row
-                    String timeSlotName = Availability.getTimeslotName(
-                        timeSlots[index - 1], context);
+                    String timeSlotName = Availability.getTimeslotName(timeSlots[index - 1], context);
                     return ListTile(
                       title: Table(
                         columnWidths: const {
@@ -223,8 +212,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                             children: [
                               Text('$index'),
                               Text(timeSlotName),
-                              Text(
-                                  '${timeSlotsAndScores[timeSlots[index - 1]]}'),
+                              Text('${timeSlotsAndScores[timeSlots[index - 1]]}'),
                             ],
                           ),
                         ],
@@ -274,9 +262,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       return;
     }
 
-    Duration difference = Duration(
-        minutes:
-            ((picked.hour - start.hour) * 60) + (picked.minute - start.minute));
+    Duration difference = Duration(minutes: ((picked.hour - start.hour) * 60) + (picked.minute - start.minute));
 
     start = start.add(difference);
     end = end.add(difference);
@@ -330,9 +316,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       return;
     }
 
-    Duration difference = Duration(
-        minutes:
-            ((picked.hour - end.hour) * 60) + (picked.minute - end.minute));
+    Duration difference = Duration(minutes: ((picked.hour - end.hour) * 60) + (picked.minute - end.minute));
 
     end = end.add(difference);
 

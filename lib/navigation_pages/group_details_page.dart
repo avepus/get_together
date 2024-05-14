@@ -29,10 +29,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _groupSnapshot = FirebaseFirestore.instance
-        .collection('groups')
-        .doc(widget.groupDocumentId)
-        .snapshots();
+    _groupSnapshot = FirebaseFirestore.instance.collection('groups').doc(widget.groupDocumentId).snapshots();
   }
 
   @override
@@ -47,17 +44,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             child: StreamBuilder<DocumentSnapshot>(
                 stream: _groupSnapshot,
                 builder: (context, groupSnapshot) {
-                  if (groupSnapshot.connectionState ==
-                      ConnectionState.waiting) {
+                  if (groupSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (groupSnapshot.hasError) {
                     return Text("Error: ${groupSnapshot.error}");
-                  } else if (!groupSnapshot.hasData ||
-                      groupSnapshot.data == null) {
+                  } else if (!groupSnapshot.hasData || groupSnapshot.data == null) {
                     return const Text("No data found");
                   } else {
-                    Group group =
-                        Group.fromDocumentSnapshot(groupSnapshot.data!);
+                    Group group = Group.fromDocumentSnapshot(groupSnapshot.data!);
                     Future<List<AppUser>> members = group.fetchMemberUsers();
                     Future<List<AppUser>> admins = group.fetchAdminUsers();
                     return ListView(
@@ -67,11 +61,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             width: 200,
                             height: 200,
                             child: EditableImageField(
-                                collectionName: Group.collectionName,
-                                documentId: group.documentId,
-                                fieldKey: Group.imageUrlKey,
-                                imageUrl: group.imageUrl,
-                                canEdit: loggedInUidInArray(group.admins)),
+                                collectionName: Group.collectionName, documentId: group.documentId, fieldKey: Group.imageUrlKey, imageUrl: group.imageUrl, canEdit: loggedInUidInArray(group.admins)),
                           ),
                         ),
                         EditableFirestoreField(
@@ -108,71 +98,37 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             dataType: double),
                         AvailabilityButton(
                           groupDocumentId: widget.groupDocumentId,
-                          availability: group.getAvailability(
-                              FirebaseAuth.instance.currentUser!.uid),
+                          availability: group.getAvailability(FirebaseAuth.instance.currentUser!.uid),
                         ),
                         //TODO: implement daysofweek in an editable way
-                        Card(
-                            child: ListTile(
-                                title: const Text(Group.daysOfWeekLabel),
-                                subtitle: Text(group.daysOfWeek == null
-                                    ? ''
-                                    : group.daysOfWeek.toString()))),
-                        Card(
-                            child: ListTile(
-                                title: const Text(Group.createdTimeLabel),
-                                subtitle: Text(group.createdTime != null
-                                    ? formatTimestamp(group.createdTime!)
-                                        .toString()
-                                    : ''))),
-                        Card(
-                            child: ListTile(
-                                title: const Text(Group.membersLabel),
-                                subtitle:
-                                    UsersListView(futureMembers: members))),
+                        Card(child: ListTile(title: const Text(Group.daysOfWeekLabel), subtitle: Text(group.daysOfWeek == null ? '' : group.daysOfWeek.toString()))),
+                        Card(child: ListTile(title: const Text(Group.createdTimeLabel), subtitle: Text(group.createdTime != null ? formatTimestamp(group.createdTime!).toString() : ''))),
+                        Card(child: ListTile(title: const Text(Group.membersLabel), subtitle: UsersListView(futureMembers: members))),
                         Visibility(
                           visible: loggedInUidInArray(group.admins),
                           child: SizedBox(
                             width: 50,
                             child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: AddUsersButton(
-                                    label: 'Add Member',
-                                    groupDocumentId: group.documentId,
-                                    members: group.members,
-                                    fieldKey: Group.membersKey,
-                                    users: fetchAllUsers())),
+                                child: AddUsersButton(label: 'Add Member', groupDocumentId: group.documentId, members: group.members, fieldKey: Group.membersKey, users: fetchAllUsers())),
                           ),
                         ),
-                        Card(
-                            child: ListTile(
-                                title: const Text(Group.adminsLabel),
-                                subtitle:
-                                    UsersListView(futureMembers: admins))),
+                        Card(child: ListTile(title: const Text(Group.adminsLabel), subtitle: UsersListView(futureMembers: admins))),
                         Visibility(
                           visible: loggedInUidInArray(group.admins),
                           child: SizedBox(
                             width: 50,
                             child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: AddUsersButton(
-                                    label: 'Add Admin',
-                                    groupDocumentId: group.documentId,
-                                    members: group.admins,
-                                    fieldKey: Group.adminsKey,
-                                    users: members)),
+                                child: AddUsersButton(label: 'Add Admin', groupDocumentId: group.documentId, members: group.admins, fieldKey: Group.adminsKey, users: members)),
                           ),
                         ),
                         //TODO: make magic numbers below into configuragble values
-                        GenerateEventButten(
-                            group: group,
-                            timeSlotDuration: group.meetingDurationTimeSlots,
-                            numberOfSlotsToReturn: 3),
+                        GenerateEventButten(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         ElevatedButton(
                             onPressed: () {
-                              context.goNamed('newevent',
-                                  extra: {'group': group, 'timeSlot': null});
+                              context.goNamed('newevent', extra: {'group': group, 'timeSlot': null});
                             },
                             child: Text('Create Event')),
                         Visibility(
@@ -192,8 +148,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           title: const Text('Confirm Delete'),
-                                          content: const Text(
-                                              'Are you sure you want to delete this group?'),
+                                          content: const Text('Are you sure you want to delete this group?'),
                                           actions: <Widget>[
                                             TextButton(
                                               child: const Text('Cancel'),
@@ -204,8 +159,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                             TextButton(
                                               child: const Text('Delete'),
                                               onPressed: () {
-                                                deleteFirestoreGroup(
-                                                    widget.groupDocumentId);
+                                                deleteFirestoreGroup(widget.groupDocumentId);
                                                 context.pop();
                                                 context.replace('/');
                                               },
@@ -256,8 +210,7 @@ class GenerateEventButten extends StatelessWidget {
           }
         }
         //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-        Map<int, int> timeSlotsAndScores = findTimeSlots(
-            memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
+        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
         List<int> timeSlots = timeSlotsAndScores.keys.toList();
         showDialog(
           context: context,
@@ -268,8 +221,7 @@ class GenerateEventButten extends StatelessWidget {
                   height: 200,
                   width: 300,
                   child: ListView.builder(
-                    itemCount:
-                        timeSlots.length + 1, // Add one for the header row
+                    itemCount: timeSlots.length + 1, // Add one for the header row
                     itemBuilder: (BuildContext context, int index) {
                       if (index == 0) {
                         // This is the header row
@@ -293,8 +245,7 @@ class GenerateEventButten extends StatelessWidget {
                         );
                       } else {
                         // This is a data row
-                        String timeSlotName = Availability.getTimeslotName(
-                            timeSlots[index - 1], context);
+                        String timeSlotName = Availability.getTimeslotName(timeSlots[index - 1], context);
                         return ListTile(
                           title: Table(
                             columnWidths: const {
@@ -307,17 +258,13 @@ class GenerateEventButten extends StatelessWidget {
                                 children: [
                                   Text('$index'),
                                   Text(timeSlotName),
-                                  Text(
-                                      '${timeSlotsAndScores[timeSlots[index - 1]]}'),
+                                  Text('${timeSlotsAndScores[timeSlots[index - 1]]}'),
                                 ],
                               ),
                             ],
                           ),
                           onTap: () {
-                            context.goNamed('newevent', extra: {
-                              'group': group,
-                              'timeSlot': timeSlots[index - 1]
-                            });
+                            context.goNamed('newevent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
                           },
                         );
                       }
@@ -375,16 +322,14 @@ class AddUsersButton extends StatelessWidget {
                     itemCount: users.length,
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
-                        title: Text(users[index].displayName ??
-                            'no name'), // Display the user's name
+                        title: Text(users[index].displayName ?? 'no name'), // Display the user's name
                         onTap: () {
                           if (members.contains(users[index].documentId)) {
                             context.pop();
                             return;
                           }
                           members.add(users[index].documentId);
-                          storeUserIdsListInGroup(
-                              members, groupDocumentId, fieldKey);
+                          storeUserIdsListInGroup(members, groupDocumentId, fieldKey);
                           context.pop();
                         },
                       );
