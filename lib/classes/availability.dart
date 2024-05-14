@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../utils.dart';
+
 enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
 //represents a week of availability in half hour increments
@@ -12,12 +14,7 @@ class Availability {
   static const int notSetValue = 0;
   static const int goodValue = 1;
   static const int greatValue = 2;
-  static const List<int> validArrayValues = [
-    badValue,
-    notSetValue,
-    goodValue,
-    greatValue
-  ];
+  static const List<int> validArrayValues = [badValue, notSetValue, goodValue, greatValue];
   static const Map<int, String> ValueDefinitions = {
     Availability.badValue: 'Bad',
     Availability.notSetValue: 'Not Set',
@@ -56,8 +53,7 @@ class Availability {
     }
     for (int i = 0; i < weekAvailability.length; i++) {
       if (!validArrayValues.contains(weekAvailability[i])) {
-        throw Exception(
-            'Invalid array value of ${weekAvailability[i]} at index $i which is day ${getDayName(i)} timeslot ${getTimeOfDay(i)}');
+        throw Exception('Invalid array value of ${weekAvailability[i]} at index $i which is day ${getDayName(i)} timeslot ${getTimeOfDay(i)}');
       }
     }
   }
@@ -88,18 +84,10 @@ class Availability {
     }
 
     tz.Location location = tz.getLocation(timeZoneName);
-    tz.TZDateTime availabilityDateTime =
-        tz.TZDateTime.from(anchorDateTime, location);
+    tz.TZDateTime availabilityDateTime = tz.TZDateTime.from(anchorDateTime, location);
     int offset = availabilityDateTime.timeZoneOffset.inMinutes;
     int halfHourOffset = offset ~/ 30;
-    List<int> adjustedAvailability =
-        rollContents(weekAvailability, halfHourOffset);
-    return Availability(
-        weekAvailability: adjustedAvailability, timeZoneName: 'UTC');
-  }
-
-  static List<int> rollContents(List<int> input, int roll) {
-    if (roll < 0) roll += input.length;
-    return input.sublist(roll)..addAll(input.sublist(0, roll));
+    List<int> adjustedAvailability = rollList(weekAvailability, halfHourOffset);
+    return Availability(weekAvailability: adjustedAvailability, timeZoneName: 'UTC');
   }
 }

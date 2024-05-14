@@ -28,3 +28,8 @@ bool loggedInUidInArray(List<String> uids) {
   }
   return false;
 }
+
+List<int> rollList(List<int> input, int roll) {
+  if (roll < 0) roll += input.length;
+  return input.sublist(roll)..addAll(input.sublist(0, roll));
+}

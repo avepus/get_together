@@ -71,12 +71,10 @@ void main() {
       int expectedTimeSlotOffset = -10; //5 hour offset = 10 time slots
 
       int index1 = 1;
-      int updatedIndex1 =
-          (index1 + expectedTimeSlotOffset) % Availability.ArrayLength;
+      int updatedIndex1 = (index1 + expectedTimeSlotOffset) % Availability.ArrayLength;
       int index1Value = 1;
       int index20 = 20;
-      int updatedIndex20 =
-          (index20 + expectedTimeSlotOffset) % Availability.ArrayLength;
+      int updatedIndex20 = (index20 + expectedTimeSlotOffset) % Availability.ArrayLength;
       int index20Value = -2;
       List<int> weekAvailability = Availability.emptyWeekArray();
       weekAvailability[index1] = index1Value;
@@ -102,22 +100,16 @@ void main() {
       tz.TZDateTime date = tz.TZDateTime(location, 2023, 11, 20, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(date);
-      expect(
-          actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability,
-          expectedAvailability.weekAvailability);
+      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
+      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
     });
 
-    test(
-        'getUtcAvailability should return correct UTC availability accounting for after DST time',
-        () {
+    test('getUtcAvailability should return correct UTC availability accounting for after DST time', () {
       String timezone = 'America/Chicago';
-      int afterDSTExpectedTimeSlotOffset =
-          12; //after DST it's -6 from UTC. 6 hour offset = 12 time slots
+      int afterDSTExpectedTimeSlotOffset = 12; //after DST it's -6 from UTC. 6 hour offset = 12 time slots
       int index = 1;
       int indexValue = 2;
-      int updatedIndex =
-          (index + afterDSTExpectedTimeSlotOffset) % Availability.ArrayLength;
+      int updatedIndex = (index + afterDSTExpectedTimeSlotOffset) % Availability.ArrayLength;
 
       List<int> weekAvailability = Availability.emptyWeekArray();
       weekAvailability[index] = indexValue;
@@ -140,22 +132,16 @@ void main() {
       tz.TZDateTime afterDST = tz.TZDateTime(chicago, 2023, 11, 20, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(afterDST);
-      expect(
-          actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability,
-          expectedAvailability.weekAvailability);
+      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
+      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
     });
 
-    test(
-        'getUtcAvailability should return correct UTC availability accounting for before DST time',
-        () {
+    test('getUtcAvailability should return correct UTC availability accounting for before DST time', () {
       String timezone = 'America/Chicago';
-      int expectedTimeSlotOffset =
-          10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
+      int expectedTimeSlotOffset = 10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
       int index = 1;
       int indexValue = 2;
-      int beforeDSTIndex =
-          (index + expectedTimeSlotOffset) % Availability.ArrayLength;
+      int beforeDSTIndex = (index + expectedTimeSlotOffset) % Availability.ArrayLength;
 
       List<int> weekAvailability = Availability.emptyWeekArray();
       weekAvailability[index] = indexValue;
@@ -178,14 +164,11 @@ void main() {
       tz.TZDateTime beforeDST = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
 
       final actualAvailability = availability.getUtcAvailability(beforeDST);
-      expect(
-          actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability,
-          expectedAvailability.weekAvailability);
+      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
+      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
     });
 
-    test('getUtcAvailability validate no changes when timezone is already UTC',
-        () {
+    test('getUtcAvailability validate no changes when timezone is already UTC', () {
       String timezone = 'UTC';
       int index = 50;
       int indexValue = 2;
@@ -206,17 +189,6 @@ void main() {
       final actualAvailability = availability.getUtcAvailability(date);
       expect(actualAvailability.timeZoneName, timezone);
       expect(actualAvailability.weekAvailability, weekAvailability);
-    });
-
-    test('_rollContents basic tests', () {
-      List<int> input = [1, 2, 3, 4, 5];
-      List<int> expectedOutput = [5, 1, 2, 3, 4];
-      List<int> actualOutput = Availability.rollContents(input, -1);
-      expect(actualOutput, expectedOutput);
-
-      List<int> expectedOutputRollBack1 = [2, 3, 4, 5, 1];
-      actualOutput = Availability.rollContents(input, 1);
-      expect(actualOutput, expectedOutputRollBack1);
     });
   });
 }
