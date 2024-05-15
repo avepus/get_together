@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:provider/provider.dart';
 
 import 'package:get_together/classes/availability.dart';
 import '../classes/group.dart';
+import '../app_state.dart';
 
 //This button will be used to add availability to the group for the logged in user
 //the availability is an array of numbers -1, 0, 1, 2, 3 where
@@ -28,8 +30,7 @@ class AvailabilityButton extends StatelessWidget {
   final String groupDocumentId;
   final Availability? availability;
 
-  AvailabilityButton(
-      {super.key, required this.groupDocumentId, required this.availability});
+  AvailabilityButton({super.key, required this.groupDocumentId, required this.availability});
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +38,7 @@ class AvailabilityButton extends StatelessWidget {
       child: const Text('Set Availability'),
       onPressed: () {
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => AvailabilityPageDetail(
-              groupDocumentId: groupDocumentId, availability: availability),
+          builder: (context) => AvailabilityPageDetail(groupDocumentId: groupDocumentId, availability: availability),
         ));
       },
     );
@@ -49,8 +49,7 @@ class AvailabilityPageDetail extends StatefulWidget {
   final String groupDocumentId;
   final Availability? availability;
 
-  AvailabilityPageDetail(
-      {super.key, required this.groupDocumentId, required this.availability});
+  AvailabilityPageDetail({super.key, required this.groupDocumentId, required this.availability});
   @override
   _AvailabilityPageDetailState createState() => _AvailabilityPageDetailState();
 }
@@ -63,25 +62,22 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   @override
   void initState() {
     super.initState();
-    _availability = _getAvailability();
   }
 
-  Future<Availability> _getAvailability() async {
+  Future<Availability> _getAvailability(String timeZone) async {
     if (widget.availability != null) {
       return widget.availability!;
     }
 
-    final String currentTimeZone =
-        await FlutterNativeTimezone.getLocalTimezone();
-    return Availability(
-        weekAvailability: Availability.emptyWeekArray(),
-        timeZoneName: currentTimeZone);
+    return Availability(weekAvailability: Availability.emptyWeekArray(), timeZoneName: timeZone);
   }
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<ApplicationState>(context);
+
     return FutureBuilder(
-        future: _availability,
+        future: _getAvailability(appState.loginUserTimeZone),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const CircularProgressIndicator();
@@ -105,22 +101,19 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                       SizedBox(
                         width: radioWidth,
                         child: ListTile(
-                          title: Text(Availability
-                              .ValueDefinitions[Availability.badValue]!),
+                          title: Text(Availability.ValueDefinitions[Availability.badValue]!),
                         ),
                       ),
                       SizedBox(
                         width: radioWidth,
                         child: ListTile(
-                          title: Text(Availability
-                              .ValueDefinitions[Availability.goodValue]!),
+                          title: Text(Availability.ValueDefinitions[Availability.goodValue]!),
                         ),
                       ),
                       SizedBox(
                         width: radioWidth,
                         child: ListTile(
-                          title: Text(Availability
-                              .ValueDefinitions[Availability.greatValue]!),
+                          title: Text(Availability.ValueDefinitions[Availability.greatValue]!),
                         ),
                       ),
                     ],
@@ -132,21 +125,16 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                                width: timeSlotWidth,
-                                child: Text(Availability.getTimeslotName(
-                                    index, context))),
+                            SizedBox(width: timeSlotWidth, child: Text(Availability.getTimeslotName(index, context))),
                             SizedBox(
                               width: radioWidth,
                               child: RadioListTile(
                                   toggleable: true,
                                   value: Availability.badValue,
-                                  groupValue:
-                                      availability.weekAvailability[index],
+                                  groupValue: availability.weekAvailability[index],
                                   onChanged: (value) {
                                     setState(() {
-                                      availability.weekAvailability[index] =
-                                          value ?? 0;
+                                      availability.weekAvailability[index] = value ?? 0;
                                     });
                                   }),
                             ),
@@ -155,12 +143,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                               child: RadioListTile(
                                   toggleable: true,
                                   value: Availability.goodValue,
-                                  groupValue:
-                                      availability.weekAvailability[index],
+                                  groupValue: availability.weekAvailability[index],
                                   onChanged: (value) {
                                     setState(() {
-                                      availability.weekAvailability[index] =
-                                          value ?? 0;
+                                      availability.weekAvailability[index] = value ?? 0;
                                     });
                                   }),
                             ),
@@ -169,12 +155,10 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                               child: RadioListTile(
                                   toggleable: true,
                                   value: Availability.greatValue,
-                                  groupValue:
-                                      availability.weekAvailability[index],
+                                  groupValue: availability.weekAvailability[index],
                                   onChanged: (value) {
                                     setState(() {
-                                      availability.weekAvailability[index] =
-                                          value ?? 0;
+                                      availability.weekAvailability[index] = value ?? 0;
                                     });
                                   }),
                             ),
@@ -190,14 +174,9 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   onPressed: () async {
                     final User? user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
-                      await FirebaseFirestore.instance
-                          .collection(Group.collectionName)
-                          .doc(widget.groupDocumentId)
-                          .update({
-                        '${Group.availabilityKey}.${user.uid}':
-                            availability.weekAvailability,
-                        '${Group.memberTimezonesKey}.${user.uid}':
-                            availability.timeZoneName,
+                      await FirebaseFirestore.instance.collection(Group.collectionName).doc(widget.groupDocumentId).update({
+                        '${Group.availabilityKey}.${user.uid}': availability.weekAvailability,
+                        '${Group.memberTimezonesKey}.${user.uid}': availability.timeZoneName,
                       });
                     }
 
