@@ -175,6 +175,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
+          //TODO: next up is to implement creating the event
           Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(child: const Text('Create Event'), onPressed: () {})),
           Container(
               height: 400,
