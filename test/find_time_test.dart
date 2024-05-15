@@ -38,9 +38,9 @@ void main() {
 
   test('convergeAvailabilities base case return input availability when only one availability is given', () {
     String timezone = 'America/Chicago';
-    List<Availability> availabilities = [Availability(weekAvailability: List.filled(Availability.ArrayLength, 0), timeZoneName: timezone)];
+    List<Availability> availabilities = [Availability(weekAvailability: List.filled(Availability.arrayLength, 0), timeZoneName: timezone)];
 
-    List<int> expectedConvergedAvailability = List<int>.filled(Availability.ArrayLength, 0); //all values should be 0
+    List<int> expectedConvergedAvailability = List<int>.filled(Availability.arrayLength, 0); //all values should be 0
 
     List<int> converged = convergeAvailabilities(availabilities);
 
@@ -49,11 +49,11 @@ void main() {
 
   test('convergeAvailabilities add multiple should sum values', () {
     String timezone = 'America/Chicago';
-    List<int> allOnesList = List<int>.filled(Availability.ArrayLength, 1);
+    List<int> allOnesList = List<int>.filled(Availability.arrayLength, 1);
     Availability allOnesAvailability = Availability(weekAvailability: allOnesList, timeZoneName: timezone);
     List<Availability> availabilities = [allOnesAvailability, allOnesAvailability];
 
-    List<int> expectedConvergedAvailability = List<int>.filled(Availability.ArrayLength, 2);
+    List<int> expectedConvergedAvailability = List<int>.filled(Availability.arrayLength, 2);
 
     List<int> converged = convergeAvailabilities(availabilities);
 
@@ -154,6 +154,7 @@ void main() {
     int utcIndex = 20;
     int chicagoTimeSlotOffset = -10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
     String chicagoTimezone = 'America/Chicago';
+    String utcTimezone = 'UTC';
     tz.Location chicago = tz.getLocation(chicagoTimezone);
     List<int> chicagoAvailabilityArray = Availability.emptyWeekArray();
     chicagoAvailabilityArray[utcIndex + chicagoTimeSlotOffset] = Availability.greatValue;
@@ -179,7 +180,7 @@ void main() {
     //note, keys are user document IDs which aren't relevant for this test
     Map<String, Availability> availabilityMap = {'abc': chicagoAvailability, 'def': mawsonAvailability};
 
-    Map<int, int> actual = findTimeSlotsFiltered(availabilityMap, 1, 1, anchorDate);
+    Map<int, int> actual = findTimeSlotsFiltered(availabilityMap, 1, 1, utcTimezone, anchorDate);
 
     //the best and only timeslot returned should be utc index 20 (timeslot 21 technically)
     int actualUtcIndex = actual.keys.first;

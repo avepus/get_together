@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
 import 'classes/group.dart';
 import 'classes/availability.dart';
 import 'classes/event.dart';
 import 'time_utils.dart';
 import 'findTime.dart';
+import 'app_state.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group group;
@@ -50,7 +53,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
     }
 
-    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn);
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+
+    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone);
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }

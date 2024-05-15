@@ -1,6 +1,7 @@
 import 'classes/availability.dart';
 import 'dart:math';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 /// Finds time slots based on user availabilities.
 ///
@@ -10,10 +11,10 @@ import 'package:timezone/data/latest.dart' as tz;
 /// [timeSlotDuration] The duration of the meeting in half hours. e.g. this would be 4 for a two hour meeting.
 ///
 /// Returns a list of the best timeslots for this group's availabilties
-Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities, int timeSlotDuration, [DateTime? inAnchorDate]) {
-  DateTime anchorDate = inAnchorDate ?? DateTime.now();
+Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities, int timeSlotDuration, String timezone, [DateTime? anchorDate]) {
+  anchorDate ??= DateTime.now();
   List<Availability> availabilitiesInLocal = userAvailabilities.values.toList();
-  List<Availability> availabilities = getUTCAvailabilities(availabilitiesInLocal, anchorDate);
+  List<Availability> availabilities = getUserTimezoneAvailabilities(availabilitiesInLocal, anchorDate, timezone);
   List<int> convergedAvailability = convergeAvailabilities(availabilities);
   List<int> timeSlotScores = calculateTimeSlotScores(convergedAvailability, timeSlotDuration);
   List<int> sortedTimeSlotScores = sortTimeSlotScores(timeSlotScores);
@@ -42,8 +43,8 @@ Map<int, int> findTimeSlots(Map<String, Availability> userAvailabilities, int ti
 /// [numberOfSlots] The number of time slots to return.
 ///
 /// Returns a list of the best timeslots for this group's availabilties
-Map<int, int> findTimeSlotsFiltered(Map<String, Availability> userAvailabilities, int timeSlotDuration, int numberOfSlots, [DateTime? inAnchorDate]) {
-  Map<int, int> slotsAndScores = findTimeSlots(userAvailabilities, timeSlotDuration, inAnchorDate);
+Map<int, int> findTimeSlotsFiltered(Map<String, Availability> userAvailabilities, int timeSlotDuration, int numberOfSlots, String timezone, [DateTime? anchorDate]) {
+  Map<int, int> slotsAndScores = findTimeSlots(userAvailabilities, timeSlotDuration, timezone, anchorDate);
 
   Map<int, int> filteredslotsAndScores = {};
 
@@ -56,19 +57,24 @@ Map<int, int> findTimeSlotsFiltered(Map<String, Availability> userAvailabilities
   return filteredslotsAndScores;
 }
 
-List<Availability> getUTCAvailabilities(List<Availability> availabilities, DateTime anchorDate) {
-  List<Availability> utcAvailabilities = [];
+/// Converts availabilities from their timezone to input timezone
+/// [availabilities] a list of availabilities, each in their own timezone
+/// [anchorDate] the date to use as the anchor for the conversion. This is needed for DST
+/// [timezone] the timezone to convert the availabilities to (should be current user's timezone)
+/// Returns a list of availabilities shifted to the input timezone
+List<Availability> getUserTimezoneAvailabilities(List<Availability> availabilities, DateTime anchorDate, String timezone) {
+  List<Availability> shiftedAvailabilities = [];
   for (Availability availability in availabilities) {
-    utcAvailabilities.add(availability.getUtcAvailability(anchorDate));
+    shiftedAvailabilities.add(availability.getTzAvailability(timezone, anchorDate));
   }
-  return utcAvailabilities;
+  return shiftedAvailabilities;
 }
 
 /// Converges availabilities into a single list equal to the sum of all availabilities values
 List<int> convergeAvailabilities(List<Availability> availabilities) {
-  List<int> converge = List<int>.filled(Availability.ArrayLength, 0);
+  List<int> converge = List<int>.filled(Availability.arrayLength, 0);
   for (Availability availability in availabilities) {
-    for (int i = 0; i < Availability.ArrayLength; i++) {
+    for (int i = 0; i < Availability.arrayLength; i++) {
       converge[i] += availability.getTimeSlotValue(i);
     }
   }

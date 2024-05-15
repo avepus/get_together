@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:provider/provider.dart';
@@ -120,7 +119,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: Availability.ArrayLength,
+                      itemCount: Availability.arrayLength,
                       itemBuilder: (context, index) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,

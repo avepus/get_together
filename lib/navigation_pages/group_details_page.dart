@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/users_list_view.dart';
 import '../classes/group.dart';
@@ -14,6 +15,7 @@ import '../firebase.dart';
 import '../widgets/update_availability.dart';
 import '../classes/availability.dart';
 import '../findTime.dart';
+import '../app_state.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -199,6 +201,7 @@ class GenerateEventButten extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
     return ElevatedButton(
       child: const Text('Suggest Times'),
       onPressed: () {
@@ -210,7 +213,7 @@ class GenerateEventButten extends StatelessWidget {
           }
         }
         //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn);
+        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
         List<int> timeSlots = timeSlotsAndScores.keys.toList();
         showDialog(
           context: context,

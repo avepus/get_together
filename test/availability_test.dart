@@ -66,129 +66,40 @@ void main() {
       expect(Availability.getTimeOfDay(47), TimeOfDay(hour: 23, minute: 30));
     });
 
-    test('Get UTC availability should return correct UTC availability', () {
-      String timezone = 'Antarctica/Mawson';
-      int expectedTimeSlotOffset = -10; //5 hour offset = 10 time slots
-
-      int index1 = 1;
-      int updatedIndex1 = (index1 + expectedTimeSlotOffset) % Availability.ArrayLength;
-      int index1Value = 1;
-      int index20 = 20;
-      int updatedIndex20 = (index20 + expectedTimeSlotOffset) % Availability.ArrayLength;
-      int index20Value = -2;
-      List<int> weekAvailability = Availability.emptyWeekArray();
-      weekAvailability[index1] = index1Value;
-      weekAvailability[index20] = index20Value;
-
-      final availability = Availability(
-        weekAvailability: weekAvailability.toList(), //use toList to copy
-        timeZoneName: timezone,
-      );
-
-      //location is +5 from UTC
-      List<int> expectedAvailabilityArray = Availability.emptyWeekArray();
-      expectedAvailabilityArray[updatedIndex1] = index1Value;
-      expectedAvailabilityArray[updatedIndex20] = index20Value;
-      final expectedAvailability = Availability(
-        weekAvailability: expectedAvailabilityArray,
-        timeZoneName: 'UTC',
-      );
-
+    test('timeZoneOffsetInMinutes test', () {
       tz.initializeTimeZones();
-      tz.Location location = tz.getLocation(timezone);
-      //date doesn't really matter since this location doesn't do daylight savings
-      tz.TZDateTime date = tz.TZDateTime(location, 2023, 11, 20, 22, 0, 0);
+      int chicagoNonDSTOffset = -6 * 60; //6 hours behind UTC
+      int chicagoDSTOffset = -5 * 60; //5 hours behind UTC
+      int mawsonOffset = 5 * 60; //5 hours ahead of UTC
+      tz.Location chicago = tz.getLocation('America/Chicago');
+      tz.Location utc = tz.getLocation('UTC');
+      tz.Location mawson = tz.getLocation('Antarctica/Mawson');
 
-      final actualAvailability = availability.getUtcAvailability(date);
-      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
+      //the week before daylight savings time change which is -5 from UTC
+      tz.TZDateTime dateBeforeDST = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
+
+      //the week before daylight savings time change which is 65 from UTC
+      tz.TZDateTime dateAfterDST = tz.TZDateTime(chicago, 2023, 11, 30, 22, 0, 0);
+
+      int chicagoToUTC = Availability.timeZoneOffsetInMinutes(chicago, utc, dateBeforeDST);
+      expect(chicagoToUTC, chicagoDSTOffset);
+
+      int chicagoToMawsonBeforeDST = Availability.timeZoneOffsetInMinutes(chicago, mawson, dateBeforeDST);
+      expect(chicagoToMawsonBeforeDST, chicagoDSTOffset - mawsonOffset);
+
+      int chicagoToMawsonAfterDST = Availability.timeZoneOffsetInMinutes(chicago, mawson, dateAfterDST);
+      expect(chicagoToMawsonAfterDST, chicagoNonDSTOffset - mawsonOffset);
     });
 
-    test('getUtcAvailability should return correct UTC availability accounting for after DST time', () {
-      String timezone = 'America/Chicago';
-      int afterDSTExpectedTimeSlotOffset = 12; //after DST it's -6 from UTC. 6 hour offset = 12 time slots
-      int index = 1;
-      int indexValue = 2;
-      int updatedIndex = (index + afterDSTExpectedTimeSlotOffset) % Availability.ArrayLength;
-
-      List<int> weekAvailability = Availability.emptyWeekArray();
-      weekAvailability[index] = indexValue;
-
-      final availability = Availability(
-        weekAvailability: weekAvailability.toList(), //use toList to copy
-        timeZoneName: timezone,
-      );
-
-      List<int> expectedAvailabilityArray = Availability.emptyWeekArray();
-      expectedAvailabilityArray[updatedIndex] = indexValue;
-      final expectedAvailability = Availability(
-        weekAvailability: expectedAvailabilityArray,
-        timeZoneName: 'UTC',
-      );
-
+    test('timeZoneOffsetInTimeSlots test', () {
       tz.initializeTimeZones();
-      tz.Location chicago = tz.getLocation(timezone);
-      //Monday at 10pm two weeks after daylight savings time ends
-      tz.TZDateTime afterDST = tz.TZDateTime(chicago, 2023, 11, 20, 22, 0, 0);
+      int mawsonOffset = (5 * 60) ~/ Availability.timeSlotDuration; //5 hours ahead of UTC
+      tz.Location mawson = tz.getLocation('Antarctica/Mawson');
+      tz.Location utc = tz.getLocation('UTC');
+      tz.TZDateTime date = tz.TZDateTime(mawson, 2023, 10);
 
-      final actualAvailability = availability.getUtcAvailability(afterDST);
-      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
-    });
-
-    test('getUtcAvailability should return correct UTC availability accounting for before DST time', () {
-      String timezone = 'America/Chicago';
-      int expectedTimeSlotOffset = 10; //before DST it's -5 from UTC. 5 hour offset = 10 time slots
-      int index = 1;
-      int indexValue = 2;
-      int beforeDSTIndex = (index + expectedTimeSlotOffset) % Availability.ArrayLength;
-
-      List<int> weekAvailability = Availability.emptyWeekArray();
-      weekAvailability[index] = indexValue;
-
-      final availability = Availability(
-        weekAvailability: weekAvailability.toList(), //use toList to copy
-        timeZoneName: timezone,
-      );
-
-      List<int> expectedAvailabilityArray = Availability.emptyWeekArray();
-      expectedAvailabilityArray[beforeDSTIndex] = indexValue;
-      final expectedAvailability = Availability(
-        weekAvailability: expectedAvailabilityArray,
-        timeZoneName: 'UTC',
-      );
-
-      tz.initializeTimeZones();
-      tz.Location chicago = tz.getLocation(timezone);
-      //Monday at 10pm on the week before daylight savings time change
-      tz.TZDateTime beforeDST = tz.TZDateTime(chicago, 2023, 10, 30, 22, 0, 0);
-
-      final actualAvailability = availability.getUtcAvailability(beforeDST);
-      expect(actualAvailability.timeZoneName, expectedAvailability.timeZoneName);
-      expect(actualAvailability.weekAvailability, expectedAvailability.weekAvailability);
-    });
-
-    test('getUtcAvailability validate no changes when timezone is already UTC', () {
-      String timezone = 'UTC';
-      int index = 50;
-      int indexValue = 2;
-
-      List<int> weekAvailability = Availability.emptyWeekArray();
-      weekAvailability[index] = indexValue;
-
-      final availability = Availability(
-        weekAvailability: weekAvailability.toList(), //use toList to copy
-        timeZoneName: timezone,
-      );
-
-      tz.initializeTimeZones();
-      tz.Location utcLocation = tz.getLocation(timezone);
-      //Monday at 10pm on the week before daylight savings time change
-      tz.TZDateTime date = tz.TZDateTime(utcLocation, 2023, 10, 30, 22, 0, 0);
-
-      final actualAvailability = availability.getUtcAvailability(date);
-      expect(actualAvailability.timeZoneName, timezone);
-      expect(actualAvailability.weekAvailability, weekAvailability);
+      int mawsoneToUTC = Availability.timeZoneOffsetInTimeSlots(mawson, utc, date);
+      expect(mawsoneToUTC, mawsonOffset);
     });
   });
 }
