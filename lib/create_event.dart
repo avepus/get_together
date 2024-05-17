@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import 'classes/group.dart';
 import 'classes/availability.dart';
@@ -177,56 +178,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           ),
           //TODO: next up is to implement creating the event
           Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(child: const Text('Create Event'), onPressed: () {})),
-          Container(
-              height: 400,
-              width: 400, //why isn't this width being respected?
-              child: ListView.builder(
-                itemCount: timeSlots.length + 1, // Add one for the header row
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == 0) {
-                    // This is the header row
-                    return ListTile(
-                      title: Table(
-                        columnWidths: const {
-                          0: FractionColumnWidth(0.2),
-                          1: FractionColumnWidth(0.6),
-                          2: FractionColumnWidth(0.2),
-                        },
-                        children: const [
-                          TableRow(
-                            children: [
-                              Text('Rank'),
-                              Text('Start Time'),
-                              Text('Score'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    // This is a data row
-                    String timeSlotName = Availability.getTimeslotName(timeSlots[index - 1], context);
-                    return ListTile(
-                      title: Table(
-                        columnWidths: const {
-                          0: FractionColumnWidth(0.2),
-                          1: FractionColumnWidth(0.6),
-                          2: FractionColumnWidth(0.2),
-                        },
-                        children: [
-                          TableRow(
-                            children: [
-                              Text('$index'),
-                              Text(timeSlotName),
-                              Text('${timeSlotsAndScores[timeSlots[index - 1]]}'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              )),
+          Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
   }
 
@@ -334,5 +286,135 @@ class _CreateEventPageState extends State<CreateEventPage> {
       _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
       _endTimeController.text = DateFormat.jm().format(end);
     });
+  }
+}
+
+class GenerateEventButton extends StatelessWidget {
+  final Group group;
+  final int timeSlotDuration;
+  final int numberOfSlotsToReturn;
+
+  const GenerateEventButton({
+    required this.group,
+    required this.timeSlotDuration,
+    required this.numberOfSlotsToReturn,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = Provider.of<ApplicationState>(context, listen: false);
+    return ElevatedButton(
+      child: const Text('Create Event'),
+      onPressed: () {
+        Map<String, Availability> memberAvailabilities = {};
+        for (String member in group.members) {
+          Availability? availability = group.getAvailability(member);
+          if (availability != null) {
+            memberAvailabilities[member] = availability;
+          }
+        }
+        //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
+        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
+        List<int> timeSlots = timeSlotsAndScores.keys.toList();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Best Times'),
+              content: SizedBox(
+                  height: 200,
+                  width: 300,
+                  child: SuggestedTimesListView(
+                    timeSlots: timeSlots,
+                    timeSlotsAndScores: timeSlotsAndScores,
+                    group: group,
+                    linkToEvent: true,
+                  )),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class SuggestedTimesListView extends StatelessWidget {
+  const SuggestedTimesListView({
+    super.key,
+    required this.timeSlots,
+    required this.timeSlotsAndScores,
+    required this.group,
+    required this.linkToEvent,
+  });
+
+  final List<int> timeSlots;
+  final Map<int, int> timeSlotsAndScores;
+  final Group group;
+  final bool linkToEvent;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: timeSlots.length + 1, // Add one for the header row
+      itemBuilder: (BuildContext context, int index) {
+        if (index == 0) {
+          // This is the header row
+          return ListTile(
+            title: Table(
+              columnWidths: const {
+                0: FractionColumnWidth(0.2),
+                1: FractionColumnWidth(0.6),
+                2: FractionColumnWidth(0.2),
+              },
+              children: const [
+                TableRow(
+                  children: [
+                    Text('Rank'),
+                    Text('Start Time'),
+                    Text('Score'),
+                  ],
+                ),
+              ],
+            ),
+          );
+        } else {
+          // This is a data row
+          String timeSlotName = Availability.getTimeslotName(timeSlots[index - 1], context);
+          return ListTile(
+            title: Table(
+              columnWidths: const {
+                0: FractionColumnWidth(0.2),
+                1: FractionColumnWidth(0.6),
+                2: FractionColumnWidth(0.2),
+              },
+              children: [
+                TableRow(
+                  children: [
+                    Text('$index'),
+                    Text(timeSlotName),
+                    Text('${timeSlotsAndScores[timeSlots[index - 1]]}'),
+                  ],
+                ),
+              ],
+            ),
+            onTap: () {
+              if (linkToEvent) {
+                context.pop();
+                context.pushNamed('newevent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
+              }
+            },
+          );
+        }
+      },
+    );
   }
 }

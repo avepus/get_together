@@ -16,6 +16,7 @@ import '../widgets/update_availability.dart';
 import '../classes/availability.dart';
 import '../findTime.dart';
 import '../app_state.dart';
+import '../create_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -126,13 +127,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           ),
                         ),
                         //TODO: make magic numbers below into configuragble values
-                        GenerateEventButten(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3),
+                        GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
-                        ElevatedButton(
-                            onPressed: () {
-                              context.goNamed('newevent', extra: {'group': group, 'timeSlot': null});
-                            },
-                            child: Text('Create Event')),
                         Visibility(
                           visible: loggedInUidInArray(group.admins),
                           child: Padding(
@@ -183,108 +179,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class GenerateEventButten extends StatelessWidget {
-  final Group group;
-  final int timeSlotDuration;
-  final int numberOfSlotsToReturn;
-
-  const GenerateEventButten({
-    required this.group,
-    required this.timeSlotDuration,
-    required this.numberOfSlotsToReturn,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    var appState = Provider.of<ApplicationState>(context, listen: false);
-    return ElevatedButton(
-      child: const Text('Suggest Times'),
-      onPressed: () {
-        Map<String, Availability> memberAvailabilities = {};
-        for (String member in group.members) {
-          Availability? availability = group.getAvailability(member);
-          if (availability != null) {
-            memberAvailabilities[member] = availability;
-          }
-        }
-        //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
-        List<int> timeSlots = timeSlotsAndScores.keys.toList();
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Best Times'),
-              content: SizedBox(
-                  height: 200,
-                  width: 300,
-                  child: ListView.builder(
-                    itemCount: timeSlots.length + 1, // Add one for the header row
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        // This is the header row
-                        return ListTile(
-                          title: Table(
-                            columnWidths: const {
-                              0: FractionColumnWidth(0.2),
-                              1: FractionColumnWidth(0.6),
-                              2: FractionColumnWidth(0.2),
-                            },
-                            children: const [
-                              TableRow(
-                                children: [
-                                  Text('Rank'),
-                                  Text('Start Time'),
-                                  Text('Score'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        // This is a data row
-                        String timeSlotName = Availability.getTimeslotName(timeSlots[index - 1], context);
-                        return ListTile(
-                          title: Table(
-                            columnWidths: const {
-                              0: FractionColumnWidth(0.2),
-                              1: FractionColumnWidth(0.6),
-                              2: FractionColumnWidth(0.2),
-                            },
-                            children: [
-                              TableRow(
-                                children: [
-                                  Text('$index'),
-                                  Text(timeSlotName),
-                                  Text('${timeSlotsAndScores[timeSlots[index - 1]]}'),
-                                ],
-                              ),
-                            ],
-                          ),
-                          onTap: () {
-                            context.goNamed('newevent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
-                          },
-                        );
-                      }
-                    },
-                  )),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 }
