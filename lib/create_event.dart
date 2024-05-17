@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get_together/main.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'classes/event.dart';
 import 'time_utils.dart';
 import 'findTime.dart';
 import 'app_state.dart';
+import 'main_navigator.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group group;
@@ -36,6 +38,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Map<String, Availability> memberAvailabilities = {};
   late Map<int, int> timeSlotsAndScores;
   late List<int> timeSlots;
+  late ApplicationState appState;
 
   @override
   void initState() {
@@ -54,7 +57,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
     }
 
-    var appState = Provider.of<ApplicationState>(context, listen: false);
+    appState = Provider.of<ApplicationState>(context, listen: false);
 
     timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone);
 
@@ -177,9 +180,24 @@ class _CreateEventPageState extends State<CreateEventPage> {
             ],
           ),
           //TODO: next up is to implement creating the event
-          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(child: const Text('Create Event'), onPressed: () {})),
+          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Create Event'))),
           Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
+  }
+
+  void saveEventToFirestore() {
+    Event event = Event(
+      title: _eventTitleController.text,
+      description: _eventDescriptionController.text,
+      location: _eventLocationController.text,
+      startTime: start,
+      endTime: end,
+      groupDocumentId: widget.group.documentId,
+      createdTime: DateTime.now(),
+      creatorDocumentId: appState.loginUserDocumentId,
+    );
+    event.saveToFirestore();
+    context.goNamed('events');
   }
 
   //TODO: make this move the end when the start time is changed

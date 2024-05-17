@@ -46,4 +46,21 @@ class Event {
       creatorDocumentId: data[creatorDocumentIdKey],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      titleKey: title,
+      descriptionKey: description,
+      locationKey: location,
+      startTimeKey: Timestamp.fromDate(startTime),
+      endTimeKey: Timestamp.fromDate(endTime),
+      groupDocumentIdKey: groupDocumentId,
+      createdTimeKey: Timestamp.fromDate(createdTime),
+      creatorDocumentIdKey: creatorDocumentId,
+    };
+  }
+
+  void saveToFirestore() {
+    FirebaseFirestore.instance.collection(collectionName).add(toMap());
+  }
 }
