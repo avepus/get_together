@@ -5,7 +5,8 @@ import 'navigation_pages/groups_page.dart';
 import 'navigation_pages/events_page.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  const MainNavigation({required this.initialPage, super.key});
+  final Pages initialPage;
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -14,7 +15,13 @@ class MainNavigation extends StatefulWidget {
 enum Pages { groups, events, profile }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int currentPageIndex = Pages.groups.index;
+  late int currentPageIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    currentPageIndex = widget.initialPage.index;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: <Widget>[
         Padding(padding: const EdgeInsets.all(8.0), child: GroupsPage()),
         const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
-        Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ProfilePage(
-                userDocumentId: FirebaseAuth.instance.currentUser!.uid)),
+        Padding(padding: const EdgeInsets.all(8.0), child: ProfilePage(userDocumentId: FirebaseAuth.instance.currentUser!.uid)),
       ][currentPageIndex],
     );
   }

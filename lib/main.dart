@@ -39,7 +39,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const MainNavigation(),
+      builder: (context, state) => const MainNavigation(initialPage: Pages.groups),
       redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser == null) {
           return '/sign-in';
@@ -49,19 +49,18 @@ final _router = GoRouter(
         }
       },
       routes: [
+        GoRoute(path: 'events', name: 'events', builder: (context, state) => const MainNavigation(initialPage: Pages.events)),
         GoRoute(
             path: 'profile/:userDocumentId',
             name: 'profile',
             builder: (context, state) {
-              return ProfilePage(
-                  userDocumentId: state.pathParameters['userDocumentId']!);
+              return ProfilePage(userDocumentId: state.pathParameters['userDocumentId']!);
             }),
         GoRoute(
             path: 'group/:groupDocumentId',
             name: 'group',
             builder: (context, state) {
-              return GroupDetailsPage(
-                  groupDocumentId: state.pathParameters['groupDocumentId']!);
+              return GroupDetailsPage(groupDocumentId: state.pathParameters['groupDocumentId']!);
             }),
         GoRoute(
             path: 'newevent',
@@ -94,25 +93,18 @@ final _router = GoRouter(
                   context.push(uri.toString());
                 })),
                 AuthStateChangeAction(((context, state) {
-                  final user = switch (state) {
-                    SignedIn state => state.user,
-                    UserCreated state => state.credential.user,
-                    _ => null
-                  };
+                  final user = switch (state) { SignedIn state => state.user, UserCreated state => state.credential.user, _ => null };
                   if (user == null) {
                     return;
                   }
                   if (state is UserCreated) {
                     user.updateDisplayName(user.email!.split('@')[0]);
                     //I don't know for sure that the follwing user.email! is safe. It should be according to https://firebase.google.com/docs/auth/users
-                    createFirestoreUser(
-                        user.email!.split('@')[0], user.email!, user.uid);
+                    createFirestoreUser(user.email!.split('@')[0], user.email!, user.uid);
                   }
                   if (!user.emailVerified) {
                     //user.sendEmailVerification();
-                    const snackBar = SnackBar(
-                        content: Text(
-                            'Please check your email to verify your email address'));
+                    const snackBar = SnackBar(content: Text('Please check your email to verify your email address'));
                     //ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
                   context.pushReplacement('/');
