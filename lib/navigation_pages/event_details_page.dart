@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_together/main.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../app_state.dart';
 import '../classes/group.dart';
@@ -38,7 +40,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.event!.title),
+          title: EventTitle(event: fetchEvent()),
         ),
         body: FutureBuilder<Event?>(
           future: fetchEvent(),
@@ -49,17 +51,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               return Text('Error: ${snapshot.error}');
             } else {
               Event event = snapshot.data!;
-              return Scaffold(
-                appBar: AppBar(
-                  title: Text(event?.title ?? ''),
-                ),
-                body: Column(
-                  children: [
-                    Text(event.description),
-                    Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
-                    // Add more details here as needed
-                  ],
-                ),
+              return Column(
+                children: [
+                  Text(event.description),
+                  Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
+                  //TODO: set up visible based on group admin
+                  Visibility(
+                      visible: true,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            event.deleteFromFirestore();
+                            context.pushNamed('events');
+                          },
+                          child: const Text('Delete Event')))
+                  // Add more details here as needed
+                ],
               );
             }
           },
