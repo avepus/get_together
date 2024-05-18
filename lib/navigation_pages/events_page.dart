@@ -128,9 +128,9 @@ class _EventsPageState extends State<EventsPage> {
                     //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
 
                     return ListTile(
-                        title: Text('${event.title} - ${groupMap[event.groupDocumentId]!.name}'),
+                        title: Text('${event.title} - ${event.description}'),
                         leading: ImageWithNullAndErrorHandling(imageUrl: groupMap[event.groupDocumentId]!.imageUrl),
-                        subtitle: Text(event.description),
+                        subtitle: Text(groupMap[event.groupDocumentId]!.name ?? ''),
                         trailing: Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
                         onTap: () {
                           context.pushNamed('event', pathParameters: {'eventDocumentId': event.documentId}, extra: {'event': event});

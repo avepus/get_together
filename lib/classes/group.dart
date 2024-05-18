@@ -49,6 +49,7 @@ class Group {
 
   Group({
     required this.documentId,
+    //TODO: make name required
     this.name,
     this.description,
     this.members = const <String>[],
@@ -72,28 +73,21 @@ class Group {
         admins: data[adminsKey].cast<String>(),
         daysBetweenMeets: data[daysBetweenMeetsKey],
         meetingDuration: data[meetingDurationKey],
-        daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty
-            ? null
-            : data[daysOfWeekKey].cast<int>(),
+        daysOfWeek: data[daysOfWeekKey] == null || data[daysOfWeekKey].isEmpty ? null : data[daysOfWeekKey].cast<int>(),
         createdTime: data[createdTimeKey],
         imageUrl: data[imageUrlKey],
-        memberAvailability:
-            _convertAvailabilityFromFirestore(data[availabilityKey]),
-        memberTimezones:
-            _convertTimezonesFromFirestore(data[memberTimezonesKey]));
+        memberAvailability: _convertAvailabilityFromFirestore(data[availabilityKey]),
+        memberTimezones: _convertTimezonesFromFirestore(data[memberTimezonesKey]));
   }
 
-  static Map<String, List<int>>? _convertAvailabilityFromFirestore(
-      Map<String, dynamic>? availability) {
+  static Map<String, List<int>>? _convertAvailabilityFromFirestore(Map<String, dynamic>? availability) {
     if (availability == null) {
       return null;
     }
-    return availability.map((key, value) =>
-        MapEntry(key, List<int>.from((value as List<dynamic>).cast<int>())));
+    return availability.map((key, value) => MapEntry(key, List<int>.from((value as List<dynamic>).cast<int>())));
   }
 
-  static Map<String, String>? _convertTimezonesFromFirestore(
-      Map<String, dynamic>? timezones) {
+  static Map<String, String>? _convertTimezonesFromFirestore(Map<String, dynamic>? timezones) {
     if (timezones == null) {
       return null;
     }
@@ -110,13 +104,10 @@ class Group {
   //TODO: this should return null if there is no availability
   Availability? getAvailability(String uid) {
     String? timeZone = getTimeZone(uid);
-    if (memberAvailability == null ||
-        memberAvailability![uid] == null ||
-        timeZone == null) {
+    if (memberAvailability == null || memberAvailability![uid] == null || timeZone == null) {
       return null;
     }
-    return Availability(
-        weekAvailability: memberAvailability![uid]!, timeZoneName: timeZone);
+    return Availability(weekAvailability: memberAvailability![uid]!, timeZoneName: timeZone);
   }
 
   ///this gives me a the follwoing error when used
@@ -125,9 +116,7 @@ class Group {
   @override
   ListTile getTile(BuildContext context) {
     return ListTile(
-        leading: imageUrl != null
-            ? Image.network(imageUrl!)
-            : const Icon(Icons.broken_image_outlined),
+        leading: imageUrl != null ? Image.network(imageUrl!) : const Icon(Icons.broken_image_outlined),
         title: Text(name ?? '<No Name>'),
         subtitle: description != null ? Text(description!) : null,
         onTap: () {
@@ -148,25 +137,18 @@ class Group {
   /// Fetches the users from Firestore using the provided user IDs
   /// removes the user ID from the input field in Firestore if the user does not exist to handle cases in which the user is deleted
   /// returns a list of users
-  Future<List<AppUser>> _fetchUsers(
-      List<String> userIds, String fieldKey) async {
+  Future<List<AppUser>> _fetchUsers(List<String> userIds, String fieldKey) async {
     List<AppUser> users = [];
 
     for (var userId in userIds) {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
 
       if (snapshot.exists) {
         AppUser user = AppUser.fromDocumentSnapshot(snapshot);
         users.add(user);
       } else {
         // Remove the document ID from the members field in Firestore
-        await FirebaseFirestore.instance
-            .collection('groups')
-            .doc(documentId)
-            .update({
+        await FirebaseFirestore.instance.collection('groups').doc(documentId).update({
           fieldKey: FieldValue.arrayRemove([userId])
         });
       }
