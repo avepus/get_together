@@ -55,8 +55,7 @@ class GroupsPage extends StatelessWidget {
   }
 
   Future<void> _addGroup(BuildContext context, String groupName) async {
-    DocumentReference groupRef =
-        await FirebaseFirestore.instance.collection(Group.collectionName).add({
+    DocumentReference groupRef = await FirebaseFirestore.instance.collection(Group.collectionName).add({
       Group.nameKey: groupName,
       Group.createdTimeKey: Timestamp.fromDate(DateTime.now()),
       Group.adminsKey: [uid],
@@ -74,8 +73,7 @@ class GroupsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading:
-            false, //prevent back button from displaying, shouldn't be necessary but this is all I could figure out for now
+        automaticallyImplyLeading: false, //prevent back button from displaying, shouldn't be necessary but this is all I could figure out for now
         title: const Text('Groups'),
       ),
       floatingActionButton: FloatingActionButton(
@@ -83,10 +81,7 @@ class GroupsPage extends StatelessWidget {
         child: Icon(Icons.add),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('groups')
-            .where('members', arrayContains: uid)
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('groups').where('members', arrayContains: uid).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
@@ -104,17 +99,13 @@ class GroupsPage extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             separatorBuilder: (context, index) => Divider(height: 10),
             itemBuilder: (context, index) {
-              var group =
-                  Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
+              var group = Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
               //this code relies on knowing the group structure. would be better if it didn't
               //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
               return ListTile(
-                  leading:
-                      ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
+                  leading: ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
                   title: Text(group.name ?? '<No Name>'),
-                  subtitle: group.description != null
-                      ? Text(group.description!)
-                      : null,
+                  subtitle: group.description != null ? Text(group.description!) : null,
                   onTap: () {
                     context.pushNamed('group', pathParameters: {
                       'groupDocumentId': group.documentId,

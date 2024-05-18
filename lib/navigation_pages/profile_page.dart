@@ -28,10 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _userSnapshot = FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.userDocumentId)
-        .snapshots();
+    _userSnapshot = FirebaseFirestore.instance.collection('users').doc(widget.userDocumentId).snapshots();
   }
 
   void signOut(BuildContext context) async {
@@ -43,15 +40,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   //TODO: implement upload image as profile image
   Future<void> uploadImage() async {
-    final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery, maxWidth: 200, maxHeight: 200);
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 200, maxHeight: 200);
 
     if (pickedFile != null) {
       debugPrint(pickedFile.path);
 
-      Reference ref = FirebaseStorage.instance
-          .ref()
-          .child('user_images/${widget.userDocumentId}');
+      Reference ref = FirebaseStorage.instance.ref().child('user_images/${widget.userDocumentId}');
 
       final metadata = SettableMetadata(
         contentType: 'image/jpeg',
@@ -66,10 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       var downloadUrl = await ref.getDownloadURL();
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userDocumentId)
-          .update({AppUser.imageUrlKey: downloadUrl});
+      await FirebaseFirestore.instance.collection('users').doc(widget.userDocumentId).update({AppUser.imageUrlKey: downloadUrl});
     }
   }
 
@@ -83,29 +74,22 @@ class _ProfilePageState extends State<ProfilePage> {
           stream: _userSnapshot,
           builder: (context, appUserSnapshot) {
             if (appUserSnapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox(
-                  width: 50, child: CircularProgressIndicator());
+              return const SizedBox(width: 50, child: CircularProgressIndicator());
             } else if (appUserSnapshot.hasError) {
               return Text("Error: ${appUserSnapshot.error}");
-            } else if (!appUserSnapshot.hasData ||
-                appUserSnapshot.data == null) {
+            } else if (!appUserSnapshot.hasData || appUserSnapshot.data == null) {
               return const Text("No data found");
             } else {
-              AppUser user =
-                  AppUser.fromDocumentSnapshot(appUserSnapshot.data!);
-              bool hasEditSecurity = loggedInUidMatches(user.documentId);
+              AppUser user = AppUser.fromDocumentSnapshot(appUserSnapshot.data!);
+              bool hasEditSecurity = loggedInUidMatchesOld(user.documentId);
               return ListView(
                 children: [
                   Center(
                     child: SizedBox(
                         width: 200,
                         height: 200,
-                        child: EditableImageField(
-                            collectionName: AppUser.collectionName,
-                            documentId: user.documentId,
-                            fieldKey: AppUser.imageUrlKey,
-                            imageUrl: user.imageUrl,
-                            canEdit: hasEditSecurity)),
+                        child:
+                            EditableImageField(collectionName: AppUser.collectionName, documentId: user.documentId, fieldKey: AppUser.imageUrlKey, imageUrl: user.imageUrl, canEdit: hasEditSecurity)),
                   ),
                   EditableFirestoreField(
                       collection: AppUser.collectionName,
@@ -132,12 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       currentValue: user.phoneNumber,
                       hasSecurity: hasEditSecurity,
                       dataType: int),
-                  Card(
-                      child: ListTile(
-                          title: const Text(AppUser.createdTimeLabel),
-                          subtitle: Text(user.createdTime != null
-                              ? formatTimestamp(user.createdTime!).toString()
-                              : ''))),
+                  Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
                 ],
               );
             }
@@ -145,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         bottomNavigationBar: BottomAppBar(
           child: Visibility(
-            visible: loggedInUidMatches(widget.userDocumentId),
+            visible: loggedInUidMatchesOld(widget.userDocumentId),
             child: ElevatedButton(
               child: Text('Sign Out'),
               onPressed: () => signOut(context),
@@ -176,8 +155,7 @@ class AppUserTitle extends StatelessWidget {
             if (!inUserSnapshot.hasData || inUserSnapshot.data == null) {
               return const Text('No data');
             }
-            AppUser appUser =
-                AppUser.fromDocumentSnapshot(inUserSnapshot.data!);
+            AppUser appUser = AppUser.fromDocumentSnapshot(inUserSnapshot.data!);
             return Text(appUser.displayName ?? '<No Name>');
           }
         });

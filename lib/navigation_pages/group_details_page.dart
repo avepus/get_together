@@ -64,7 +64,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             width: 200,
                             height: 200,
                             child: EditableImageField(
-                                collectionName: Group.collectionName, documentId: group.documentId, fieldKey: Group.imageUrlKey, imageUrl: group.imageUrl, canEdit: loggedInUidInArray(group.admins)),
+                                collectionName: Group.collectionName,
+                                documentId: group.documentId,
+                                fieldKey: Group.imageUrlKey,
+                                imageUrl: group.imageUrl,
+                                canEdit: loggedInUidInArrayOld(group.admins)),
                           ),
                         ),
                         EditableFirestoreField(
@@ -73,7 +77,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             label: Group.nameLabel,
                             documentId: group.documentId,
                             currentValue: group.name,
-                            hasSecurity: loggedInUidInArray(group.admins),
+                            hasSecurity: loggedInUidInArrayOld(group.admins),
                             dataType: String),
                         EditableFirestoreField(
                             collection: Group.collectionName,
@@ -81,7 +85,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             label: Group.descriptionLabel,
                             documentId: group.documentId,
                             currentValue: group.description,
-                            hasSecurity: loggedInUidInArray(group.admins),
+                            hasSecurity: loggedInUidInArrayOld(group.admins),
                             dataType: String),
                         EditableFirestoreField(
                             collection: Group.collectionName,
@@ -89,7 +93,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             label: Group.daysBetweenMeetsLabel,
                             documentId: group.documentId,
                             currentValue: group.daysBetweenMeets,
-                            hasSecurity: loggedInUidInArray(group.admins),
+                            hasSecurity: loggedInUidInArrayOld(group.admins),
                             dataType: int),
                         EditableFirestoreField(
                             collection: Group.collectionName,
@@ -97,7 +101,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             label: Group.meetingDurationLabel,
                             documentId: group.documentId,
                             currentValue: group.meetingDuration,
-                            hasSecurity: loggedInUidInArray(group.admins),
+                            hasSecurity: loggedInUidInArrayOld(group.admins),
                             dataType: double),
                         AvailabilityButton(
                           groupDocumentId: widget.groupDocumentId,
@@ -108,7 +112,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         Card(child: ListTile(title: const Text(Group.createdTimeLabel), subtitle: Text(group.createdTime != null ? formatTimestamp(group.createdTime!).toString() : ''))),
                         Card(child: ListTile(title: const Text(Group.membersLabel), subtitle: UsersListView(futureMembers: members))),
                         Visibility(
-                          visible: loggedInUidInArray(group.admins),
+                          visible: loggedInUidInArrayOld(group.admins),
                           child: SizedBox(
                             width: 50,
                             child: Align(
@@ -118,7 +122,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ),
                         Card(child: ListTile(title: const Text(Group.adminsLabel), subtitle: UsersListView(futureMembers: admins))),
                         Visibility(
-                          visible: loggedInUidInArray(group.admins),
+                          visible: loggedInUidInArrayOld(group.admins),
                           child: SizedBox(
                             width: 50,
                             child: Align(
@@ -130,7 +134,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         Visibility(
-                          visible: loggedInUidInArray(group.admins),
+                          visible: loggedInUidInArrayOld(group.admins),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: SizedBox(
