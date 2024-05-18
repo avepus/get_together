@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
+import 'app_state.dart';
+
 String formatTimestamp(Timestamp timestamp) {
   // Convert the Timestamp to DateTime
   return myFormatDateTime(dateTime: timestamp.toDate(), includeTime: false);
@@ -17,7 +19,7 @@ String myFormatDateTime({required DateTime dateTime, required bool includeTime})
 }
 
 ///returns true if the passed in uid matches the uid of the logged in user
-bool loggedInUidMatches(String uid) {
+bool loggedInUidMatchesOld(String uid) {
   if (FirebaseAuth.instance.currentUser == null) {
     return false;
   }
@@ -27,8 +29,22 @@ bool loggedInUidMatches(String uid) {
   return true;
 }
 
-bool loggedInUidInArray(List<String> uids) {
+bool loggedInUidMatches(String uid, ApplicationState appState) {
+  return appState.loginUserDocumentId == uid;
+}
+
+bool loggedInUidInArrayOld(List<String> uids) {
   if (FirebaseAuth.instance.currentUser == null) {
+    return false;
+  }
+  if (uids.contains(FirebaseAuth.instance.currentUser!.uid)) {
+    return true;
+  }
+  return false;
+}
+
+bool loggedInUidInArray(List<String> uids, ApplicationState appState) {
+  if (appState.loginUserDocumentId == '') {
     return false;
   }
   if (uids.contains(FirebaseAuth.instance.currentUser!.uid)) {
