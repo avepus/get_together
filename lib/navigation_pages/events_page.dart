@@ -69,7 +69,7 @@ class _EventsPageState extends State<EventsPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, //prevent back button from displaying, shouldn't be necessary but this is all I could figure out for now
-        title: const Text('Groups'),
+        title: const Text('Events'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEventDialog(context, appState),

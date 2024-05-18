@@ -10,6 +10,7 @@ import '../classes/group.dart';
 import '../classes/event.dart';
 import '../widgets/image_with_null_error_handling.dart';
 import '../utils.dart';
+import '../widgets/editable_firestore_field.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final Event? event;
@@ -45,25 +46,57 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         body: FutureBuilder<Event?>(
           future: fetchEvent(),
           builder: (context, snapshot) {
+            //TODO: check if user is an admin of the group
+            bool hasSecurity = true;
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               Event event = snapshot.data!;
-              return Column(
+              return ListView(
                 children: [
-                  Text(event.description),
+                  EditableFirestoreField(
+                      collection: Event.collectionName,
+                      fieldKey: Event.titleKey,
+                      label: Event.titleLabel,
+                      documentId: event.documentId,
+                      currentValue: event.title,
+                      hasSecurity: hasSecurity,
+                      dataType: String),
+                  EditableFirestoreField(
+                      collection: Event.collectionName,
+                      fieldKey: Event.descriptionKey,
+                      label: Event.descriptionLabel,
+                      documentId: event.documentId,
+                      currentValue: event.description,
+                      hasSecurity: hasSecurity,
+                      dataType: String),
+                  EditableFirestoreField(
+                      collection: Event.collectionName,
+                      fieldKey: Event.locationKey,
+                      label: Event.locationLabel,
+                      documentId: event.documentId,
+                      currentValue: event.location,
+                      hasSecurity: hasSecurity,
+                      dataType: String),
+
                   Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
-                  //TODO: set up visible based on group admin
                   Visibility(
-                      visible: true,
+                      visible: hasSecurity,
                       child: ElevatedButton(
                           onPressed: () {
+                            //TODO: warn user to notifiy group members
+                            //TODO: future: notify group members via push notification and/or text
                             event.deleteFromFirestore();
                             context.pushNamed('events');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Event ${event.title} was canceled'),
+                              ),
+                            );
                           },
-                          child: const Text('Delete Event')))
+                          child: const Text('Cancel Event')))
                   // Add more details here as needed
                 ],
               );
