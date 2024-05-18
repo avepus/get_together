@@ -179,7 +179,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
-          //TODO: next up is to implement creating the event
           Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Create Event'))),
           Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
@@ -197,6 +196,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
       creatorDocumentId: appState.loginUserDocumentId,
     );
     event.saveToFirestore();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('event ${_eventTitleController.text} created'),
+      ),
+    );
     context.goNamed('events');
   }
 
