@@ -15,6 +15,16 @@ class Event {
   static const String createdTimeKey = 'createdTime';
   static const String creatorDocumentIdKey = 'creatorDocumentId';
 
+  static const String documentIdLabel = 'Document ID';
+  static const String titleLabel = 'Title';
+  static const String descriptionLabel = 'Description';
+  static const String locationLabel = 'Location';
+  static const String startTimeLabel = 'Start Time';
+  static const String endTimeLabel = 'End Time';
+  static const String groupDocumentIdLabel = 'Group Document ID';
+  static const String createdTimeLabel = 'Created Time';
+  static const String creatorDocumentIdLabel = 'Creator Document ID';
+
   //documentId = '' implies that this is not stored in firebase yet. This is not great. Need to figure out a good way to handle this
   String documentId;
   final String title;
