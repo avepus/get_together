@@ -18,6 +18,8 @@ import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
 import 'create_event.dart';
 import 'classes/group.dart';
+import 'classes/event.dart';
+import 'navigation_pages/event_details_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +63,19 @@ final _router = GoRouter(
             name: 'group',
             builder: (context, state) {
               return GroupDetailsPage(groupDocumentId: state.pathParameters['groupDocumentId']!);
+            }),
+        GoRoute(
+            path: 'event/:eventDocumentId',
+            name: 'event',
+            builder: (context, state) {
+              Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
+              Event? event = map?['event'] as Event?;
+              String? eventDocumentId = state.pathParameters['eventDocumentId'];
+
+              if (state.extra == null && state.pathParameters['eventDocumentId'] != null) {
+                context.pushReplacement('/');
+              }
+              return EventDetailsPage(event: event, eventDocumentId: eventDocumentId);
             }),
         GoRoute(
             path: 'newevent',

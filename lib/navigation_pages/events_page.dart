@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_together/main.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import '../app_state.dart';
 import '../classes/group.dart';
 import '../classes/event.dart';
 import '../widgets/image_with_null_error_handling.dart';
+import '../utils.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -87,13 +90,15 @@ class _EventsPageState extends State<EventsPage> {
             return const Text('No data');
           }
 
-          List<String> groupDocumentIds = [];
+          Map<String, Group> groupMap = {};
           for (DocumentSnapshot doc in snapshot.data!.docs) {
-            groupDocumentIds.add(doc.id);
+            groupMap[doc.id] = Group.fromDocumentSnapshot(doc);
           }
 
           return FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance.collection(Event.collectionName).where(Event.groupDocumentIdKey, whereIn: groupDocumentIds).get(),
+              //TODO: need to add a filter to show only events with end times in the future
+              ///may want to query back a month and only show future by default with a button to show all
+              future: FirebaseFirestore.instance.collection(Event.collectionName).where(Event.groupDocumentIdKey, whereIn: groupMap.keys).get(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
@@ -107,19 +112,28 @@ class _EventsPageState extends State<EventsPage> {
                   return const Text('No data');
                 }
 
+                List<Event> events = [];
+                for (DocumentSnapshot doc in snapshot.data!.docs) {
+                  Event event = Event.fromDocumentSnapshot(doc);
+                  events.add(event);
+                }
+                events.sort((a, b) => a.startTime.compareTo(b.startTime));
+
                 return ListView.separated(
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: events.length,
                   separatorBuilder: (context, index) => Divider(height: 10),
                   itemBuilder: (context, index) {
-                    Event event = Event.fromDocumentSnapshot(snapshot.data!.docs[index]);
+                    Event event = events[index];
                     //this code relies on knowing the group structure. would be better if it didn't
                     //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
+
                     return ListTile(
-                        title: Text(event.title),
+                        title: Text('${event.title} - ${groupMap[event.groupDocumentId]!.name}'),
+                        leading: ImageWithNullAndErrorHandling(imageUrl: groupMap[event.groupDocumentId]!.imageUrl),
                         subtitle: Text(event.description),
-                        trailing: Text(event.startTime.toIso8601String()),
+                        trailing: Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
                         onTap: () {
-                          //TODO: Implement this
+                          context.pushNamed('event', pathParameters: {'eventDocumentId': event.documentId}, extra: {'event': event});
                         });
                   },
                 );

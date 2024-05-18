@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 //this represents a group's meeting/event
 class Event {
   static const String collectionName = 'events';
+  static const String documentIdKey = 'documentId';
   static const String titleKey = 'title';
   static const String descriptionKey = 'description';
   static const String locationKey = 'location';
@@ -14,6 +15,8 @@ class Event {
   static const String createdTimeKey = 'createdTime';
   static const String creatorDocumentIdKey = 'creatorDocumentId';
 
+  //documentId = '' implies that this is not stored in firebase yet. This is not great. Need to figure out a good way to handle this
+  String documentId;
   final String title;
   final String description;
   final String location;
@@ -24,7 +27,8 @@ class Event {
   final String creatorDocumentId;
 
   Event(
-      {required this.title,
+      {required this.documentId,
+      required this.title,
       required this.description,
       required this.location,
       required this.startTime,
@@ -36,6 +40,7 @@ class Event {
   static Event fromDocumentSnapshot(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Event(
+      documentId: doc.id,
       title: data[titleKey],
       description: data[descriptionKey],
       location: data[locationKey],
@@ -49,6 +54,7 @@ class Event {
 
   Map<String, dynamic> toMap() {
     return {
+      //purposefully excluding the document ID since that's not a field it's the literal ID
       titleKey: title,
       descriptionKey: description,
       locationKey: location,
@@ -60,7 +66,12 @@ class Event {
     };
   }
 
-  void saveToFirestore() {
-    FirebaseFirestore.instance.collection(collectionName).add(toMap());
+  void saveToFirestore() async {
+    if (documentId != '') {
+      await FirebaseFirestore.instance.collection(collectionName).doc(documentId).set(toMap());
+    } else {
+      DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
+      documentId = ref.id;
+    }
   }
 }

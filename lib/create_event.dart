@@ -186,6 +186,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
   void saveEventToFirestore() {
     Event event = Event(
+      documentId: '', //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
       description: _eventDescriptionController.text,
       location: _eventLocationController.text,
