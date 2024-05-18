@@ -74,4 +74,10 @@ class Event {
       documentId = ref.id;
     }
   }
+
+  void deleteFromFirestore() {
+    if (documentId != '') {
+      FirebaseFirestore.instance.collection(collectionName).doc(documentId).delete();
+    }
+  }
 }
