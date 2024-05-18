@@ -104,8 +104,8 @@ class GroupsPage extends StatelessWidget {
               //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
               return ListTile(
                   leading: ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
-                  title: Text(group.name ?? '<No Name>'),
-                  subtitle: group.description != null ? Text(group.description!) : null,
+                  title: Text(group.name ?? '<No Name>', maxLines: 1),
+                  subtitle: Text(group.description ?? '', maxLines: 1),
                   onTap: () {
                     context.pushNamed('group', pathParameters: {
                       'groupDocumentId': group.documentId,
