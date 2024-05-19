@@ -7,15 +7,20 @@ import 'app_state.dart';
 
 String formatTimestamp(Timestamp timestamp) {
   // Convert the Timestamp to DateTime
-  return myFormatDateTime(dateTime: timestamp.toDate(), includeTime: false);
+  return myFormatDate(timestamp.toDate());
 }
 
 //central function for formatting dateTimes so I can easily change format if needed
-String myFormatDateTime({required DateTime dateTime, required bool includeTime}) {
-  if (includeTime) {
-    return DateFormat.yMMMd().add_jm().format(dateTime);
-  }
+String myFormatDateAndTime(DateTime dateTime) {
+  return DateFormat.yMMMd().add_jm().format(dateTime);
+}
+
+String myFormatDate(DateTime dateTime) {
   return DateFormat.yMMMd().format(dateTime);
+}
+
+String myFormatTime(DateTime dateTime) {
+  return DateFormat.jm().format(dateTime);
 }
 
 ///returns true if the passed in uid matches the uid of the logged in user

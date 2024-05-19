@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils.dart';
+
 //this represents a group's meeting/event
 class Event {
   static const String collectionName = 'events';
@@ -30,8 +32,8 @@ class Event {
   final String title;
   final String description;
   final String location;
-  final DateTime startTime;
-  final DateTime endTime;
+  final DateTime startTime; //UTC
+  final DateTime endTime; //UTC
   final String groupDocumentId;
   final DateTime createdTime;
   final String creatorDocumentId;
@@ -88,6 +90,18 @@ class Event {
   void deleteFromFirestore() {
     if (documentId != '') {
       FirebaseFirestore.instance.collection(collectionName).doc(documentId).delete();
+    }
+  }
+
+  ///formats the start and end time based on the users current timezone
+  ///will show the date of the endTime if on a different day
+  String formatMeetingStartAndEnd() {
+    DateTime localStart = startTime.toLocal();
+    DateTime localEnd = endTime.toLocal();
+    if (localStart.day == localEnd.day) {
+      return '${myFormatDateAndTime(localStart)} - ${myFormatTime(localEnd)}';
+    } else {
+      return '${myFormatDateAndTime(localStart)} - ${myFormatDateAndTime(localEnd)}';
     }
   }
 }

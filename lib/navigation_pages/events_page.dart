@@ -131,7 +131,7 @@ class _EventsPageState extends State<EventsPage> {
                         title: Text('${event.title} - ${event.description}'),
                         leading: ImageWithNullAndErrorHandling(imageUrl: groupMap[event.groupDocumentId]!.imageUrl),
                         subtitle: Text(groupMap[event.groupDocumentId]!.name ?? ''),
-                        trailing: Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
+                        trailing: Text(myFormatDateAndTime(event.startTime)),
                         onTap: () {
                           context.pushNamed('event', pathParameters: {'eventDocumentId': event.documentId}, extra: {'event': event});
                         });
