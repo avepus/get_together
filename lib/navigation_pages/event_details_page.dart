@@ -62,7 +62,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       label: Event.titleLabel,
                       documentId: event.documentId,
                       currentValue: event.title,
-                      hasSecurity: hasSecurity,
+                      hasSecurity: false,
                       dataType: String),
                   EditableFirestoreField(
                       collection: Event.collectionName,
@@ -70,7 +70,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       label: Event.descriptionLabel,
                       documentId: event.documentId,
                       currentValue: event.description,
-                      hasSecurity: hasSecurity,
+                      hasSecurity: false,
                       dataType: String),
                   EditableFirestoreField(
                       collection: Event.collectionName,
@@ -78,10 +78,23 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       label: Event.locationLabel,
                       documentId: event.documentId,
                       currentValue: event.location,
-                      hasSecurity: hasSecurity,
+                      hasSecurity: false,
                       dataType: String),
-
-                  Text(myFormatDateTime(dateTime: event.startTime, includeTime: true)),
+                  EditableFirestoreField(
+                      collection: Event.collectionName,
+                      fieldKey: Event.endTimeKey,
+                      label: 'When',
+                      documentId: event.documentId,
+                      currentValue: event.formatMeetingStartAndEnd(),
+                      hasSecurity: false,
+                      dataType: String),
+                  Visibility(
+                      visible: hasSecurity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            //TODO: next up is to make this jump you to the create event page and have it pre-populated with the event data
+                          },
+                          child: const Text('Edit Event'))),
                   Visibility(
                       visible: hasSecurity,
                       child: ElevatedButton(
@@ -97,7 +110,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             );
                           },
                           child: const Text('Cancel Event')))
-                  // Add more details here as needed
                 ],
               );
             }
