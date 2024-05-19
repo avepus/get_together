@@ -190,8 +190,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
       title: _eventTitleController.text,
       description: _eventDescriptionController.text,
       location: _eventLocationController.text,
-      startTime: start,
-      endTime: end,
+      startTime: start.toUtc(),
+      endTime: end.toUtc(),
       groupDocumentId: widget.group.documentId,
       createdTime: DateTime.now(),
       creatorDocumentId: appState.loginUserDocumentId,
@@ -277,7 +277,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     end = end.add(newEndDifference);
 
     if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: 30));
+      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
@@ -302,7 +302,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     end = end.add(difference);
 
     if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: 30));
+      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
