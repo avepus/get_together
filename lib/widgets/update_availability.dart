@@ -36,6 +36,7 @@ class AvailabilityButton extends StatelessWidget {
     return ElevatedButton(
       child: const Text('Set Availability'),
       onPressed: () {
+        ///TODO: this should be made into a route
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => AvailabilityPageDetail(groupDocumentId: groupDocumentId, availability: availability),
         ));
@@ -54,136 +55,123 @@ class AvailabilityPageDetail extends StatefulWidget {
 }
 
 class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
-  late Future<Availability> _availability;
+  final Availability emptyAvailability = Availability(weekAvailability: Availability.emptyWeekArray(), timeZoneName: 'UTC');
+  late Availability? _availability = widget.availability;
   final double radioWidth = 100;
   final double timeSlotWidth = 150;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<Availability> _getAvailability(String timeZone) async {
+  Availability _getAvailability(String timeZone) {
     if (widget.availability != null) {
       return widget.availability!;
     }
-
     return Availability(weekAvailability: Availability.emptyWeekArray(), timeZoneName: timeZone);
   }
 
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<ApplicationState>(context);
-
-    return FutureBuilder(
-        future: _getAvailability(appState.loginUserTimeZone),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const CircularProgressIndicator();
-          }
-          Availability availability = snapshot.data as Availability;
-          return Scaffold(
-              appBar: AppBar(
-                title:
-                    //TODO: Low priority, this should editable
-                    Text('Set Availability - (${availability.timeZoneName})'),
-              ),
-              body: Column(
-                children: [
-                  Row(
+    ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
+    _availability ??= _getAvailability(appState.loginUserTimeZone);
+    return Scaffold(
+        appBar: AppBar(
+          title:
+              //TODO: Low priority, this should editable
+              Text('Set Availability - (${_availability!.timeZoneName})'),
+        ),
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: timeSlotWidth,
+                  child: Text('Time Slot'),
+                ),
+                SizedBox(
+                  width: radioWidth,
+                  child: ListTile(
+                    title: Text(Availability.ValueDefinitions[Availability.badValue]!),
+                  ),
+                ),
+                SizedBox(
+                  width: radioWidth,
+                  child: ListTile(
+                    title: Text(Availability.ValueDefinitions[Availability.goodValue]!),
+                  ),
+                ),
+                SizedBox(
+                  width: radioWidth,
+                  child: ListTile(
+                    title: Text(Availability.ValueDefinitions[Availability.greatValue]!),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: Availability.arrayLength,
+                itemBuilder: (context, index) {
+                  return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(width: timeSlotWidth, child: Text(Availability.getTimeslotName(index, context))),
                       SizedBox(
-                        width: timeSlotWidth,
-                        child: Text('Time Slot'),
+                        width: radioWidth,
+                        child: RadioListTile(
+                            toggleable: true,
+                            value: Availability.badValue,
+                            groupValue: _availability!.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability!.weekAvailability[index] = value ?? 0;
+                              });
+                            }),
                       ),
                       SizedBox(
                         width: radioWidth,
-                        child: ListTile(
-                          title: Text(Availability.ValueDefinitions[Availability.badValue]!),
-                        ),
+                        child: RadioListTile(
+                            toggleable: true,
+                            value: Availability.goodValue,
+                            groupValue: _availability!.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability!.weekAvailability[index] = value ?? 0;
+                              });
+                            }),
                       ),
                       SizedBox(
                         width: radioWidth,
-                        child: ListTile(
-                          title: Text(Availability.ValueDefinitions[Availability.goodValue]!),
-                        ),
-                      ),
-                      SizedBox(
-                        width: radioWidth,
-                        child: ListTile(
-                          title: Text(Availability.ValueDefinitions[Availability.greatValue]!),
-                        ),
+                        child: RadioListTile(
+                            toggleable: true,
+                            value: Availability.greatValue,
+                            groupValue: _availability!.weekAvailability[index],
+                            onChanged: (value) {
+                              setState(() {
+                                _availability!.weekAvailability[index] = value ?? 0;
+                              });
+                            }),
                       ),
                     ],
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: Availability.arrayLength,
-                      itemBuilder: (context, index) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(width: timeSlotWidth, child: Text(Availability.getTimeslotName(index, context))),
-                            SizedBox(
-                              width: radioWidth,
-                              child: RadioListTile(
-                                  toggleable: true,
-                                  value: Availability.badValue,
-                                  groupValue: availability.weekAvailability[index],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      availability.weekAvailability[index] = value ?? 0;
-                                    });
-                                  }),
-                            ),
-                            SizedBox(
-                              width: radioWidth,
-                              child: RadioListTile(
-                                  toggleable: true,
-                                  value: Availability.goodValue,
-                                  groupValue: availability.weekAvailability[index],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      availability.weekAvailability[index] = value ?? 0;
-                                    });
-                                  }),
-                            ),
-                            SizedBox(
-                              width: radioWidth,
-                              child: RadioListTile(
-                                  toggleable: true,
-                                  value: Availability.greatValue,
-                                  groupValue: availability.weekAvailability[index],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      availability.weekAvailability[index] = value ?? 0;
-                                    });
-                                  }),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-              floatingActionButton: ElevatedButton(
-                  child: const Text('Submit'),
-                  onPressed: () async {
-                    final User? user = FirebaseAuth.instance.currentUser;
-                    if (user != null) {
-                      await FirebaseFirestore.instance.collection(Group.collectionName).doc(widget.groupDocumentId).update({
-                        '${Group.availabilityKey}.${user.uid}': availability.weekAvailability,
-                        '${Group.memberTimezonesKey}.${user.uid}': availability.timeZoneName,
-                      });
-                    }
+            ),
+          ],
+        ),
+        floatingActionButton: ElevatedButton(
+            child: const Text('Submit'),
+            onPressed: () async {
+              final User? user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                await FirebaseFirestore.instance.collection(Group.collectionName).doc(widget.groupDocumentId).update({
+                  '${Group.availabilityKey}.${user.uid}': _availability!.weekAvailability,
+                  '${Group.memberTimezonesKey}.${user.uid}': _availability!.timeZoneName,
+                });
+              }
 
-                    if (context.mounted) {
-                      context.pop();
-                    }
-                  }));
-        });
+              if (context.mounted) {
+                context.pop();
+              }
+            }));
   }
 }
 
