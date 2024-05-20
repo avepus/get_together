@@ -51,7 +51,7 @@ class _EventsPageState extends State<EventsPage> {
                       title: Text(group.name ?? '<No Name>'),
                       subtitle: group.description != null ? Text(group.description!) : null,
                       onTap: () {
-                        //TODO: Implement this
+                        //TODO: next up: Implement this to create a new event
                       });
                 },
               );
