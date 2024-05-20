@@ -86,11 +86,16 @@ final _router = GoRouter(
               }
               Map<String, dynamic> map = state.extra! as Map<String, dynamic>;
               if (map['group'] == null) {
+                //always need the group passed
+                context.pushReplacement('/');
+              }
+              if (map['event'] == null && map['timeslot'] == null) {
+                //need a timeslot (for new event) or an event (for updating existing) passed in
                 context.pushReplacement('/');
               }
               Group group = map['group'] as Group;
               int? slot = map['timeSlot'];
-              return CreateEventPage(group: group, timeSlot: slot);
+              return CreateEventPage(group: group, event: map['event'], timeSlot: slot);
             }),
         GoRoute(
           path: 'sign-in',

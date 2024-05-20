@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get_together/firebase.dart';
 import 'package:get_together/main.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,9 @@ class EventDetailsPage extends StatefulWidget {
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
+  late final Future<Event?> _futureEvent = fetchEvent();
+  late final Future<Group?> _futureGroup;
+
   Future<Event?> fetchEvent() async {
     if (widget.event == null && widget.eventDocumentId != null) {
       DocumentSnapshot doc = await FirebaseFirestore.instance.collection(Event.collectionName).doc(widget.eventDocumentId).get();
@@ -30,6 +34,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     } else {
       return widget.event;
     }
+  }
+
+  Future<Group?> fetchGroup(String groupDocumentId) async {
+    DocumentSnapshot doc = await FirebaseFirestore.instance.collection(Group.collectionName).doc(groupDocumentId).get();
+    return Group.fromDocumentSnapshot(doc);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _futureEvent.then((event) {
+      if (event != null && event.groupDocumentId != null) {
+        _futureGroup = fetchGroup(event.groupDocumentId);
+      }
+    });
   }
 
   @override
@@ -41,76 +60,87 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
         appBar: AppBar(
-          title: EventTitle(event: fetchEvent()),
+          title: EventTitle(event: _futureEvent),
         ),
         body: FutureBuilder<Event?>(
-          future: fetchEvent(),
+          future: _futureEvent,
           builder: (context, snapshot) {
-            //TODO: check if user is an admin of the group
-            bool hasSecurity = true;
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               Event event = snapshot.data!;
-              return ListView(
-                children: [
-                  EditableFirestoreField(
-                      collection: Event.collectionName,
-                      fieldKey: Event.titleKey,
-                      label: Event.titleLabel,
-                      documentId: event.documentId,
-                      currentValue: event.title,
-                      hasSecurity: false,
-                      dataType: String),
-                  EditableFirestoreField(
-                      collection: Event.collectionName,
-                      fieldKey: Event.descriptionKey,
-                      label: Event.descriptionLabel,
-                      documentId: event.documentId,
-                      currentValue: event.description,
-                      hasSecurity: false,
-                      dataType: String),
-                  EditableFirestoreField(
-                      collection: Event.collectionName,
-                      fieldKey: Event.locationKey,
-                      label: Event.locationLabel,
-                      documentId: event.documentId,
-                      currentValue: event.location,
-                      hasSecurity: false,
-                      dataType: String),
-                  EditableFirestoreField(
-                      collection: Event.collectionName,
-                      fieldKey: Event.endTimeKey,
-                      label: 'When',
-                      documentId: event.documentId,
-                      currentValue: event.formatMeetingStartAndEnd(),
-                      hasSecurity: false,
-                      dataType: String),
-                  Visibility(
-                      visible: hasSecurity,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            //TODO: next up is to make this jump you to the create event page and have it pre-populated with the event data
-                          },
-                          child: const Text('Edit Event'))),
-                  Visibility(
-                      visible: hasSecurity,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            //TODO: warn user to notifiy group members
-                            //TODO: future: notify group members via push notification and/or text
-                            event.deleteFromFirestore();
-                            context.pushNamed('events');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Event ${event.title} was canceled'),
-                              ),
-                            );
-                          },
-                          child: const Text('Cancel Event')))
-                ],
+              return FutureBuilder<Group?>(
+                future: _futureGroup,
+                builder: (context, groupSnapshot) {
+                  if (groupSnapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (groupSnapshot.hasError) {
+                    return Text('Error: ${groupSnapshot.error}');
+                  } else {
+                    Group group = groupSnapshot.data!;
+                    bool hasSecurity = loggedInUidInArray(group.admins, appState) || loggedInUidMatches(event.creatorDocumentId, appState);
+                    return ListView(
+                      children: [
+                        EditableFirestoreField(
+                            collection: Event.collectionName,
+                            fieldKey: Event.titleKey,
+                            label: Event.titleLabel,
+                            documentId: event.documentId,
+                            currentValue: event.title,
+                            hasSecurity: false,
+                            dataType: String),
+                        EditableFirestoreField(
+                            collection: Event.collectionName,
+                            fieldKey: Event.descriptionKey,
+                            label: Event.descriptionLabel,
+                            documentId: event.documentId,
+                            currentValue: event.description,
+                            hasSecurity: false,
+                            dataType: String),
+                        EditableFirestoreField(
+                            collection: Event.collectionName,
+                            fieldKey: Event.locationKey,
+                            label: Event.locationLabel,
+                            documentId: event.documentId,
+                            currentValue: event.location,
+                            hasSecurity: false,
+                            dataType: String),
+                        EditableFirestoreField(
+                            collection: Event.collectionName,
+                            fieldKey: Event.endTimeKey,
+                            label: 'When',
+                            documentId: event.documentId,
+                            currentValue: event.formatMeetingStartAndEnd(),
+                            hasSecurity: false,
+                            dataType: String),
+                        Visibility(
+                            visible: hasSecurity,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  context.pushNamed('newevent', extra: {'group': group, 'event': event});
+                                },
+                                child: const Text('Edit Event'))),
+                        Visibility(
+                            visible: hasSecurity,
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  //TODO: warn user to notifiy group members
+                                  //TODO: future: notify group members via push notification and/or text
+                                  event.deleteFromFirestore();
+                                  context.pushNamed('events');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Event ${event.title} was canceled'),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Cancel Event')))
+                      ],
+                    );
+                  }
+                },
               );
             }
           },

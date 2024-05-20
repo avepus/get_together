@@ -16,8 +16,9 @@ import 'main_navigator.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group group;
+  final Event? event;
   final int? timeSlot;
-  CreateEventPage({super.key, required this.group, this.timeSlot});
+  CreateEventPage({super.key, required this.group, this.event, this.timeSlot});
 
   @override
   _CreateEventPageState createState() => _CreateEventPageState();
@@ -40,11 +41,27 @@ class _CreateEventPageState extends State<CreateEventPage> {
   late List<int> timeSlots;
   late ApplicationState appState;
 
+  ///This widget accpets a group and either an event or a timeSlot. If an event is passed in, we just use it's values. If it's not, we set the start and based on the timeslot
+  void _setValuesFromEventAndTimeSlot(Event? event, int? timeSlot) {
+    if (event != null) {
+      _eventTitleController.text = event.title;
+      _eventDescriptionController.text = event.description;
+      _eventLocationController.text = event.location;
+      start = event.startTime;
+      end = event.endTime;
+    } else if (timeSlot != null) {
+      start = getNextDateTimeFromTimeSlot(DateTime.now(), timeSlot);
+      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    } else {
+      start = DateTime.now();
+      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    start = widget.timeSlot == null ? DateTime.now() : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
-    end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    _setValuesFromEventAndTimeSlot(widget.event, widget.timeSlot);
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
     _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
@@ -179,30 +196,32 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
-          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Create Event'))),
+          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Save Event'))),
           Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
   }
 
-  void saveEventToFirestore() {
+  void saveEventToFirestore() async {
     Event event = Event(
-      documentId: '', //this isn't great but for now we use null to indicate a new event
+      documentId: widget.event?.documentId ?? '', //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
       description: _eventDescriptionController.text,
       location: _eventLocationController.text,
       startTime: start.toUtc(),
       endTime: end.toUtc(),
       groupDocumentId: widget.group.documentId,
-      createdTime: DateTime.now(),
+      createdTime: widget.event?.createdTime ?? DateTime.now(),
       creatorDocumentId: appState.loginUserDocumentId,
     );
-    event.saveToFirestore();
+    await event.saveToFirestore();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('event ${_eventTitleController.text} created'),
+        content: Text('event ${_eventTitleController.text} saved'),
       ),
     );
-    context.goNamed('events');
+    if (context.mounted) {
+      context.pushNamed('events');
+    }
   }
 
   //TODO: make this move the end when the start time is changed

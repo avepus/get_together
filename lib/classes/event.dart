@@ -78,7 +78,7 @@ class Event {
     };
   }
 
-  void saveToFirestore() async {
+  Future<void> saveToFirestore() async {
     if (documentId != '') {
       await FirebaseFirestore.instance.collection(collectionName).doc(documentId).set(toMap());
     } else {

@@ -62,7 +62,6 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  //TODO: next up: implement events page
   @override
   Widget build(BuildContext context) {
     ApplicationState appState = Provider.of<ApplicationState>(context);
@@ -76,7 +75,7 @@ class _EventsPageState extends State<EventsPage> {
         child: Icon(Icons.add),
       ),
       body: FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance.collection(Group.collectionName).where(Group.membersKey, arrayContains: appState.loginUserDocumentId).get(),
+        future: FirebaseFirestore.instance.collection(Group.collectionName).where(Group.membersKey, arrayContains: appState.loginUserDocumentId).get(const GetOptions(source: Source.server)),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
