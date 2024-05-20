@@ -16,7 +16,7 @@ import 'app_state.dart';
 import 'main_navigator.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
-import 'create_event.dart';
+import 'update_event.dart';
 import 'classes/group.dart';
 import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
@@ -78,8 +78,8 @@ final _router = GoRouter(
               return EventDetailsPage(event: event, eventDocumentId: eventDocumentId);
             }),
         GoRoute(
-            path: 'newevent',
-            name: 'newevent',
+            path: 'updateEvent',
+            name: 'updateEvent',
             builder: (context, state) {
               if (state.extra == null) {
                 context.pushReplacement('/');

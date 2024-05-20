@@ -16,7 +16,7 @@ import '../widgets/update_availability.dart';
 import '../classes/availability.dart';
 import '../findTime.dart';
 import '../app_state.dart';
-import '../create_event.dart';
+import '../update_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;

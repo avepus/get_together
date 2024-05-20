@@ -119,7 +119,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             visible: hasSecurity,
                             child: ElevatedButton(
                                 onPressed: () {
-                                  context.pushNamed('newevent', extra: {'group': group, 'event': event});
+                                  context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
                                 },
                                 child: const Text('Edit Event'))),
                         Visibility(

@@ -451,7 +451,7 @@ class SuggestedTimesListView extends StatelessWidget {
             onTap: () {
               if (linkToEvent) {
                 context.pop();
-                context.pushNamed('newevent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
+                context.pushNamed('updateEvent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
               }
             },
           );
