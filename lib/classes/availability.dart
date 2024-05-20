@@ -50,7 +50,7 @@ class Availability {
 
   validateArray() {
     if (weekAvailability.length != arrayLength) {
-      throw Exception('Array must be of length 336');
+      throw Exception('Array must be of length $arrayLength');
     }
     for (int i = 0; i < weekAvailability.length; i++) {
       if (!validArrayValues.contains(weekAvailability[i])) {
