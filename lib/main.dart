@@ -95,7 +95,7 @@ final _router = GoRouter(
               }
               Group group = map['group'] as Group;
               int? slot = map['timeSlot'];
-              return CreateEventPage(group: group, event: map['event'], timeSlot: slot);
+              return UpdateEventPage(group: group, event: map['event'], timeSlot: slot);
             }),
         GoRoute(
           path: 'sign-in',

@@ -14,17 +14,22 @@ import 'findTime.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
 
-class CreateEventPage extends StatefulWidget {
+///this page is used to create a new event or update an existing event
+///a group is required
+///an event or a timeslot must be passed in
+///if an event is passed in, the save event button on this page will update the event
+///if a timeslot is passed in and no event is passed in, the save event button on this page will create a new event
+class UpdateEventPage extends StatefulWidget {
   final Group group;
   final Event? event;
   final int? timeSlot;
-  CreateEventPage({super.key, required this.group, this.event, this.timeSlot});
+  UpdateEventPage({super.key, required this.group, this.event, this.timeSlot});
 
   @override
-  _CreateEventPageState createState() => _CreateEventPageState();
+  _UpdateEventPageState createState() => _UpdateEventPageState();
 }
 
-class _CreateEventPageState extends State<CreateEventPage> {
+class _UpdateEventPageState extends State<UpdateEventPage> {
   final int numberOfSlotsToReturn = 5; //this should probably be configurable
   final _eventTitleController = TextEditingController();
   final _eventDescriptionController = TextEditingController();
