@@ -169,4 +169,16 @@ class Group {
   int get meetingDurationTimeSlots {
     return meetingDurationHours.toInt() * 2;
   }
+
+  ///returns a map of the members' availabilities where the key is the documentID and the value is the availability
+  Map<String, Availability> getGroupMemberAvailabilities() {
+    Map<String, Availability> memberAvailabilities = {};
+    for (String member in members) {
+      Availability? availability = getAvailability(member);
+      if (availability != null) {
+        memberAvailabilities[member] = availability;
+      }
+    }
+    return memberAvailabilities;
+  }
 }
