@@ -350,48 +350,46 @@ class GenerateEventButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<ApplicationState>(context, listen: false);
     return ElevatedButton(
       child: const Text('Create Event'),
       onPressed: () {
-        Map<String, Availability> memberAvailabilities = {};
-        for (String member in group.members) {
-          Availability? availability = group.getAvailability(member);
-          if (availability != null) {
-            memberAvailabilities[member] = availability;
-          }
-        }
-        //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
-        List<int> timeSlots = timeSlotsAndScores.keys.toList();
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Best Times'),
-              content: SizedBox(
-                  height: 200,
-                  width: 300,
-                  child: SuggestedTimesListView(
-                    timeSlots: timeSlots,
-                    timeSlotsAndScores: timeSlotsAndScores,
-                    group: group,
-                    linkToEvent: true,
-                  )),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        showAddEventDialog(context, group, timeSlotDuration, numberOfSlotsToReturn);
       },
     );
   }
+}
+
+void showAddEventDialog(BuildContext context, Group group, int timeSlotDuration, int numberOfSlotsToReturn) {
+  ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
+  Map<String, Availability> memberAvailabilities = group.getGroupMemberAvailabilities();
+  //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
+  Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
+  List<int> timeSlots = timeSlotsAndScores.keys.toList();
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Best Times'),
+        content: SizedBox(
+            height: 200,
+            width: 300,
+            child: SuggestedTimesListView(
+              timeSlots: timeSlots,
+              timeSlotsAndScores: timeSlotsAndScores,
+              group: group,
+              linkToEvent: true,
+            )),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              context.pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class SuggestedTimesListView extends StatelessWidget {
