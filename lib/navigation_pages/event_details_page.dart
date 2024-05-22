@@ -117,26 +117,35 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             dataType: String),
                         Visibility(
                             visible: hasSecurity,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
-                                },
-                                child: const Text('Edit Event'))),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
+                                  },
+                                  child: const Text('Edit Event')),
+                            )),
                         Visibility(
                             visible: hasSecurity,
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  //TODO: warn user to notifiy group members
-                                  //TODO: future: notify group members via push notification and/or text
-                                  event.deleteFromFirestore();
-                                  context.pushNamed('events');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Event ${event.title} was canceled'),
-                                    ),
-                                  );
-                                },
-                                child: const Text('Cancel Event')))
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      //TODO: warn user to notifiy group members
+                                      //TODO: future: notify group members via push notification and/or text
+                                      event.deleteFromFirestore();
+                                      context.pushNamed('events');
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Event ${event.title} was canceled'),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Cancel Event')),
+                              ),
+                            ))
                       ],
                     );
                   }
