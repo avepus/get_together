@@ -89,7 +89,7 @@ final _router = GoRouter(
                 //always need the group passed
                 context.pushReplacement('/');
               }
-              if (map['event'] == null && map['timeslot'] == null) {
+              if (map['event'] == null && map['timeSlot'] == null) {
                 //need a timeslot (for new event) or an event (for updating existing) passed in
                 context.pushReplacement('/');
               }
