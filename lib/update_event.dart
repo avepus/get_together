@@ -92,6 +92,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
         appBar: AppBar(
           title: Text('New ${widget.group.name} Event'),
         ),
+        floatingActionButton: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Save Event')),
         body: ListView(children: [
           //TODO: Create default for event title
           Padding(
@@ -201,7 +202,6 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
               ),
             ],
           ),
-          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Save Event'))),
           Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
   }
