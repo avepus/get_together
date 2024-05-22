@@ -64,15 +64,8 @@ class _EventsPageState extends State<EventsPage> {
                             : null,
                         onTap: () {
                           context.pop();
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Select Timeslot'),
-                                  //TODO: get rid of magic number 5 below
-                                  content: GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 5),
-                                );
-                              });
+                          //TODO: get rid of magic number 5 below
+                          showAddEventDialog(context, group, group.meetingDurationTimeSlots, 5);
                         });
                   },
                 );
