@@ -33,6 +33,8 @@ void main() async {
 
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
+    //ApplicaitonState has an async call in init so lazy is false to ensure async call is complete before the data is needed
+    lazy: false,
     builder: ((context, child) => App()),
   ));
 }
