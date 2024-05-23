@@ -11,6 +11,7 @@ import '../classes/event.dart';
 import '../widgets/image_with_null_error_handling.dart';
 import '../utils.dart';
 import '../update_event.dart';
+import '../firebase.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -79,6 +80,9 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
+    //temporarily testing notificaitons here
+    requestNotificationPermission();
+
     ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
       appBar: AppBar(

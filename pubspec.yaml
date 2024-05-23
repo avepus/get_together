@@ -44,11 +44,13 @@ dependencies:
   google_fonts: ^6.1.0
   image_picker: ^1.0.4
   firebase_storage: ^11.5.5
-  intl: ^0.18.1
+  intl: ^0.19.0
   test: ^1.24.9
   syncfusion_flutter_datepicker: ^25.1.42
   flutter_native_timezone: ^2.0.0
   timezone: ^0.9.3
+  firebase_messaging: ^14.9.3
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:

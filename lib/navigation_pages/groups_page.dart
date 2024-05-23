@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+
 import '../classes/group.dart';
 import '../widgets/image_with_null_error_handling.dart';
+import '../firebase.dart';
 
 class GroupsPage extends StatelessWidget {
   GroupsPage({super.key});
@@ -94,6 +96,8 @@ class GroupsPage extends StatelessWidget {
           if (!snapshot.hasData) {
             return const Text('No data');
           }
+
+          //TODO: thinking this is probably the place to request notifications
 
           return ListView.separated(
             itemCount: snapshot.data!.docs.length,
