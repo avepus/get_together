@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'firebase.dart';
 import 'app_state.dart';
@@ -21,6 +22,16 @@ import 'classes/group.dart';
 import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  bool kDebugMode = true;
+  if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+    print('Message data: ${message.data}');
+    print('Message notification: ${message.notification?.title}');
+    print('Message notification: ${message.notification?.body}');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -30,6 +41,8 @@ void main() async {
   FirebaseUIAuth.configureProviders([
     EmailAuthProvider(),
   ]);
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
