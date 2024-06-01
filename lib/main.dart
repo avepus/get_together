@@ -21,6 +21,7 @@ import 'update_event.dart';
 import 'classes/group.dart';
 import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
+import 'navigation_pages/notifications_page.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   bool kDebugMode = true;
