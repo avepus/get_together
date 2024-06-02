@@ -113,7 +113,6 @@ class Group {
   ///this gives me a the follwoing error when used
   ///Navigator.onGenerateRoute was null, but the route named "group" was referenced.
   ///TODO; fix this and replace the getTile method in groups_page.dart
-  @override
   ListTile getTile(BuildContext context) {
     return ListTile(
         leading: imageUrl != null ? Image.network(imageUrl!) : const Icon(Icons.broken_image_outlined),

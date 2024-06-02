@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get_together/main.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +9,6 @@ import 'classes/event.dart';
 import 'time_utils.dart';
 import 'findTime.dart';
 import 'app_state.dart';
-import 'main_navigator.dart';
 
 ///this page is used to create a new event or update an existing event
 ///a group is required

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../classes/group.dart';
 import '../widgets/image_with_null_error_handling.dart';
-import '../firebase.dart';
 
 class GroupsPage extends StatelessWidget {
   GroupsPage({super.key});

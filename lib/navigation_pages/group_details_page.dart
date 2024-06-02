@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 
 import '../widgets/users_list_view.dart';
 import '../classes/group.dart';
@@ -13,9 +12,6 @@ import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
-import '../classes/availability.dart';
-import '../findTime.dart';
-import '../app_state.dart';
 import '../update_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {

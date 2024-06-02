@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get_together/main.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +8,6 @@ import '../app_state.dart';
 import '../classes/group.dart';
 import '../classes/event.dart';
 import '../widgets/image_with_null_error_handling.dart';
-import '../utils.dart';
 import '../update_event.dart';
 import '../firebase.dart';
 
