@@ -57,6 +57,7 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
+      name: 'home',
       builder: (context, state) => const MainNavigation(initialPage: Pages.groups),
       redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser == null) {
