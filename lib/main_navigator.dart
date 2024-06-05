@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get_together/navigation_pages/notifications_page.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/groups_page.dart';
 import 'navigation_pages/events_page.dart';
@@ -50,22 +51,20 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           //Events page
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.list_alt)),
+            icon: Icon(Icons.list_alt),
             label: 'Events ',
           ),
           //Profile page
           NavigationDestination(
-            icon: Badge(
-              child: Icon(Icons.person),
-            ),
-            label: 'Profile',
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
         ],
       ),
       body: <Widget>[
         Padding(padding: const EdgeInsets.all(8.0), child: GroupsPage()),
         const Padding(padding: EdgeInsets.all(8.0), child: EventsPage()),
-        Padding(padding: const EdgeInsets.all(8.0), child: ProfilePage(userDocumentId: FirebaseAuth.instance.currentUser!.uid)),
+        Padding(padding: const EdgeInsets.all(8.0), child: NotificationsPage()),
       ][currentPageIndex],
     );
   }

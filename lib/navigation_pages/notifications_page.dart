@@ -16,14 +16,24 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
-    //temporarily testing notificaitons here
-
     ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false, //prevent back button from displaying, shouldn't be necessary but this is all I could figure out for now
           title: const Text('Events'),
         ),
-        body: Text('Placeholder for notifications'));
+        body: Column(
+          children: [
+            Text('Placeholder for notifications'),
+            ElevatedButton(
+              onPressed: () {
+                context.pushNamed('profile', pathParameters: {
+                  'userDocumentId': appState.loginUserDocumentId!,
+                });
+              },
+              child: const Text('Go To Profile Page'),
+            ),
+          ],
+        ));
   }
 }
