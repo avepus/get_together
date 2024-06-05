@@ -14,11 +14,11 @@ class ApplicationState extends ChangeNotifier {
   bool get emailVerified => _emailVerified;
 
   //storing user's timezone in state prevents me from having to make async calls everywhere to get it
-  String _loginUserTimeZone = '';
-  String get loginUserTimeZone => _loginUserTimeZone;
+  String? _loginUserTimeZone;
+  String? get loginUserTimeZone => _loginUserTimeZone;
 
-  String _loginUserDocumentId = '';
-  String get loginUserDocumentId => _loginUserDocumentId;
+  String? _loginUserDocumentId;
+  String? get loginUserDocumentId => _loginUserDocumentId;
 
   Future<void> init() async {
     FirebaseAuth.instance.userChanges().listen((user) {

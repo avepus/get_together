@@ -77,7 +77,8 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
     appState = Provider.of<ApplicationState>(context, listen: false);
 
-    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone);
+    assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone!);
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }
@@ -203,6 +204,8 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   }
 
   void saveEventToFirestore() async {
+    assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
+
     Event event = Event(
       documentId: widget.event?.documentId ?? '', //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
@@ -212,7 +215,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       endTime: end.toUtc(),
       groupDocumentId: widget.group.documentId,
       createdTime: widget.event?.createdTime ?? DateTime.now(),
-      creatorDocumentId: appState.loginUserDocumentId,
+      creatorDocumentId: appState.loginUserDocumentId!,
     );
     await event.saveToFirestore();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -359,7 +362,8 @@ void showAddEventDialog(BuildContext context, Group group, int timeSlotDuration,
   ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
   Map<String, Availability> memberAvailabilities = group.getGroupMemberAvailabilities();
   //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-  Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
+  assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+  Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone!);
   List<int> timeSlots = timeSlotsAndScores.keys.toList();
   showDialog(
     context: context,

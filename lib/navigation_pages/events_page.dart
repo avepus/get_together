@@ -149,7 +149,7 @@ class _EventsPageState extends State<EventsPage> {
                         subtitle: Text(groupMap[event.groupDocumentId]!.name ?? '', maxLines: 1),
                         trailing: Text(DateFormat.MMMd().add_jm().format(event.startTime)),
                         onTap: () {
-                          context.pushNamed('event', pathParameters: {'eventDocumentId': event.documentId}, extra: {'event': event});
+                          context.pushNamed('event', pathParameters: {'eventDocumentId': event.documentId!}, extra: {'event': event});
                         });
                   },
                 );

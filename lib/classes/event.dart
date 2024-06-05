@@ -25,8 +25,8 @@ class Event {
   static const String createdTimeLabel = 'Created Time';
   static const String creatorDocumentIdLabel = 'Creator Document ID';
 
-  //documentId = '' implies that this is not stored in firebase yet. This is not great. Need to figure out a good way to handle this
-  String documentId;
+  //documentId = null implies that this is not stored in firebase yet
+  String? documentId;
   final String title;
   final String description;
   final String location;
