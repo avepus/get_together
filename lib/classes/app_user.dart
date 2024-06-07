@@ -13,6 +13,7 @@ class AppUser {
   static const String phoneNumberKey = 'phoneNumber';
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
+  static const String notificationsKey = 'notifications';
 
   static const String documentIdLabel = 'Document ID';
   static const String displayNameLabel = 'Display Name';
@@ -27,6 +28,7 @@ class AppUser {
   int? phoneNumber;
   Timestamp? createdTime;
   String? imageUrl;
+  List<Map<String, String>>? notifications;
 
   AppUser({
     required this.documentId,
@@ -35,6 +37,7 @@ class AppUser {
     this.phoneNumber,
     this.createdTime,
     this.imageUrl,
+    this.notifications,
   });
 
   factory AppUser.fromDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -46,6 +49,7 @@ class AppUser {
       phoneNumber: data[phoneNumberKey],
       createdTime: data[createdTimeKey],
       imageUrl: data[imageUrlKey],
+      notifications: data[notificationsKey],
     );
   }
 
@@ -59,6 +63,7 @@ class AppUser {
       phoneNumberKey: phoneNumber,
       createdTimeKey: createdTime,
       imageUrlKey: imageUrl,
+      notificationsKey: notifications,
     };
   }
 
