@@ -33,6 +33,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
               },
               child: const Text('Go To Profile Page'),
             ),
+            //TODO: Create button to create a notification. AppUser will probably need a method to add a notification to the list
+            //TODO: update page to display notifications
           ],
         ));
   }
