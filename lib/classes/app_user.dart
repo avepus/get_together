@@ -28,7 +28,7 @@ class AppUser {
   int? phoneNumber;
   Timestamp? createdTime;
   String? imageUrl;
-  List<Map<String, String>>? notifications;
+  List<Map<String, dynamic>>? notifications;
 
   AppUser({
     required this.documentId,
