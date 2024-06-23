@@ -1,13 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
 
-enum NotificationTypes {
-  friendRequest,
+enum NotificationTypes { friendRequest, newEvent }
+
+extension NotificationTypesIconExtension on NotificationTypes {
+  IconData get icon {
+    switch (this) {
+      case NotificationTypes.friendRequest:
+        return Icons.person_add;
+      case NotificationTypes.newEvent:
+        return Icons.event;
+      default:
+        return Icons.notification_important;
+    }
+  }
 }
 
-class Notification {
+class AppNotification {
   static const String titleKey = 'title';
   static const String descriptionKey = 'description';
   static const String typeKey = 'type';
@@ -18,7 +30,7 @@ class Notification {
   int type;
   Timestamp createdTime;
 
-  Notification({
+  AppNotification({
     required this.title,
     required this.description,
     required this.type,
@@ -26,9 +38,9 @@ class Notification {
   });
 
   //creates a notification from a single
-  factory Notification.fromNotificationArray(Map<String, dynamic> notificationMap) {
+  factory AppNotification.fromNotificationArray(Map<String, dynamic> notificationMap) {
     _retreivedFirestoreDataAssertions(notificationMap);
-    return Notification(
+    return AppNotification(
       title: notificationMap[titleKey]!,
       description: notificationMap[descriptionKey]!,
       type: int.tryParse(notificationMap[typeKey]!)!,
@@ -51,6 +63,15 @@ class Notification {
       titleKey: title,
       descriptionKey: description,
       typeKey: type,
+      createdTimeKey: createdTime,
     };
+  }
+
+  ListTile toListTile() {
+    return ListTile(
+      leading: Icon(NotificationTypes.values[type].icon),
+      title: Text(title),
+      subtitle: Text(description),
+    );
   }
 }
