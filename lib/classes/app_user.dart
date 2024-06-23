@@ -28,7 +28,7 @@ class AppUser {
   int? phoneNumber;
   Timestamp? createdTime;
   String? imageUrl;
-  List<Map<String, dynamic>>? notifications;
+  List<Map<String, dynamic>> notifications;
 
   AppUser({
     required this.documentId,
@@ -37,7 +37,7 @@ class AppUser {
     this.phoneNumber,
     this.createdTime,
     this.imageUrl,
-    this.notifications,
+    this.notifications = const [],
   });
 
   factory AppUser.fromDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -49,7 +49,7 @@ class AppUser {
       phoneNumber: data[phoneNumberKey],
       createdTime: data[createdTimeKey],
       imageUrl: data[imageUrlKey],
-      notifications: data[notificationsKey],
+      notifications: data[notificationsKey] ?? [],
     );
   }
 
