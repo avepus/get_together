@@ -8,6 +8,9 @@ import '../app_state.dart';
 import '../classes/app_user.dart';
 import '../classes/app_notification.dart';
 
+//TODO: add abililty to delete notifications
+//TODO: add highlight on unread notifications
+
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 
