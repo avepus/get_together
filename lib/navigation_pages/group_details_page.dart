@@ -180,6 +180,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 }
 
+//TODO: next up: make add member button that sends an invitation to the user that is stored in their notifications and can accepted to add them to the group
+
 ///TODO: add a little X to the alert window when adding a user
 class AddUsersButton extends StatelessWidget {
   final String label;
