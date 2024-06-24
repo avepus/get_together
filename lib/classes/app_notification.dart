@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
 
-enum NotificationTypes { friendRequest, newEvent }
+enum NotificationTypes { friendRequest, newEvent, groupRequest }
 
 extension NotificationTypesIconExtension on NotificationTypes {
   IconData get icon {
@@ -13,8 +13,8 @@ extension NotificationTypesIconExtension on NotificationTypes {
         return Icons.person_add;
       case NotificationTypes.newEvent:
         return Icons.event;
-      default:
-        return Icons.notification_important;
+      case NotificationTypes.groupRequest:
+        return Icons.group_add;
     }
   }
 }
@@ -43,7 +43,7 @@ class AppNotification {
     return AppNotification(
       title: notificationMap[titleKey]!,
       description: notificationMap[descriptionKey]!,
-      type: int.tryParse(notificationMap[typeKey]!)!,
+      type: notificationMap[typeKey]!,
       createdTime: notificationMap[createdTimeKey]!,
     );
   }
@@ -54,8 +54,6 @@ class AppNotification {
     assert(notificationMap.containsKey(descriptionKey), 'Notification map does not contain description key which is required and should never be missing');
     assert(notificationMap.containsKey(typeKey), 'Notification map does not contain type key which is required and should never be missing');
     assert(notificationMap.containsKey(createdTimeKey), 'Notification map does not contain createdTime key which is required and should never be missing');
-    int? typeValue = int.tryParse(notificationMap[typeKey]!);
-    assert(typeValue != null, 'Notification type value is not an integer');
   }
 
   Map<String, dynamic> toMap() {
