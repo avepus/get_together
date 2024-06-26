@@ -37,7 +37,7 @@ class AppNotification {
     required this.createdTime,
   });
 
-  //creates a notification from a single
+  //creates a notification from a single element of the user's notifications array
   factory AppNotification.fromNotificationArray(Map<String, dynamic> notificationMap) {
     _retreivedFirestoreDataAssertions(notificationMap);
     return AppNotification(
