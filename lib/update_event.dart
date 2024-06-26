@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_together/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'classes/group.dart';
 import 'classes/availability.dart';
@@ -9,6 +11,8 @@ import 'classes/event.dart';
 import 'time_utils.dart';
 import 'findTime.dart';
 import 'app_state.dart';
+import 'classes/app_notification.dart';
+import 'classes/app_user.dart';
 
 ///this page is used to create a new event or update an existing event
 ///a group is required
@@ -205,9 +209,8 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
   void saveEventToFirestore() async {
     assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
-
     Event event = Event(
-      documentId: widget.event?.documentId ?? '', //this isn't great but for now we use null to indicate a new event
+      documentId: widget.event?.documentId, //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
       description: _eventDescriptionController.text,
       location: _eventLocationController.text,
@@ -217,7 +220,17 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       createdTime: widget.event?.createdTime ?? DateTime.now(),
       creatorDocumentId: appState.loginUserDocumentId!,
     );
+    String notificationTitle = event.documentId == null ? 'New Event' : 'Event Updated';
+    String description = event.documentId == null ? 'A new event for group ${widget.group.name} has been created for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';
+    NotificationType type = event.documentId == null ? NotificationType.newEvent : NotificationType.updatedEvent;
+
+    //saveToFirestore will update event and store the new document ID if it's a new event so we need our checks for a new event before this call
     await event.saveToFirestore();
+    //after saving we can assume event.documentId is not null
+    AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: event.documentId!);
+    for (String memberID in widget.group.members) {
+      await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('event ${_eventTitleController.text} saved'),
