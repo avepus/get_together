@@ -93,4 +93,10 @@ class AppNotification {
       subtitle: Text(description),
     );
   }
+
+  Future<void> saveToDocument({required String documentId, required String fieldKey, required String collection}) async {
+    await FirebaseFirestore.instance.collection(collection).doc(documentId).update({
+      fieldKey: FieldValue.arrayUnion([toMap()]),
+    });
+  }
 }
