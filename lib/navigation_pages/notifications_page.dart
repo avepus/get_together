@@ -81,6 +81,7 @@ class CreateNotification extends StatelessWidget {
                     String title = '';
                     String description = '';
                     String type = '';
+                    String documentId = '';
 
                     return AlertDialog(
                       title: const Text('Create Notification'),
@@ -111,16 +112,26 @@ class CreateNotification extends StatelessWidget {
                               labelText: 'Type',
                             ),
                           ),
+                          TextField(
+                            onChanged: (value) {
+                              documentId = value;
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Document ID',
+                            ),
+                          ),
                         ],
                       ),
                       actions: [
                         ElevatedButton(
                           onPressed: () {
+                            NotificationType notificationType = NotificationType.values[int.tryParse(type) ?? 0];
                             AppNotification newNotification = AppNotification(
                               title: title,
                               description: description,
-                              type: int.tryParse(type) ?? 0,
+                              type: notificationType,
                               createdTime: Timestamp.now(),
+                              routeToDocumentId: documentId,
                             );
                             FirebaseFirestore.instance.collection('users').doc(user.documentId).update({
                               AppUser.notificationsKey: FieldValue.arrayUnion([newNotification.toMap()]),
