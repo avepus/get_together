@@ -44,7 +44,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   itemCount: user.notifications.length,
                   itemBuilder: (context, index) {
                     AppNotification notification = AppNotification.fromNotificationArray(user.notifications[index]);
-                    return notification.toListTile();
+                    return notification.toListTile(context);
                   });
             }
           },
