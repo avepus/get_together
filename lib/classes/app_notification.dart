@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
@@ -30,6 +31,19 @@ extension NotificationTypesIconExtension on NotificationType {
         return 'event';
       case NotificationType.groupRequest:
         return 'group';
+    }
+  }
+
+  String get pathParameterKey {
+    switch (this) {
+      case NotificationType.friendRequest:
+        return 'userDocumentId';
+      case NotificationType.newEvent:
+        return 'eventDocumentId';
+      case NotificationType.updatedEvent:
+        return 'eventDocumentId';
+      case NotificationType.groupRequest:
+        return 'groupDocumentId';
     }
   }
 }
@@ -86,11 +100,14 @@ class AppNotification {
     };
   }
 
-  ListTile toListTile() {
+  ListTile toListTile(BuildContext context) {
     return ListTile(
       leading: Icon(type.icon),
       title: Text(title),
       subtitle: Text(description),
+      onTap: () {
+        context.goNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
+      },
     );
   }
 
