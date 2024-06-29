@@ -89,7 +89,7 @@ final _router = GoRouter(
               Event? event = map?['event'] as Event?;
               String? eventDocumentId = state.pathParameters['eventDocumentId'];
 
-              if (state.extra == null && state.pathParameters['eventDocumentId'] != null) {
+              if (state.extra == null && state.pathParameters['eventDocumentId'] == null) {
                 context.pushReplacement('/');
               }
               return EventDetailsPage(event: event, eventDocumentId: eventDocumentId);
