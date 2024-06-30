@@ -106,6 +106,10 @@ class _EventsPageState extends State<EventsPage> {
             return const Text('No data');
           }
 
+          if (snapshot.data!.docs.isEmpty) {
+            return const Text('You are not a member of any groups. Join a group to see events.');
+          }
+
           Map<String, Group> groupMap = {};
           for (DocumentSnapshot doc in snapshot.data!.docs) {
             groupMap[doc.id] = Group.fromDocumentSnapshot(doc);
@@ -126,6 +130,10 @@ class _EventsPageState extends State<EventsPage> {
 
                 if (!snapshot.hasData) {
                   return const Text('No data');
+                }
+
+                if (snapshot.data!.docs.isEmpty) {
+                  return const Text('No upcoming events found for your groups');
                 }
 
                 List<Event> events = [];
