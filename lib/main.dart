@@ -23,6 +23,14 @@ import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
 import 'navigation_pages/notifications_page.dart';
 
+///todo list
+///create cancelled event notification
+///add cancelled event notification when event is cancelled
+///add friend request and accept functionality
+///add customizable unique user id to firestore user document
+///add user lookup by unique user id
+///propose event functionality with multiple time slot options that users can rank
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   bool kDebugMode = true;
   if (kDebugMode) {
