@@ -116,6 +116,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       currentValue: user.phoneNumber,
                       hasSecurity: hasEditSecurity,
                       dataType: int),
+                  //TODO: enforce uniqueness of uniqueUserID
+                  EditableFirestoreField(
+                      collection: AppUser.collectionName,
+                      fieldKey: AppUser.uniqueUserIdKey,
+                      label: AppUser.uniqueUserIdLabel,
+                      documentId: user.documentId,
+                      currentValue: user.uniqueUserId,
+                      hasSecurity: hasEditSecurity,
+                      dataType: String),
                   Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
                 ],
               );

@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AppUser {
   static const String collectionName = 'users';
   static const String documentIdKey = 'documentId';
+  static const String uniqueUserIdKey = 'uniqueUserId';
   static const String displayNameKey = 'displayName';
   static const String emailKey = 'email';
   static const String phoneNumberKey = 'phoneNumber';
@@ -16,6 +17,7 @@ class AppUser {
   static const String notificationsKey = 'notifications';
 
   static const String documentIdLabel = 'Document ID';
+  static const String uniqueUserIdLabel = 'ID';
   static const String displayNameLabel = 'Display Name';
   static const String emailLabel = 'Email';
   static const String phoneNumberLabel = 'Phone Number';
@@ -23,6 +25,7 @@ class AppUser {
   static const String imageUrlLabel = 'Profile Picture Link';
 
   String documentId;
+  String uniqueUserId;
   String? displayName;
   String? email;
   int? phoneNumber;
@@ -32,6 +35,7 @@ class AppUser {
 
   AppUser({
     required this.documentId,
+    required this.uniqueUserId, //left off here. Need to add to all users and need to update all places users are created to send in documentID as default
     this.displayName,
     this.email,
     this.phoneNumber,
@@ -63,6 +67,7 @@ class AppUser {
 
     return AppUser(
       documentId: snapshot.id,
+      uniqueUserId: data[uniqueUserIdKey],
       displayName: data[displayNameKey],
       email: data[emailKey],
       phoneNumber: data[phoneNumberKey],
@@ -76,7 +81,9 @@ class AppUser {
   //not convied that I need this actually
   Map<String, dynamic> toMap() {
     return {
-      documentIdKey: documentId,
+      //Dcoument ID is not included because it is the not a field in the firestore document
+      //documentIdKey: documentId,
+      uniqueUserIdKey: uniqueUserId,
       displayNameKey: displayName,
       emailKey: email,
       phoneNumberKey: phoneNumber,

@@ -24,9 +24,7 @@ import 'navigation_pages/event_details_page.dart';
 import 'navigation_pages/notifications_page.dart';
 
 ///todo list
-///add user profile page to bottom naivgation bar
-///add customizable unique user id to firestore user document
-///add user lookup functionality that can handle unique user id
+///add user lookup functionality that can handle unique user id, phone number, and email
 ///add friend request and accept functionality
 ///add friend list on user profile page
 ///propose event functionality with multiple time slot options that users can rank
