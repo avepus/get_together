@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
 
-enum NotificationType { friendRequest, newEvent, updatedEvent, groupRequest }
+enum NotificationType { friendRequest, newEvent, updatedEvent, canceledEvent, groupRequest }
 
 extension NotificationTypesIconExtension on NotificationType {
   IconData get icon {
@@ -16,6 +16,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return Icons.event;
       case NotificationType.updatedEvent:
         return Icons.update;
+      case NotificationType.canceledEvent:
+        return Icons.cancel;
       case NotificationType.groupRequest:
         return Icons.group_add;
     }
@@ -29,6 +31,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return 'event';
       case NotificationType.updatedEvent:
         return 'event';
+      case NotificationType.canceledEvent:
+        return '';
       case NotificationType.groupRequest:
         return 'group';
     }
@@ -42,6 +46,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return 'eventDocumentId';
       case NotificationType.updatedEvent:
         return 'eventDocumentId';
+      case NotificationType.canceledEvent:
+        return '';
       case NotificationType.groupRequest:
         return 'groupDocumentId';
     }
@@ -105,9 +111,11 @@ class AppNotification {
       leading: Icon(type.icon),
       title: Text(title),
       subtitle: Text(description),
-      onTap: () {
-        context.goNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
-      },
+      onTap: type.namedRoute.isNotEmpty
+          ? () {
+              context.goNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
+            }
+          : null,
     );
   }
 

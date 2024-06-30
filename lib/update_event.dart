@@ -221,7 +221,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       creatorDocumentId: appState.loginUserDocumentId!,
     );
     String notificationTitle = event.documentId == null ? 'New Event' : 'Event Updated';
-    String description = event.documentId == null ? 'A new event for group ${widget.group.name} has been created for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';
+    String description = event.documentId == null ? '${widget.group.name} has a new event ${event.title} scheduled for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';
     NotificationType type = event.documentId == null ? NotificationType.newEvent : NotificationType.updatedEvent;
 
     //saveToFirestore will update event and store the new document ID if it's a new event so we need our checks for a new event before this call

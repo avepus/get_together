@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_together/classes/app_notification.dart';
 
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../app_state.dart';
 import '../classes/group.dart';
 import '../classes/event.dart';
+import '../classes/app_user.dart';
 import '../utils.dart';
 import '../widgets/editable_firestore_field.dart';
 
@@ -130,10 +132,20 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: ElevatedButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       //TODO: warn user to notifiy group members
                                       //TODO: future: notify group members via push notification and/or text
                                       event.deleteFromFirestore();
+                                      AppNotification notification = AppNotification(
+                                        title: 'Event Canceled',
+                                        description: '${group.name}\'s event ${event.title} on ${myFormatDateAndTime(event.startTime)} was canceled.',
+                                        type: NotificationType.canceledEvent,
+                                        routeToDocumentId: event.documentId!,
+                                        createdTime: Timestamp.now(),
+                                      );
+                                      for (String memberID in group.members) {
+                                        await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+                                      }
                                       context.pushNamed('events');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
