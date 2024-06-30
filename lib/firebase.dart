@@ -38,14 +38,16 @@ Future<void> storeUserListInGroup(List<AppUser> users, String groupDocumentId, S
 
 Future<void> createFirestoreUser(String displayName, String email, String uid) async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
-  final timestamp = DateTime.now();
-  var values = {
-    AppUser.displayNameKey: displayName,
-    AppUser.emailKey: email,
-    AppUser.createdTimeKey: timestamp,
-  };
+  final timestamp = Timestamp.now();
+  AppUser user = AppUser(
+    documentId: uid,
+    uniqueUserId: uid,
+    displayName: displayName,
+    email: email,
+    createdTime: timestamp,
+  );
 
-  users.doc(uid).set(values);
+  users.doc(uid).set(user.toMap());
   return;
 }
 
