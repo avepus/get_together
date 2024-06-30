@@ -4,6 +4,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 
 class ApplicationState extends ChangeNotifier {
   ApplicationState() {
+    _loginUserDocumentId = FirebaseAuth.instance.currentUser?.uid;
     init();
   }
 
