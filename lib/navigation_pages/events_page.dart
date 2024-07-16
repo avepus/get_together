@@ -62,7 +62,6 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  //TODO: next up: implement events page
   @override
   Widget build(BuildContext context) {
     ApplicationState appState = Provider.of<ApplicationState>(context);
