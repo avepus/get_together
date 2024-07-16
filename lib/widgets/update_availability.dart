@@ -79,7 +79,8 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   @override
   Widget build(BuildContext context) {
     var appState = Provider.of<ApplicationState>(context);
-    Availability availability = _getAvailability(appState.loginUserTimeZone);
+    assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+    Availability availability = _getAvailability(appState.loginUserTimeZone!);
 
     return Scaffold(
       appBar: AppBar(
