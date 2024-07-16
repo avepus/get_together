@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider, PhoneAuthProvider;
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 class ApplicationState extends ChangeNotifier {
   ApplicationState() {
+    _loginUserDocumentId = FirebaseAuth.instance.currentUser?.uid;
     init();
   }
 
@@ -14,11 +15,11 @@ class ApplicationState extends ChangeNotifier {
   bool get emailVerified => _emailVerified;
 
   //storing user's timezone in state prevents me from having to make async calls everywhere to get it
-  String _loginUserTimeZone = '';
-  String get loginUserTimeZone => _loginUserTimeZone;
+  String? _loginUserTimeZone;
+  String? get loginUserTimeZone => _loginUserTimeZone;
 
-  String _loginUserDocumentId = '';
-  String get loginUserDocumentId => _loginUserDocumentId;
+  String? _loginUserDocumentId;
+  String? get loginUserDocumentId => _loginUserDocumentId;
 
   Future<void> init() async {
     FirebaseAuth.instance.userChanges().listen((user) {
@@ -33,6 +34,10 @@ class ApplicationState extends ChangeNotifier {
       notifyListeners();
     });
 
-    _loginUserTimeZone = await FlutterNativeTimezone.getLocalTimezone();
+    try {
+      _loginUserTimeZone = await FlutterTimezone.getLocalTimezone();
+    } catch (e) {
+      print('Could not get local timezone: $e'); //TODO: handle this error better
+    }
   }
 }

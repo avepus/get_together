@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get_together/main.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:get_together/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'classes/group.dart';
 import 'classes/availability.dart';
@@ -12,18 +11,25 @@ import 'classes/event.dart';
 import 'time_utils.dart';
 import 'findTime.dart';
 import 'app_state.dart';
-import 'main_navigator.dart';
+import 'classes/app_notification.dart';
+import 'classes/app_user.dart';
 
-class CreateEventPage extends StatefulWidget {
+///this page is used to create a new event or update an existing event
+///a group is required
+///an event or a timeslot must be passed in
+///if an event is passed in, the save event button on this page will update the event
+///if a timeslot is passed in and no event is passed in, the save event button on this page will create a new event
+class UpdateEventPage extends StatefulWidget {
   final Group group;
+  final Event? event;
   final int? timeSlot;
-  CreateEventPage({super.key, required this.group, this.timeSlot});
+  UpdateEventPage({super.key, required this.group, this.event, this.timeSlot});
 
   @override
-  _CreateEventPageState createState() => _CreateEventPageState();
+  _UpdateEventPageState createState() => _UpdateEventPageState();
 }
 
-class _CreateEventPageState extends State<CreateEventPage> {
+class _UpdateEventPageState extends State<UpdateEventPage> {
   final int numberOfSlotsToReturn = 5; //this should probably be configurable
   final _eventTitleController = TextEditingController();
   final _eventDescriptionController = TextEditingController();
@@ -40,11 +46,27 @@ class _CreateEventPageState extends State<CreateEventPage> {
   late List<int> timeSlots;
   late ApplicationState appState;
 
+  ///This widget accpets a group and either an event or a timeSlot. If an event is passed in, we just use it's values. If it's not, we set the start and based on the timeslot
+  void _setValuesFromEventAndTimeSlot(Event? event, int? timeSlot) {
+    if (event != null) {
+      _eventTitleController.text = event.title;
+      _eventDescriptionController.text = event.description;
+      _eventLocationController.text = event.location;
+      start = event.startTime;
+      end = event.endTime;
+    } else if (timeSlot != null) {
+      start = getNextDateTimeFromTimeSlot(DateTime.now(), timeSlot);
+      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    } else {
+      start = DateTime.now();
+      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    start = widget.timeSlot == null ? DateTime.now() : getNextDateTimeFromTimeSlot(DateTime.now(), widget.timeSlot!);
-    end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
+    _setValuesFromEventAndTimeSlot(widget.event, widget.timeSlot);
     _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
     _startTimeController.text = DateFormat.jm().format(start);
     _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
@@ -59,7 +81,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
 
     appState = Provider.of<ApplicationState>(context, listen: false);
 
-    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone);
+    assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+    timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, widget.group.meetingDurationTimeSlots, numberOfSlotsToReturn, appState.loginUserTimeZone!);
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }
@@ -70,6 +93,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         appBar: AppBar(
           title: Text('New ${widget.group.name} Event'),
         ),
+        floatingActionButton: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Save Event')),
         body: ListView(children: [
           //TODO: Create default for event title
           Padding(
@@ -179,30 +203,42 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
             ],
           ),
-          Padding(padding: const EdgeInsets.all(8.0), child: ElevatedButton(onPressed: saveEventToFirestore, child: const Text('Create Event'))),
           Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
         ]));
   }
 
-  void saveEventToFirestore() {
+  void saveEventToFirestore() async {
+    assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
     Event event = Event(
-      documentId: '', //this isn't great but for now we use null to indicate a new event
+      documentId: widget.event?.documentId, //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
       description: _eventDescriptionController.text,
       location: _eventLocationController.text,
-      startTime: start,
-      endTime: end,
+      startTime: start.toUtc(),
+      endTime: end.toUtc(),
       groupDocumentId: widget.group.documentId,
-      createdTime: DateTime.now(),
-      creatorDocumentId: appState.loginUserDocumentId,
+      createdTime: widget.event?.createdTime ?? DateTime.now(),
+      creatorDocumentId: appState.loginUserDocumentId!,
     );
-    event.saveToFirestore();
+    String notificationTitle = event.documentId == null ? 'New Event' : 'Event Updated';
+    String description = event.documentId == null ? '${widget.group.name} has a new event ${event.title} scheduled for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';
+    NotificationType type = event.documentId == null ? NotificationType.newEvent : NotificationType.updatedEvent;
+
+    //saveToFirestore will update event and store the new document ID if it's a new event so we need our checks for a new event before this call
+    await event.saveToFirestore();
+    //after saving we can assume event.documentId is not null
+    AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: event.documentId!);
+    for (String memberID in widget.group.members) {
+      await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('event ${_eventTitleController.text} created'),
+        content: Text('event ${_eventTitleController.text} saved'),
       ),
     );
-    context.goNamed('events');
+    if (context.mounted) {
+      context.pushNamed('events');
+    }
   }
 
   //TODO: make this move the end when the start time is changed
@@ -277,7 +313,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     end = end.add(newEndDifference);
 
     if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: 30));
+      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
@@ -302,7 +338,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     end = end.add(difference);
 
     if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: 30));
+      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
@@ -326,48 +362,47 @@ class GenerateEventButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = Provider.of<ApplicationState>(context, listen: false);
     return ElevatedButton(
       child: const Text('Create Event'),
       onPressed: () {
-        Map<String, Availability> memberAvailabilities = {};
-        for (String member in group.members) {
-          Availability? availability = group.getAvailability(member);
-          if (availability != null) {
-            memberAvailabilities[member] = availability;
-          }
-        }
-        //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
-        Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone);
-        List<int> timeSlots = timeSlotsAndScores.keys.toList();
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Best Times'),
-              content: SizedBox(
-                  height: 200,
-                  width: 300,
-                  child: SuggestedTimesListView(
-                    timeSlots: timeSlots,
-                    timeSlotsAndScores: timeSlotsAndScores,
-                    group: group,
-                    linkToEvent: true,
-                  )),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        showAddEventDialog(context, group, timeSlotDuration, numberOfSlotsToReturn);
       },
     );
   }
+}
+
+void showAddEventDialog(BuildContext context, Group group, int timeSlotDuration, int numberOfSlotsToReturn) {
+  ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
+  Map<String, Availability> memberAvailabilities = group.getGroupMemberAvailabilities();
+  //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
+  assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+  Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone!);
+  List<int> timeSlots = timeSlotsAndScores.keys.toList();
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Best Times'),
+        content: SizedBox(
+            height: 200,
+            width: 300,
+            child: SuggestedTimesListView(
+              timeSlots: timeSlots,
+              timeSlotsAndScores: timeSlotsAndScores,
+              group: group,
+              linkToEvent: true,
+            )),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              context.pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class SuggestedTimesListView extends StatelessWidget {
@@ -432,7 +467,7 @@ class SuggestedTimesListView extends StatelessWidget {
             onTap: () {
               if (linkToEvent) {
                 context.pop();
-                context.pushNamed('newevent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
+                context.pushNamed('updateEvent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
               }
             },
           );

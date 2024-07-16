@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:go_router/go_router.dart';
+
+import '../utils.dart';
 
 //this represents a group's meeting/event
 class Event {
@@ -25,13 +25,13 @@ class Event {
   static const String createdTimeLabel = 'Created Time';
   static const String creatorDocumentIdLabel = 'Creator Document ID';
 
-  //documentId = '' implies that this is not stored in firebase yet. This is not great. Need to figure out a good way to handle this
-  String documentId;
+  //documentId = null implies that this is not stored in firebase yet
+  String? documentId;
   final String title;
   final String description;
   final String location;
-  final DateTime startTime;
-  final DateTime endTime;
+  final DateTime startTime; //UTC
+  final DateTime endTime; //UTC
   final String groupDocumentId;
   final DateTime createdTime;
   final String creatorDocumentId;
@@ -76,8 +76,8 @@ class Event {
     };
   }
 
-  void saveToFirestore() async {
-    if (documentId != '') {
+  Future<void> saveToFirestore() async {
+    if (documentId != null) {
       await FirebaseFirestore.instance.collection(collectionName).doc(documentId).set(toMap());
     } else {
       DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
@@ -88,6 +88,18 @@ class Event {
   void deleteFromFirestore() {
     if (documentId != '') {
       FirebaseFirestore.instance.collection(collectionName).doc(documentId).delete();
+    }
+  }
+
+  ///formats the start and end time based on the users current timezone
+  ///will show the date of the endTime if on a different day
+  String formatMeetingStartAndEnd() {
+    DateTime localStart = startTime.toLocal();
+    DateTime localEnd = endTime.toLocal();
+    if (localStart.day == localEnd.day) {
+      return '${myFormatDateAndTime(localStart)} - ${myFormatTime(localEnd)}';
+    } else {
+      return '${myFormatDateAndTime(localStart)} - ${myFormatDateAndTime(localEnd)}';
     }
   }
 }

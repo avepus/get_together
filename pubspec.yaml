@@ -47,8 +47,10 @@ dependencies:
   intl: ^0.19.0
   test: ^1.24.9
   syncfusion_flutter_datepicker: ^25.1.42
-  flutter_native_timezone: ^2.0.0
   timezone: ^0.9.3
+  firebase_messaging: ^14.9.3
+  rxdart: ^0.27.7
+  flutter_timezone: ^1.0.8
 
 dev_dependencies:
   flutter_test:

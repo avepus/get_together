@@ -113,7 +113,6 @@ class Group {
   ///this gives me a the follwoing error when used
   ///Navigator.onGenerateRoute was null, but the route named "group" was referenced.
   ///TODO; fix this and replace the getTile method in groups_page.dart
-  @override
   ListTile getTile(BuildContext context) {
     return ListTile(
         leading: imageUrl != null ? Image.network(imageUrl!) : const Icon(Icons.broken_image_outlined),
@@ -168,5 +167,17 @@ class Group {
   ///Gets the default meeting duration in half hours and handles null values
   int get meetingDurationTimeSlots {
     return meetingDurationHours.toInt() * 2;
+  }
+
+  ///returns a map of the members' availabilities where the key is the documentID and the value is the availability
+  Map<String, Availability> getGroupMemberAvailabilities() {
+    Map<String, Availability> memberAvailabilities = {};
+    for (String member in members) {
+      Availability? availability = getAvailability(member);
+      if (availability != null) {
+        memberAvailabilities[member] = availability;
+      }
+    }
+    return memberAvailabilities;
   }
 }

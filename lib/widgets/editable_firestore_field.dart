@@ -43,9 +43,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
     if (widget.dataType == double) {
       formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')));
     }
-    textController = TextEditingController(
-        text:
-            widget.currentValue != null ? widget.currentValue.toString() : '');
+    textController = TextEditingController(text: widget.currentValue != null ? widget.currentValue.toString() : '');
   }
 
   @override
@@ -64,18 +62,13 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                     onSubmitted: (value) {
                       dynamic convertedValue;
                       if (widget.dataType == int) {
-                        convertedValue =
-                            int.tryParse(value) ?? widget.currentValue;
+                        convertedValue = int.tryParse(value) ?? widget.currentValue;
                       } else if (widget.dataType == double) {
-                        convertedValue =
-                            double.tryParse(value) ?? widget.currentValue;
+                        convertedValue = double.tryParse(value) ?? widget.currentValue;
                       } else {
                         convertedValue = textController.text;
                       }
-                      FirebaseFirestore.instance
-                          .collection(widget.collection)
-                          .doc(widget.documentId)
-                          .update({widget.fieldKey: convertedValue});
+                      FirebaseFirestore.instance.collection(widget.collection).doc(widget.documentId).update({widget.fieldKey: convertedValue});
                       setState(() {
                         isEditing = false;
                       });
@@ -97,20 +90,13 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                         onPressed: () {
                           dynamic convertedValue;
                           if (widget.dataType == int) {
-                            convertedValue =
-                                int.tryParse(textController.text) ??
-                                    widget.currentValue;
+                            convertedValue = int.tryParse(textController.text) ?? widget.currentValue;
                           } else if (widget.dataType == double) {
-                            convertedValue =
-                                double.tryParse(textController.text) ??
-                                    widget.currentValue;
+                            convertedValue = double.tryParse(textController.text) ?? widget.currentValue;
                           } else {
                             convertedValue = textController.text;
                           }
-                          FirebaseFirestore.instance
-                              .collection(widget.collection)
-                              .doc(widget.documentId)
-                              .update({widget.fieldKey: convertedValue});
+                          FirebaseFirestore.instance.collection(widget.collection).doc(widget.documentId).update({widget.fieldKey: convertedValue});
                           setState(() {
                             isEditing = false;
                           });
@@ -121,6 +107,7 @@ class _EditableFirestoreFieldState extends State<EditableFirestoreField> {
                         onPressed: () {
                           setState(() {
                             isEditing = false;
+                            textController.text = widget.currentValue.toString();
                           });
                         },
                       ),

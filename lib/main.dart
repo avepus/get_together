@@ -10,16 +10,34 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_options.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'firebase.dart';
 import 'app_state.dart';
 import 'main_navigator.dart';
 import 'navigation_pages/profile_page.dart';
 import 'navigation_pages/group_details_page.dart';
-import 'create_event.dart';
+import 'update_event.dart';
 import 'classes/group.dart';
 import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
+import 'navigation_pages/notifications_page.dart';
+
+///todo list
+///add user lookup functionality that can handle unique user id, phone number, and email
+///add friend request and accept functionality
+///add friend list on user profile page
+///propose event functionality with multiple time slot options that users can rank
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  bool kDebugMode = true;
+  if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+    print('Message data: ${message.data}');
+    print('Message notification: ${message.notification?.title}');
+    print('Message notification: ${message.notification?.body}');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,8 +49,12 @@ void main() async {
     EmailAuthProvider(),
   ]);
 
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(ChangeNotifierProvider(
     create: (context) => ApplicationState(),
+    //ApplicaitonState has an async call in init so lazy is false to ensure async call is complete before the data is needed
+    lazy: false,
     builder: ((context, child) => App()),
   ));
 }
@@ -41,7 +63,8 @@ final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const MainNavigation(initialPage: Pages.events),
+      name: 'home',
+      builder: (context, state) => const MainNavigation(initialPage: Pages.groups),
       redirect: (context, state) {
         if (FirebaseAuth.instance.currentUser == null) {
           return '/sign-in';
@@ -72,25 +95,30 @@ final _router = GoRouter(
               Event? event = map?['event'] as Event?;
               String? eventDocumentId = state.pathParameters['eventDocumentId'];
 
-              if (state.extra == null && state.pathParameters['eventDocumentId'] != null) {
+              if (state.extra == null && state.pathParameters['eventDocumentId'] == null) {
                 context.pushReplacement('/');
               }
               return EventDetailsPage(event: event, eventDocumentId: eventDocumentId);
             }),
         GoRoute(
-            path: 'newevent',
-            name: 'newevent',
+            path: 'updateEvent',
+            name: 'updateEvent',
             builder: (context, state) {
               if (state.extra == null) {
                 context.pushReplacement('/');
               }
               Map<String, dynamic> map = state.extra! as Map<String, dynamic>;
               if (map['group'] == null) {
+                //always need the group passed
+                context.pushReplacement('/');
+              }
+              if (map['event'] == null && map['timeSlot'] == null) {
+                //need a timeslot (for new event) or an event (for updating existing) passed in
                 context.pushReplacement('/');
               }
               Group group = map['group'] as Group;
               int? slot = map['timeSlot'];
-              return CreateEventPage(group: group, timeSlot: slot);
+              return UpdateEventPage(group: group, event: map['event'], timeSlot: slot);
             }),
         GoRoute(
           path: 'sign-in',
@@ -119,7 +147,7 @@ final _router = GoRouter(
                   }
                   if (!user.emailVerified) {
                     //user.sendEmailVerification();
-                    const snackBar = SnackBar(content: Text('Please check your email to verify your email address'));
+                    //const snackBar = SnackBar(content: Text('Please check your email to verify your email address'));
                     //ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
                   context.pushReplacement('/');

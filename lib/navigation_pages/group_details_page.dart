@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 
 import '../widgets/users_list_view.dart';
 import '../classes/group.dart';
@@ -13,10 +12,7 @@ import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
-import '../classes/availability.dart';
-import '../findTime.dart';
-import '../app_state.dart';
-import '../create_event.dart';
+import '../update_event.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -103,9 +99,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             currentValue: group.meetingDuration,
                             hasSecurity: loggedInUidInArrayOld(group.admins),
                             dataType: double),
-                        AvailabilityButton(
-                          groupDocumentId: widget.groupDocumentId,
-                          availability: group.getAvailability(FirebaseAuth.instance.currentUser!.uid),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: AvailabilityButton(
+                            groupDocumentId: widget.groupDocumentId,
+                            availability: group.getAvailability(FirebaseAuth.instance.currentUser!.uid),
+                          ),
                         ),
                         //TODO: implement daysofweek in an editable way
                         Card(child: ListTile(title: const Text(Group.daysOfWeekLabel), subtitle: Text(group.daysOfWeek == null ? '' : group.daysOfWeek.toString()))),
@@ -113,65 +112,59 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         Card(child: ListTile(title: const Text(Group.membersLabel), subtitle: UsersListView(futureMembers: members))),
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
-                          child: SizedBox(
-                            width: 50,
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: AddUsersButton(label: 'Add Member', groupDocumentId: group.documentId, members: group.members, fieldKey: Group.membersKey, users: fetchAllUsers())),
-                          ),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: AddUsersButton(label: 'Add Member', groupDocumentId: group.documentId, members: group.members, fieldKey: Group.membersKey, users: fetchAllUsers())),
                         ),
                         Card(child: ListTile(title: const Text(Group.adminsLabel), subtitle: UsersListView(futureMembers: admins))),
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
-                          child: SizedBox(
-                            width: 50,
-                            child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: AddUsersButton(label: 'Add Admin', groupDocumentId: group.documentId, members: group.admins, fieldKey: Group.adminsKey, users: members)),
-                          ),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: AddUsersButton(label: 'Add Admin', groupDocumentId: group.documentId, members: group.admins, fieldKey: Group.adminsKey, users: members)),
                         ),
                         //TODO: make magic numbers below into configuragble values
-                        GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Align(alignment: Alignment.centerLeft, child: GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3)),
+                        ),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
                           child: Padding(
                             padding: const EdgeInsets.only(top: 5),
-                            child: SizedBox(
-                              width: 50,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                //TODO: style delete button to be red
-                                child: ElevatedButton(
-                                  child: const Text('Delete Group'),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Confirm Delete'),
-                                          content: const Text('Are you sure you want to delete this group?'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: const Text('Cancel'),
-                                              onPressed: () {
-                                                context.pop();
-                                              },
-                                            ),
-                                            TextButton(
-                                              child: const Text('Delete'),
-                                              onPressed: () {
-                                                deleteFirestoreGroup(widget.groupDocumentId);
-                                                context.pop();
-                                                context.replace('/');
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              //TODO: style delete button to be red
+                              child: ElevatedButton(
+                                child: const Text('Delete Group'),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Confirm Delete'),
+                                        content: const Text('Are you sure you want to delete this group?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('Cancel'),
+                                            onPressed: () {
+                                              context.pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text('Delete'),
+                                            onPressed: () {
+                                              deleteFirestoreGroup(widget.groupDocumentId);
+                                              context.pop();
+                                              context.replace('/');
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -186,6 +179,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 }
+
+//TODO: next up: make add member button that sends an invitation to the user that is stored in their notifications and can accepted to add them to the group
 
 ///TODO: add a little X to the alert window when adding a user
 class AddUsersButton extends StatelessWidget {
