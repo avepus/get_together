@@ -79,7 +79,7 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
   @override
   Widget build(BuildContext context) {
     var appState = Provider.of<ApplicationState>(context);
-    Availability availability = _getAvailability(appState.loginUserTimeZone);
+    Availability availability = _getAvailability(appState.loginUserTimeZone!);
 
     return Scaffold(
       appBar: AppBar(
