@@ -149,7 +149,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                       context.pushNamed('events');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Event ${event.title} was canceled'),
+                                          content: Text('Event "${event.title}" was canceled'),
                                         ),
                                       );
                                     },
