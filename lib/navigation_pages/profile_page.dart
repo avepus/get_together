@@ -126,6 +126,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       hasSecurity: hasEditSecurity,
                       dataType: String),
                   Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
+                  Visibility(
+                    visible: hasEditSecurity,
+                    child: FindUsersButton(),
+                  ),
                 ],
               );
             }
@@ -140,6 +144,97 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ));
+  }
+}
+
+class FindUsersButton extends StatefulWidget {
+  FindUsersButton({super.key});
+
+  @override
+  _FindUsersButton createState() => _FindUsersButton();
+}
+
+class _FindUsersButton extends State<FindUsersButton> {
+  Future<List<AppUser>>? _users;
+  final TextEditingController _userIdController = TextEditingController();
+
+  Future<List<AppUser>> _fetchUsers(String userLookupValue) async {
+    QuerySnapshot? querySnapshot;
+
+    //if there's an @, attempt to look up via email field
+    if (userLookupValue.contains('@')) {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection(AppUser.collectionName) // Replace with your collection name
+          .where(AppUser.emailKey, isEqualTo: userLookupValue) // Replace 'userId' with your field name
+          .get();
+    }
+
+    //if the value is a number, attempt to look up via phone number field
+    if (int.tryParse(userLookupValue) != null) {
+      querySnapshot = await FirebaseFirestore.instance.collection(AppUser.collectionName).where(AppUser.phoneNumberKey, isEqualTo: int.parse(userLookupValue)).get();
+    }
+
+    //if we haven't found a user yet, attempt to look up via userId field
+    if (querySnapshot == null || querySnapshot.docs.isEmpty) {
+      querySnapshot = await FirebaseFirestore.instance.collection(AppUser.collectionName).where(AppUser.uniqueUserIdKey, isEqualTo: userLookupValue).get();
+    }
+
+    return querySnapshot.docs.map((doc) => AppUser.fromDocumentSnapshot(doc)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('User Lookup'),
+              content: Column(
+                children: [
+                  TextField(
+                    controller: _userIdController,
+                    decoration: const InputDecoration(
+                      labelText: 'User ID/Email/Phone Number',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _users = _fetchUsers(_userIdController.text);
+                    },
+                    child: const Text('Search'),
+                  ),
+                  FutureBuilder(
+                      future: _users,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else if (!snapshot.hasData || snapshot.data == null) {
+                          return const Text('No users found');
+                        } else {
+                          List<AppUser> users = snapshot.data!;
+                          return ListView.builder(
+                            itemCount: users.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ListTile(
+                                title: Text(users[index].displayName ?? '<No Name>'),
+                                subtitle: Text(users[index].uniqueUserId ?? '<No ID>'),
+                              );
+                            },
+                          );
+                        }
+                      }),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: const Text('Find Friend'),
+    );
   }
 }
 
