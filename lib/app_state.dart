@@ -14,7 +14,7 @@ class ApplicationState extends ChangeNotifier {
   bool _emailVerified = false;
   bool get emailVerified => _emailVerified;
 
-  //storing user's timezone in state prevents me from having to make async calls everywhere to get it
+  //storing user's timezone in state prevents me from having to make async calls everywhere to get it. This creates an issue with crossing timezones and using the old timezone which might be something to consider in the future.
   String? _loginUserTimeZone;
   String? get loginUserTimeZone => _loginUserTimeZone;
 
