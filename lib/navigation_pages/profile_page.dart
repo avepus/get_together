@@ -126,23 +126,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       hasSecurity: hasEditSecurity,
                       dataType: String),
                   Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
-                  FutureBuilder(
-                      future: FirebaseFirestore.instance
-                          .collection(AppUser.collectionName) // Replace with your collection name
-                          .where(AppUser.uniqueUserIdKey, isEqualTo: 'ave') // Replace 'userId' with your field name
-                          .get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else if (!snapshot.hasData || snapshot.data == null) {
-                          return const Text('No users found');
-                        } else {
-                          List<AppUser> users = snapshot.data!.docs.map((doc) => AppUser.fromDocumentSnapshot(doc)).toList();
-                          return Text(users[0].displayName ?? '<No Name>');
-                        }
-                      }),
                   Visibility(
                     visible: hasEditSecurity,
                     child: FindUsersButton(),
@@ -172,10 +155,10 @@ class FindUsersButton extends StatefulWidget {
 }
 
 class _FindUsersButton extends State<FindUsersButton> {
-  List<AppUser>? _users;
+  List<AppUser> _users = <AppUser>[];
   final TextEditingController _userIdController = TextEditingController();
 
-  void _fetchUsers(String userLookupValue) async {
+  Future<List<AppUser>> _fetchUsers(String userLookupValue) async {
     QuerySnapshot? querySnapshot;
 
     //if there's an @, attempt to look up via email field
@@ -195,15 +178,17 @@ class _FindUsersButton extends State<FindUsersButton> {
     if (querySnapshot == null || querySnapshot.docs.isEmpty) {
       querySnapshot = await FirebaseFirestore.instance.collection(AppUser.collectionName).where(AppUser.uniqueUserIdKey, isEqualTo: userLookupValue).get();
     }
-    setState(() {
-      _users = querySnapshot!.docs.map((doc) => AppUser.fromDocumentSnapshot(doc)).toList();
-    });
-    ;
+
+    //not sure if this is necessary because the map below might just do this, but doesn't hurt to have it explicitly here
+    if (querySnapshot.docs.isEmpty) {
+      return <AppUser>[];
+    }
+
+    return querySnapshot.docs.map((doc) => AppUser.fromDocumentSnapshot(doc)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<AppUser>? users = _users;
     return ElevatedButton(
       onPressed: () {
         showDialog(
@@ -211,36 +196,39 @@ class _FindUsersButton extends State<FindUsersButton> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('User Lookup'),
-              content: SizedBox(
-                height: 200,
-                width: 300,
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _userIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'User ID/Email/Phone Number',
+              content: StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+                return SizedBox(
+                  height: 500,
+                  width: 300,
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _userIdController,
+                        decoration: const InputDecoration(
+                          labelText: 'User ID/Email/Phone Number',
+                        ),
                       ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _fetchUsers(_userIdController.text);
-                      },
-                      child: const Text('Search'),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: users?.length ?? 0,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          title: Text(users?[index].displayName ?? '<No Name>'),
-                          subtitle: Text(users?[index].uniqueUserId ?? '<No ID>'),
-                        );
-                      },
-                    )
-                  ],
-                ),
-              ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          List<AppUser> newUsersList = await _fetchUsers(_userIdController.text);
+                          setState(() => _users = newUsersList);
+                        },
+                        child: const Text('Search'),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _users.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            title: Text(_users[index].displayName ?? '<No Name>'),
+                            subtitle: Text(_users[index].uniqueUserId ?? '<No ID>'),
+                          );
+                        },
+                      )
+                    ],
+                  ),
+                );
+              }),
             );
           },
         );
