@@ -15,6 +15,7 @@ class AppUser {
   static const String createdTimeKey = 'createdTime';
   static const String imageUrlKey = 'imageUrl';
   static const String notificationsKey = 'notifications';
+  static const String friendsKey = 'friends';
 
   static const String documentIdLabel = 'Document ID';
   static const String uniqueUserIdLabel = 'ID';
@@ -23,6 +24,8 @@ class AppUser {
   static const String phoneNumberLabel = 'Phone Number';
   static const String createdTimeLabel = 'Created Time';
   static const String imageUrlLabel = 'Profile Picture Link';
+  static const String notificationsLabel = 'Notifications';
+  static const String friendsLabel = 'Friends';
 
   String documentId;
   String uniqueUserId;
@@ -32,6 +35,7 @@ class AppUser {
   Timestamp? createdTime;
   String? imageUrl;
   List<Map<String, dynamic>> notifications;
+  List<String> friends;
 
   AppUser({
     required this.documentId,
@@ -42,6 +46,7 @@ class AppUser {
     this.createdTime,
     this.imageUrl,
     this.notifications = const [],
+    this.friends = const [],
   });
 
   factory AppUser.fromDocumentSnapshot(DocumentSnapshot snapshot) {
@@ -51,7 +56,8 @@ class AppUser {
 
     List<Map<String, dynamic>> notifications = [];
     assert(notificationsFromFirestore == null || notificationsFromFirestore is List,
-        'Expected an array in User field \'$notificationsKey\' but found this ${notificationsFromFirestore.runtimeType}: $notificationsFromFirestore');
+        'Expected a list in User field \'$notificationsKey\' but found this ${notificationsFromFirestore.runtimeType}: $notificationsFromFirestore');
+
     if (notificationsFromFirestore is List) {
       notifications = notificationsFromFirestore.map((item) {
         if (item is Map) {
@@ -59,11 +65,13 @@ class AppUser {
           return Map<String, dynamic>.from(item);
         } else {
           // Handle the case where the item is not a Map, perhaps log an error or throw
-          assert(false, 'Expected the array in User field \'$notificationsKey\' to hold maps, but found this ${item.runtimeType}: $item');
+          assert(false, 'Expected the list in User field \'$notificationsKey\' to hold maps, but found this ${item.runtimeType}: $item');
           throw TypeError();
         }
       }).toList();
     }
+
+    assert(data[friendsKey] != null && data[friendsKey]!! is List, 'Expected a list in User field \'$friendsKey\' but found this ${data[friendsKey].runtimeType}: ${data[friendsKey]}');
 
     return AppUser(
       documentId: snapshot.id,
@@ -74,6 +82,7 @@ class AppUser {
       createdTime: data[createdTimeKey],
       imageUrl: data[imageUrlKey],
       notifications: notifications,
+      friends: List<String>.from(data[friendsKey] ?? []),
     );
   }
 
@@ -90,6 +99,7 @@ class AppUser {
       createdTimeKey: createdTime,
       imageUrlKey: imageUrl,
       notificationsKey: notifications,
+      friendsKey: friends,
     };
   }
 
