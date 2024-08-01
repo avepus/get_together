@@ -71,7 +71,7 @@ class AppUser {
       }).toList();
     }
 
-    assert(data[friendsKey] != null && data[friendsKey]!! is List, 'Expected a list in User field \'$friendsKey\' but found this ${data[friendsKey].runtimeType}: ${data[friendsKey]}');
+    assert(data[friendsKey] == null || data[friendsKey]!! is List, 'Expected a list in User field \'$friendsKey\' but found this ${data[friendsKey].runtimeType}: ${data[friendsKey]}');
 
     return AppUser(
       documentId: snapshot.id,
