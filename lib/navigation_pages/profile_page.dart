@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../classes/app_user.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
+import '../widgets/users_list_view.dart';
 import '../utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -219,10 +220,7 @@ class _FindUsersButton extends State<FindUsersButton> {
                         shrinkWrap: true,
                         itemCount: _users.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return ListTile(
-                            title: Text(_users[index].displayName ?? '<No Name>'),
-                            subtitle: Text(_users[index].uniqueUserId ?? '<No ID>'),
-                          );
+                          return UsersListView(futureMembers: Future.value(_users));
                         },
                       )
                     ],
