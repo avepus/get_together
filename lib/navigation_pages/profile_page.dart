@@ -82,15 +82,16 @@ class _ProfilePageState extends State<ProfilePage> {
               return const Text("No data found");
             } else {
               AppUser user = AppUser.fromDocumentSnapshot(appUserSnapshot.data!);
-              bool hasEditSecurity = loggedInUidMatchesOld(user.documentId);
+              bool isViewingOwnProfile = loggedInUidMatchesOld(user.documentId);
+              bool isFriend = user.friends.contains(auth.currentUser!.uid);
               return ListView(
                 children: [
                   Center(
                     child: SizedBox(
                         width: 200,
                         height: 200,
-                        child:
-                            EditableImageField(collectionName: AppUser.collectionName, documentId: user.documentId, fieldKey: AppUser.imageUrlKey, imageUrl: user.imageUrl, canEdit: hasEditSecurity)),
+                        child: EditableImageField(
+                            collectionName: AppUser.collectionName, documentId: user.documentId, fieldKey: AppUser.imageUrlKey, imageUrl: user.imageUrl, canEdit: isViewingOwnProfile)),
                   ),
                   EditableFirestoreField(
                       collection: AppUser.collectionName,
@@ -98,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: AppUser.displayNameLabel,
                       documentId: user.documentId,
                       currentValue: user.displayName,
-                      hasSecurity: hasEditSecurity,
+                      hasSecurity: isViewingOwnProfile,
                       //TODO: don't like hard-coded types here
                       dataType: String),
                   EditableFirestoreField(
@@ -107,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: AppUser.emailLabel,
                       documentId: user.documentId,
                       currentValue: user.email,
-                      hasSecurity: hasEditSecurity,
+                      hasSecurity: isViewingOwnProfile,
                       dataType: String),
                   EditableFirestoreField(
                       collection: AppUser.collectionName,
@@ -115,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: AppUser.phoneNumberLabel,
                       documentId: user.documentId,
                       currentValue: user.phoneNumber,
-                      hasSecurity: hasEditSecurity,
+                      hasSecurity: isViewingOwnProfile,
                       dataType: int),
                   //TODO: enforce uniqueness of uniqueUserID
                   EditableFirestoreField(
@@ -124,12 +125,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: AppUser.uniqueUserIdLabel,
                       documentId: user.documentId,
                       currentValue: user.uniqueUserId,
-                      hasSecurity: hasEditSecurity,
+                      hasSecurity: isViewingOwnProfile,
                       dataType: String),
                   Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
                   Visibility(
-                    visible: hasEditSecurity,
+                    visible: isViewingOwnProfile,
                     child: FindUsersButton(),
+                  ),
+                  Visibility(
+                    visible: !isViewingOwnProfile && !isFriend,
+                    child: AddFriendButton(),
                   ),
                 ],
               );
@@ -145,6 +150,20 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ));
+  }
+}
+
+class AddFriendButton extends StatelessWidget {
+  const AddFriendButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {},
+      child: const Text('Send Friend Request'),
+    );
   }
 }
 
