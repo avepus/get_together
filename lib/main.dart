@@ -24,11 +24,13 @@ import 'navigation_pages/event_details_page.dart';
 import 'navigation_pages/notifications_page.dart';
 
 ///todo list
-///add user lookup functionality that can handle unique user id, phone number, and email
 ///add friend request and accept functionality
 ///add friend list on user profile page
 ///better cancelled event handling. Currently the notification will still try to take to to the deleted event which causes an error. Need to remove that link or not delete the document and just update the status to cancelled.
 ///propose event functionality with multiple time slot options that users can rank
+
+//low priority todo list
+//add caching
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   bool kDebugMode = true;
