@@ -2,16 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_together/app_state.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../classes/app_user.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
 import '../widgets/users_list_view.dart';
 import '../utils.dart';
+import '../classes/app_notification.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userDocumentId;
@@ -67,6 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
         appBar: AppBar(
           title: AppUserTitle(userSnapshot: _userSnapshot),
@@ -134,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Visibility(
                     visible: !isViewingOwnProfile && !isFriend,
-                    child: AddFriendButton(),
+                    child: AddFriendButton(requestRecipient: user, requestorDocumentId: appState.loginUserDocumentId!),
                   ),
                 ],
               );
@@ -154,12 +158,36 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class AddFriendButton extends StatelessWidget {
-  const AddFriendButton({
+  AppUser requestRecipient;
+  String requestorDocumentId;
+
+  AddFriendButton({
+    required this.requestRecipient,
+    required this.requestorDocumentId,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (requestRecipient.friends.contains(requestorDocumentId)) {
+      return ElevatedButton(
+        onPressed: () {},
+        child: const Text('Unfriend'),
+      );
+    }
+
+    bool friendRequestAlreadySent = requestRecipient.notifications.any((element) {
+      AppNotification notification = AppNotification.fromNotificationArray(element);
+      return notification.type == NotificationType.friendRequest && notification.routeToDocumentId == requestorDocumentId;
+    });
+
+    if (friendRequestAlreadySent) {
+      return ElevatedButton(
+        onPressed: () {},
+        child: const Text('Cancel Friend Request'),
+      );
+    }
+
     return ElevatedButton(
       onPressed: () {},
       child: const Text('Send Friend Request'),
@@ -223,11 +251,14 @@ class _FindUsersButton extends State<FindUsersButton> {
                   child: Column(
                     children: [
                       TextField(
-                        controller: _userIdController,
-                        decoration: const InputDecoration(
-                          labelText: 'User ID/Email/Phone Number',
-                        ),
-                      ),
+                          controller: _userIdController,
+                          decoration: const InputDecoration(
+                            labelText: 'User ID/Email/Phone Number',
+                          ),
+                          onEditingComplete: () async {
+                            List<AppUser> newUsersList = await _fetchUsers(_userIdController.text);
+                            setState(() => _users = newUsersList);
+                          }),
                       ElevatedButton(
                         onPressed: () async {
                           List<AppUser> newUsersList = await _fetchUsers(_userIdController.text);
