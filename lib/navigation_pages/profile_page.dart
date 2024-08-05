@@ -137,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: FindUsersButton(),
                   ),
                   Visibility(
-                    visible: !isViewingOwnProfile && !isFriend,
+                    visible: true, //testing by keeping this as ture. need to replace it with code to the right when done//!isViewingOwnProfile && !isFriend,
                     child: AddFriendButton(requestRecipient: user, requestorDocumentId: appState.loginUserDocumentId!),
                   ),
                 ],
@@ -171,25 +171,46 @@ class AddFriendButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (requestRecipient.friends.contains(requestorDocumentId)) {
       return ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          //left off here. Need to remove friend from both users' friends list
+          //need to implement accepting of the friend request
+          requestRecipient.friends.remove(requestorDocumentId);
+        },
         child: const Text('Unfriend'),
       );
     }
 
-    bool friendRequestAlreadySent = requestRecipient.notifications.any((element) {
-      AppNotification notification = AppNotification.fromNotificationArray(element);
-      return notification.type == NotificationType.friendRequest && notification.routeToDocumentId == requestorDocumentId;
-    });
+    AppNotification? existingRequestNotification;
 
-    if (friendRequestAlreadySent) {
+    for (var notification in requestRecipient.notifications) {
+      AppNotification appNotification = AppNotification.fromNotificationArray(notification);
+      if (appNotification.type == NotificationType.friendRequest && appNotification.routeToDocumentId == requestorDocumentId) {
+        existingRequestNotification = appNotification;
+        break;
+      }
+    }
+
+    if (existingRequestNotification != null) {
       return ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          existingRequestNotification!.deleteFromDocument(documentId: requestRecipient.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+        },
         child: const Text('Cancel Friend Request'),
       );
     }
 
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        AppNotification friendRequest = AppNotification(
+          type: NotificationType.friendRequest,
+          routeToDocumentId: requestorDocumentId,
+          title: 'New Friend Request',
+          description: '${requestRecipient.displayName} send you a Friend Request.',
+          createdTime: Timestamp.now(),
+        );
+
+        friendRequest.saveToDocument(documentId: requestRecipient.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+      },
       child: const Text('Send Friend Request'),
     );
   }

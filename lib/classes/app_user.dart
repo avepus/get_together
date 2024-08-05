@@ -103,6 +103,11 @@ class AppUser {
     };
   }
 
+  Future<void> removeFriend(String friendDocumentId) async {
+    friends.remove(friendDocumentId);
+    await FirebaseFirestore.instance.collection(collectionName).doc(documentId).update({friendsKey: friends});
+  }
+
   @override
   String toString() {
     return toMap().toString();
