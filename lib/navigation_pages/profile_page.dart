@@ -15,6 +15,7 @@ import '../widgets/editable_document_image.dart';
 import '../widgets/users_list_view.dart';
 import '../utils.dart';
 import '../classes/app_notification.dart';
+import '../firebase.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userDocumentId;
@@ -138,7 +139,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Visibility(
                     visible: true, //testing by keeping this as ture. need to replace it with code to the right when done//!isViewingOwnProfile && !isFriend,
-                    child: AddFriendButton(requestRecipient: user, requestorDocumentId: appState.loginUserDocumentId!),
+                    child: StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance.collection(AppUser.collectionName).doc(appState.loginUserDocumentId).snapshots(),
+                        builder: (context, loginUserSnapshot) {
+                          if (loginUserSnapshot.connectionState == ConnectionState.waiting) {
+                            return const SizedBox(width: 50, child: CircularProgressIndicator());
+                          } else if (loginUserSnapshot.hasError) {
+                            return Text("Error: ${loginUserSnapshot.error}");
+                          } else if (!loginUserSnapshot.hasData || loginUserSnapshot.data == null) {
+                            return const Text("No data found");
+                          } else {
+                            AppUser loginUser = AppUser.fromDocumentSnapshot(loginUserSnapshot.data!);
+                            return FriendButton(loginUser: loginUser, otherUser: user);
+                          }
+                        }),
                   ),
                 ],
               );
@@ -157,43 +171,61 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class AddFriendButton extends StatelessWidget {
-  AppUser requestRecipient;
-  String requestorDocumentId;
+/// This widget shows a button that allows friend functions
+///
+/// The first criteria met is what will display
+/// 1. If the users are already freinds, this button will display "Unfriend" and will remove the users from each other's friends list
+/// 2. If the current signed in users has a pending friend request from this users, this button will display "Accept Friend Request" and will add the users to each other's friends list
+/// 3. If the current signed in user has sent a friend request to this user, this button will display "Cancel Friend Request" and will remove the friend request from the recipient's notifications
+/// 4. If the users are not friends and there are no pending friend requests, this button will display "Send Friend Request" and will send a friend request to the recipient
+class FriendButton extends StatelessWidget {
+  final AppUser loginUser;
+  final AppUser otherUser;
 
-  AddFriendButton({
-    required this.requestRecipient,
-    required this.requestorDocumentId,
+  FriendButton({
+    required this.loginUser,
+    required this.otherUser,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (requestRecipient.friends.contains(requestorDocumentId)) {
+    bool alreadyFriends = otherUser.friends.contains(loginUser.documentId);
+    if (alreadyFriends) {
       return ElevatedButton(
         onPressed: () {
-          //left off here. Need to remove friend from both users' friends list
-          //need to implement accepting of the friend request
-          requestRecipient.friends.remove(requestorDocumentId);
+          //removing friends also removes notifications since the notification could still exist when unfriending someone which could allow them to re-add you as a friend
+          deleteFriendRequestNotificationsFromUserPair(loginUser, otherUser);
+          removeFromFriendsFirestore(otherUser.documentId, loginUser.documentId);
         },
         child: const Text('Unfriend'),
       );
     }
 
-    AppNotification? existingRequestNotification;
-
-    for (var notification in requestRecipient.notifications) {
+    bool otherUserHasPendingRequestToLoginUser = loginUser.notifications.any((notification) {
       AppNotification appNotification = AppNotification.fromNotificationArray(notification);
-      if (appNotification.type == NotificationType.friendRequest && appNotification.routeToDocumentId == requestorDocumentId) {
-        existingRequestNotification = appNotification;
-        break;
-      }
-    }
+      return appNotification.type == NotificationType.friendRequest && appNotification.routeToDocumentId == otherUser.documentId;
+    });
 
-    if (existingRequestNotification != null) {
+    if (otherUserHasPendingRequestToLoginUser) {
       return ElevatedButton(
         onPressed: () {
-          existingRequestNotification!.deleteFromDocument(documentId: requestRecipient.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+          //TODO: created notification for friend request accepted
+          addFriendsFirestore(loginUser.documentId, otherUser.documentId);
+        },
+        child: const Text('Accept Friend Request'),
+      );
+    }
+
+    bool currentUserHasPendingRequest = otherUser.notifications.any((notification) {
+      AppNotification appNotification = AppNotification.fromNotificationArray(notification);
+      return appNotification.type == NotificationType.friendRequest && appNotification.routeToDocumentId == loginUser.documentId;
+    });
+
+    if (currentUserHasPendingRequest) {
+      return ElevatedButton(
+        onPressed: () {
+          deleteFriendRequestNotificationsFromUserPair(loginUser, otherUser);
         },
         child: const Text('Cancel Friend Request'),
       );
@@ -203,13 +235,13 @@ class AddFriendButton extends StatelessWidget {
       onPressed: () {
         AppNotification friendRequest = AppNotification(
           type: NotificationType.friendRequest,
-          routeToDocumentId: requestorDocumentId,
+          routeToDocumentId: loginUser.documentId,
           title: 'New Friend Request',
-          description: '${requestRecipient.displayName} send you a Friend Request.',
+          description: '${loginUser.displayName} send you a Friend Request.',
           createdTime: Timestamp.now(),
         );
 
-        friendRequest.saveToDocument(documentId: requestRecipient.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+        friendRequest.saveToDocument(documentId: otherUser.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
       },
       child: const Text('Send Friend Request'),
     );

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_together/classes/app_notification.dart';
 import 'classes/app_user.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
@@ -36,8 +37,22 @@ Future<void> storeUserListInGroup(List<AppUser> users, String groupDocumentId, S
   await storeUserIdsListInGroup(userDocumentIds, groupDocumentId, fieldKey);
 }
 
+/// Creates a Firestore user with the given [displayName], [email], and [uid].
+///
+/// This function creates a new Firestore user document in the AppUser collection
+/// with the provided user information. The user's document ID will be set to [uid],
+/// and the user's display name, email, and creation time will be set based on the
+/// provided parameters. The user's information is stored in a [AppUser] object,
+/// which is converted to a map using the [toMap] method.
+///
+/// Example usage:
+/// ```dart
+/// await createFirestoreUser('John Doe', 'johndoe@example.com', '123456789');
+/// ```
+///
+/// Throws an error if there is an issue setting the user document in Firestore.
 Future<void> createFirestoreUser(String displayName, String email, String uid) async {
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  CollectionReference users = FirebaseFirestore.instance.collection(AppUser.collectionName);
   final timestamp = Timestamp.now();
   AppUser user = AppUser(
     documentId: uid,
@@ -48,6 +63,35 @@ Future<void> createFirestoreUser(String displayName, String email, String uid) a
   );
 
   users.doc(uid).set(user.toMap());
+  return;
+}
+
+Future<void> addFriendsFirestore(String user1, String user2) async {
+  CollectionReference users = FirebaseFirestore.instance.collection(AppUser.collectionName);
+  users.doc(user1).update({
+    AppUser.friendsKey: FieldValue.arrayUnion([user2]),
+  });
+  users.doc(user2).update({
+    AppUser.friendsKey: FieldValue.arrayUnion([user1]),
+  });
+  return;
+}
+
+/// Removes the specified users from each other's friends list in Firestore.
+/// This is always bidirectional since you must be friends with each other
+///
+/// The [user1] and [user2] parameters represent the IDs of the users to be removed from each other's friends list.
+/// This method updates the Firestore documents for both users, removing the corresponding user ID from their friends list.
+///
+/// Returns a [Future] that completes when the updates are successfully applied to Firestore.
+Future<void> removeFromFriendsFirestore(String user1, String user2) async {
+  CollectionReference users = FirebaseFirestore.instance.collection(AppUser.collectionName);
+  users.doc(user1).update({
+    AppUser.friendsKey: FieldValue.arrayRemove([user2]),
+  });
+  users.doc(user2).update({
+    AppUser.friendsKey: FieldValue.arrayRemove([user1]),
+  });
   return;
 }
 
@@ -102,4 +146,20 @@ Future<void> requestNotificationPermission() async {
 
     _messageStreamController.sink.add(message);
   });
+}
+
+Future<void> deleteFriendRequestNotificationsFromUserPair(AppUser user1, AppUser user2) async {
+  //first remove the notification from user1's notifications
+  user1.notifications.removeWhere((notification) {
+    AppNotification appNotif = AppNotification.fromNotificationArray(notification);
+    return appNotif.type == NotificationType.friendRequest && appNotif.routeToDocumentId == user2.documentId;
+  });
+
+  user2.notifications.removeWhere((notification) {
+    AppNotification appNotif = AppNotification.fromNotificationArray(notification);
+    return appNotif.type == NotificationType.friendRequest && appNotif.routeToDocumentId == user1.documentId;
+  });
+
+  await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(user1.documentId).update({AppUser.notificationsKey: user1.notifications});
+  await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(user2.documentId).update({AppUser.notificationsKey: user2.notifications});
 }

@@ -124,10 +124,4 @@ class AppNotification {
       fieldKey: FieldValue.arrayUnion([toMap()]),
     });
   }
-
-  Future<void> deleteFromDocument({required String documentId, required String fieldKey, required String collection}) async {
-    await FirebaseFirestore.instance.collection(collection).doc(documentId).update({
-      fieldKey: FieldValue.arrayRemove([toMap()]),
-    });
-  }
 }
