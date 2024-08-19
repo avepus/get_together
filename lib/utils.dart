@@ -4,9 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'app_state.dart';
 
-String formatTimestamp(Timestamp timestamp) {
+String formatTimestampAsDate(Timestamp timestamp) {
   // Convert the Timestamp to DateTime
   return myFormatDate(timestamp.toDate());
+}
+
+String formatTimestamp(Timestamp timestamp) {
+  // Convert the Timestamp to DateTime
+  return myFormatDateAndTime(timestamp.toDate());
 }
 
 //central function for formatting dateTimes so I can easily change format if needed
