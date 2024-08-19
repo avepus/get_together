@@ -2,16 +2,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../utils.dart';
+
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
 
-enum NotificationType { friendRequest, newEvent, updatedEvent, canceledEvent, groupRequest }
+enum NotificationType { friendRequest, accptedFriendRequest, newEvent, updatedEvent, canceledEvent, groupRequest }
 
 extension NotificationTypesIconExtension on NotificationType {
   IconData get icon {
     switch (this) {
       case NotificationType.friendRequest:
         return Icons.person_add;
+      case NotificationType.accptedFriendRequest:
+        return Icons.people;
       case NotificationType.newEvent:
         return Icons.event;
       case NotificationType.updatedEvent:
@@ -27,6 +31,8 @@ extension NotificationTypesIconExtension on NotificationType {
     switch (this) {
       case NotificationType.friendRequest:
         return 'profile';
+      case NotificationType.accptedFriendRequest:
+        return 'profile';
       case NotificationType.newEvent:
         return 'event';
       case NotificationType.updatedEvent:
@@ -41,6 +47,8 @@ extension NotificationTypesIconExtension on NotificationType {
   String get pathParameterKey {
     switch (this) {
       case NotificationType.friendRequest:
+        return 'userDocumentId';
+      case NotificationType.accptedFriendRequest:
         return 'userDocumentId';
       case NotificationType.newEvent:
         return 'eventDocumentId';
@@ -111,6 +119,7 @@ class AppNotification {
       leading: Icon(type.icon),
       title: Text(title),
       subtitle: Text(description),
+      trailing: Text(formatTimestamp(createdTime)),
       onTap: type.namedRoute.isNotEmpty
           ? () {
               context.goNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
