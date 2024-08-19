@@ -108,7 +108,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ),
                         //TODO: implement daysofweek in an editable way
                         Card(child: ListTile(title: const Text(Group.daysOfWeekLabel), subtitle: Text(group.daysOfWeek == null ? '' : group.daysOfWeek.toString()))),
-                        Card(child: ListTile(title: const Text(Group.createdTimeLabel), subtitle: Text(group.createdTime != null ? formatTimestamp(group.createdTime!).toString() : ''))),
+                        Card(child: ListTile(title: const Text(Group.createdTimeLabel), subtitle: Text(group.createdTime != null ? formatTimestampAsDate(group.createdTime!).toString() : ''))),
                         Card(child: ListTile(title: const Text(Group.membersLabel), subtitle: UsersListView(futureMembers: members))),
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
