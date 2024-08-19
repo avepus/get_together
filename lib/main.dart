@@ -24,11 +24,13 @@ import 'navigation_pages/event_details_page.dart';
 import 'navigation_pages/notifications_page.dart';
 
 ///todo list
-///add friend request and accept functionality
 ///add friend list on user profile page
 ///better cancelled event handling. Currently the notification will still try to take to to the deleted event which causes an error. Need to remove that link or not delete the document and just update the status to cancelled.
+///   note the fix here is probably to mark the event as cancelled and then update the UI to show that it is cancelled and uneditable
+///   with this update I should also make past events uneditable. will probably want to make it editable until the end datetime
 ///propose event functionality with multiple time slot options that users can rank
-
+///restrict adding people to groups to only seeing friends
+///
 //low priority todo list
 //add caching
 
