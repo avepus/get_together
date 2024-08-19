@@ -132,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       currentValue: user.uniqueUserId,
                       hasSecurity: isViewingOwnProfile,
                       dataType: String),
-                  Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestamp(user.createdTime!).toString() : ''))),
+                  Card(child: ListTile(title: const Text(AppUser.createdTimeLabel), subtitle: Text(user.createdTime != null ? formatTimestampAsDate(user.createdTime!).toString() : ''))),
                   Visibility(
                     visible: isViewingOwnProfile,
                     child: FindUsersButton(),
@@ -210,8 +210,17 @@ class FriendButton extends StatelessWidget {
     if (otherUserHasPendingRequestToLoginUser) {
       return ElevatedButton(
         onPressed: () {
-          //TODO: created notification for friend request accepted
           addFriendsFirestore(loginUser.documentId, otherUser.documentId);
+
+          AppNotification acceptedFriendRequest = AppNotification(
+            type: NotificationType.accptedFriendRequest,
+            routeToDocumentId: loginUser.documentId,
+            title: 'Accepted Friend Request',
+            description: '${loginUser.displayName} accepted your Friend Request.',
+            createdTime: Timestamp.now(),
+          );
+
+          acceptedFriendRequest.saveToDocument(documentId: otherUser.documentId, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
         },
         child: const Text('Accept Friend Request'),
       );
@@ -237,7 +246,7 @@ class FriendButton extends StatelessWidget {
           type: NotificationType.friendRequest,
           routeToDocumentId: loginUser.documentId,
           title: 'New Friend Request',
-          description: '${loginUser.displayName} send you a Friend Request.',
+          description: '${loginUser.displayName} sent you a Friend Request.',
           createdTime: Timestamp.now(),
         );
 
