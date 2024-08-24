@@ -12,6 +12,7 @@ class Event {
   static const String startTimeKey = 'startTime';
   static const String endTimeKey = 'endTime';
   static const String groupDocumentIdKey = 'groupDocumentId';
+  static const String isCancelledKey = 'isCancelled';
   static const String createdTimeKey = 'createdTime';
   static const String creatorDocumentIdKey = 'creatorDocumentId';
 
@@ -22,6 +23,8 @@ class Event {
   static const String startTimeLabel = 'Start Time';
   static const String endTimeLabel = 'End Time';
   static const String groupDocumentIdLabel = 'Group Document ID';
+  static const String isCancelledLabel = 'Cancelled?';
+
   static const String createdTimeLabel = 'Created Time';
   static const String creatorDocumentIdLabel = 'Creator Document ID';
 
@@ -33,6 +36,7 @@ class Event {
   final DateTime startTime; //UTC
   final DateTime endTime; //UTC
   final String groupDocumentId;
+  final bool isCancelled;
   final DateTime createdTime;
   final String creatorDocumentId;
 
@@ -44,6 +48,7 @@ class Event {
       required this.startTime,
       required this.endTime,
       required this.groupDocumentId,
+      this.isCancelled = false,
       required this.createdTime,
       required this.creatorDocumentId});
 
@@ -57,6 +62,7 @@ class Event {
       startTime: (data[startTimeKey] as Timestamp).toDate(),
       endTime: (data[endTimeKey] as Timestamp).toDate(),
       groupDocumentId: data[groupDocumentIdKey],
+      isCancelled: data[isCancelledKey] ?? false,
       createdTime: (data[createdTimeKey] as Timestamp).toDate(),
       creatorDocumentId: data[creatorDocumentIdKey],
     );
@@ -71,6 +77,7 @@ class Event {
       startTimeKey: Timestamp.fromDate(startTime),
       endTimeKey: Timestamp.fromDate(endTime),
       groupDocumentIdKey: groupDocumentId,
+      isCancelledKey: isCancelled,
       createdTimeKey: Timestamp.fromDate(createdTime),
       creatorDocumentIdKey: creatorDocumentId,
     };
@@ -82,12 +89,6 @@ class Event {
     } else {
       DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
       documentId = ref.id;
-    }
-  }
-
-  void deleteFromFirestore() {
-    if (documentId != '') {
-      FirebaseFirestore.instance.collection(collectionName).doc(documentId).delete();
     }
   }
 

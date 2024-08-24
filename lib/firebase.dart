@@ -6,6 +6,8 @@ import 'firebase_options.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'classes/group.dart';
+import 'classes/app_notification.dart';
+import 'classes/event.dart';
 
 Future<List<AppUser>> fetchAllUsers() async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -162,4 +164,18 @@ Future<void> deleteFriendRequestNotificationsFromUserPair(AppUser user1, AppUser
 
   await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(user1.documentId).update({AppUser.notificationsKey: user1.notifications});
   await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(user2.documentId).update({AppUser.notificationsKey: user2.notifications});
+}
+
+Future<void> markEventAsCancelled(Event event, Group group) async {
+  assert(event.documentId != null, 'Event document ID is null but it never should be when we are attempting to cancel');
+  CollectionReference events = FirebaseFirestore.instance.collection(Event.collectionName);
+  events.doc(event.documentId).update({
+    Event.isCancelledKey: true,
+  });
+}
+
+Future<void> addNotificationToUser(AppNotification notification, String userDocumentId) async {
+  FirebaseFirestore.instance.collection(AppUser.collectionName).doc(userDocumentId).update({
+    AppUser.notificationsKey: FieldValue.arrayUnion([notification.toMap()]),
+  });
 }

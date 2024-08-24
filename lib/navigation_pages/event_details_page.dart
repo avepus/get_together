@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_together/classes/app_notification.dart';
+import 'package:get_together/firebase.dart';
 
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -82,6 +83,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     bool hasSecurity = loggedInUidInArray(group.admins, appState) || loggedInUidMatches(event.creatorDocumentId, appState);
                     return ListView(
                       children: [
+                        Visibility(
+                            child: Container(
+                              width: double.infinity,
+                              color: Colors.red,
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Event Cancelled',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            visible: event.isCancelled),
                         EditableFirestoreField(
                             collection: Event.collectionName,
                             fieldKey: Event.titleKey,
@@ -135,7 +151,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                     onPressed: () async {
                                       //TODO: warn user to notifiy group members
                                       //TODO: future: notify group members via push notification and/or text
-                                      event.deleteFromFirestore();
+                                      markEventAsCancelled(event, group);
                                       AppNotification notification = AppNotification(
                                         title: 'Event Canceled',
                                         description: '${group.name}\'s event ${event.title} on ${myFormatDateAndTime(event.startTime)} was canceled.',
@@ -144,7 +160,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                         createdTime: Timestamp.now(),
                                       );
                                       for (String memberID in group.members) {
-                                        await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+                                        await addNotificationToUser(notification, memberID);
                                       }
                                       context.pushNamed('events');
                                       ScaffoldMessenger.of(context).showSnackBar(
