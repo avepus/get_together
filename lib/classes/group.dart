@@ -140,14 +140,14 @@ class Group {
     List<AppUser> users = [];
 
     for (var userId in userIds) {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(userId).get();
 
       if (snapshot.exists) {
         AppUser user = AppUser.fromDocumentSnapshot(snapshot);
         users.add(user);
       } else {
         // Remove the document ID from the members field in Firestore
-        await FirebaseFirestore.instance.collection('groups').doc(documentId).update({
+        await FirebaseFirestore.instance.collection(collectionName).doc(documentId).update({
           fieldKey: FieldValue.arrayRemove([userId])
         });
       }
