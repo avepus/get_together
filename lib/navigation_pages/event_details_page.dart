@@ -79,25 +79,27 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                   } else if (groupSnapshot.hasError) {
                     return Text('Error: ${groupSnapshot.error}');
                   } else {
+                    bool eventIsOver = event.endTime.isBefore(DateTime.now());
                     Group group = groupSnapshot.data!;
-                    bool hasSecurity = loggedInUidInArray(group.admins, appState) || loggedInUidMatches(event.creatorDocumentId, appState);
+                    bool hasEditSecurity = loggedInUidInArray(group.admins, appState) || loggedInUidMatches(event.creatorDocumentId, appState);
                     return ListView(
                       children: [
                         Visibility(
-                            child: Container(
-                              width: double.infinity,
-                              color: Colors.red,
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Event Cancelled',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
+                          visible: event.isCancelled || eventIsOver,
+                          child: Container(
+                            width: double.infinity,
+                            color: Colors.red,
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              event.isCancelled ? 'Event Cancelled' : 'Event Is Over',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
+                              textAlign: TextAlign.center,
                             ),
-                            visible: event.isCancelled),
+                          ),
+                        ),
                         EditableFirestoreField(
                             collection: Event.collectionName,
                             fieldKey: Event.titleKey,
@@ -132,44 +134,46 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             hasSecurity: false,
                             dataType: String),
                         Visibility(
-                            visible: hasSecurity,
+                            visible: hasEditSecurity && !event.isCancelled && !eventIsOver,
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: ElevatedButton(
-                                  onPressed: () {
-                                    context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
-                                  },
-                                  child: const Text('Edit Event')),
+                                child: const Text('Edit Event'),
+                                onPressed: () {
+                                  context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
+                                },
+                              ),
                             )),
                         Visibility(
-                            visible: hasSecurity,
+                            visible: hasEditSecurity && !event.isCancelled && !eventIsOver,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: ElevatedButton(
-                                    onPressed: () async {
-                                      //TODO: warn user to notifiy group members
-                                      //TODO: future: notify group members via push notification and/or text
-                                      markEventAsCancelled(event, group);
-                                      AppNotification notification = AppNotification(
-                                        title: 'Event Canceled',
-                                        description: '${group.name}\'s event ${event.title} on ${myFormatDateAndTime(event.startTime)} was canceled.',
-                                        type: NotificationType.canceledEvent,
-                                        routeToDocumentId: event.documentId!,
-                                        createdTime: Timestamp.now(),
-                                      );
-                                      for (String memberID in group.members) {
-                                        await addNotificationToUser(notification, memberID);
-                                      }
-                                      context.pushNamed('events');
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Event "${event.title}" was canceled'),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('Cancel Event')),
+                                  child: const Text('Cancel Event'),
+                                  onPressed: () async {
+                                    //TODO: warn user to notifiy group members
+                                    //TODO: future: notify group members via push notification and/or text
+                                    markEventAsCancelled(event, group);
+                                    AppNotification notification = AppNotification(
+                                      title: 'Event Canceled',
+                                      description: '${group.name}\'s event ${event.title} on ${myFormatDateAndTime(event.startTime)} was canceled.',
+                                      type: NotificationType.canceledEvent,
+                                      routeToDocumentId: event.documentId!,
+                                      createdTime: Timestamp.now(),
+                                    );
+                                    for (String memberID in group.members) {
+                                      await addNotificationToUser(notification, memberID);
+                                    }
+                                    context.pushNamed('events');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Event "${event.title}" was canceled'),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ))
                       ],
