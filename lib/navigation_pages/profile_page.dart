@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: FindUsersButton(),
                   ),
                   Visibility(
-                    visible: true, //testing by keeping this as ture. need to replace it with code to the right when done//!isViewingOwnProfile && !isFriend,
+                    visible: !isViewingOwnProfile,
                     child: StreamBuilder<DocumentSnapshot>(
                         stream: FirebaseFirestore.instance.collection(AppUser.collectionName).doc(appState.loginUserDocumentId).snapshots(),
                         builder: (context, loginUserSnapshot) {
@@ -153,6 +153,39 @@ class _ProfilePageState extends State<ProfilePage> {
                             return FriendButton(loginUser: loginUser, otherUser: user);
                           }
                         }),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Friends List'),
+                            content: Container(
+                              width: double.maxFinite,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: user.friends.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return ListTile(
+                                    title: Text(user.friends[index]), // Assuming friends is a list of strings
+                                  );
+                                },
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text('View Friends'),
                   ),
                 ],
               );
