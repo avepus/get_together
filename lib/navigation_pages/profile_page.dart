@@ -88,7 +88,6 @@ class _ProfilePageState extends State<ProfilePage> {
             } else {
               AppUser user = AppUser.fromDocumentSnapshot(appUserSnapshot.data!);
               bool isViewingOwnProfile = loggedInUidMatchesOld(user.documentId);
-              bool isFriend = user.friends.contains(auth.currentUser!.uid);
               return ListView(
                 children: [
                   Center(
