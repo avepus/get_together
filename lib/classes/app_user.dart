@@ -39,7 +39,7 @@ class AppUser {
 
   AppUser({
     required this.documentId,
-    required this.uniqueUserId, //left off here. Need to add to all users and need to update all places users are created to send in documentID as default
+    required this.uniqueUserId,
     this.displayName,
     this.email,
     this.phoneNumber,

@@ -64,7 +64,6 @@ class _AvailabilityPageDetailState extends State<AvailabilityPageDetail> {
     super.initState();
   }
 
-  //left off here, don't need a future because we always have the availability
   Availability _getAvailability(String timeZone) {
     if (_availability != null) {
       return _availability!;
