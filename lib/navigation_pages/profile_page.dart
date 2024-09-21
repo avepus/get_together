@@ -155,23 +155,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      Future<List<AppUser>> friends = fetchFirestoreAppUsers(user.friends);
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: Text('Friends List'),
-                            content: Container(
-                              width: double.maxFinite,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: user.friends.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return ListTile(
-                                    title: Text(user.friends[index]), // Assuming friends is a list of strings
-                                  );
-                                },
-                              ),
-                            ),
+                            content: Container(width: double.maxFinite, child: UsersListView(futureMembers: friends)),
                             actions: [
                               TextButton(
                                 onPressed: () {

@@ -97,6 +97,24 @@ Future<void> removeFromFriendsFirestore(String user1, String user2) async {
   return;
 }
 
+Future<List<AppUser>> fetchFirestoreAppUsers(List<String> userIds) async {
+  List<AppUser> users = [];
+
+  for (var userId in userIds) {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection(AppUser.collectionName).doc(userId).get();
+
+    if (snapshot.exists) {
+      AppUser user = AppUser.fromDocumentSnapshot(snapshot);
+      users.add(user);
+    } else {
+      //should probably log this
+    }
+    ;
+  }
+
+  return users;
+}
+
 Future<void> deleteFirestoreGroup(String groupDocumentId) async {
   CollectionReference groups = FirebaseFirestore.instance.collection('groups');
   groups.doc(groupDocumentId).delete();
