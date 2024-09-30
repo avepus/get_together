@@ -109,7 +109,6 @@ Future<List<AppUser>> fetchFirestoreAppUsers(List<String> userIds) async {
     } else {
       //should probably log this
     }
-    ;
   }
 
   return users;
