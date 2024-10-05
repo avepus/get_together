@@ -13,7 +13,7 @@ class EventProposal {
 
   static const String documentIdKey = 'documentId';
 
-  ///this is the entirty of the class basically
+  ///this is the entirety of the class basically
   ///it holds the eventID mapped to the score
   ///the highest score is what will be scheduled
   static const String eventAndScoreMapKey = 'eventAndScoreMap';
@@ -37,4 +37,32 @@ class EventProposal {
     required this.groupDocumentId,
     required this.status,
   });
+
+  static EventProposal fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return EventProposal(
+      documentId: doc.id,
+      eventAndScoreMap: Map<String, int>.from(data[eventAndScoreMapKey]),
+      groupDocumentId: data[groupKey],
+      status: EventProposalStatus.values[data[statusKey]],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      documentIdKey: documentId,
+      eventAndScoreMapKey: eventAndScoreMap,
+      groupKey: groupDocumentId,
+      statusKey: status.index,
+    };
+  }
+
+  Future<void> saveToFirestore() async {
+    if (documentId != null) {
+      await FirebaseFirestore.instance.collection(collectionName).doc(documentId).set(toMap());
+    } else {
+      DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
+      documentId = ref.id;
+    }
+  }
 }
