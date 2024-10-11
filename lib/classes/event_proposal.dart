@@ -19,23 +19,27 @@ class EventProposal {
   static const String eventAndScoreMapKey = 'eventAndScoreMap';
   static const String groupKey = 'group';
   static const String statusKey = 'status';
+  static const String createdTimeKey = 'createdTime';
 
   static const String documentIdLabel = 'Document ID';
   static const String eventAndScoreMapLabel = 'Event and Score Map';
   static const String groupDocumentIdLabel = 'Group Document ID';
   static const String statusLabel = 'Status';
+  static const String createdTimeLabel = 'Created Time';
 
   //documentId = null implies that this is not stored in firebase yet
   String? documentId;
   final Map<String, int> eventAndScoreMap;
   final String groupDocumentId;
   final EventProposalStatus status;
+  final Timestamp createdTime;
 
   EventProposal({
     required this.documentId,
     required this.eventAndScoreMap,
     required this.groupDocumentId,
     required this.status,
+    required this.createdTime,
   });
 
   static EventProposal fromDocumentSnapshot(DocumentSnapshot doc) {
@@ -45,6 +49,7 @@ class EventProposal {
       eventAndScoreMap: Map<String, int>.from(data[eventAndScoreMapKey]),
       groupDocumentId: data[groupKey],
       status: EventProposalStatus.values[data[statusKey]],
+      createdTime: data[createdTimeKey],
     );
   }
 
