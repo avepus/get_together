@@ -35,7 +35,7 @@ class EventProposal {
   final Timestamp createdTime;
 
   EventProposal({
-    required this.documentId,
+    this.documentId,
     required this.eventAndScoreMap,
     required this.groupDocumentId,
     required this.status,

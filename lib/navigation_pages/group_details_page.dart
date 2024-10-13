@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_together/classes/event_proposal.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -164,6 +165,24 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                       );
                                     },
                                   );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: loggedInUidInArrayOld(group.admins),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              //TODO: style delete button to be red
+                              child: ElevatedButton(
+                                child: const Text('Propose Event'),
+                                onPressed: () {
+                                  EventProposal proposal =
+                                      EventProposal(groupDocumentId: group.documentId, eventAndScoreMap: Map<String, int>(), status: EventProposalStatus.draft, createdTime: Timestamp.now());
+                                  context.pushNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'eventProposal': proposal, 'group': group});
                                 },
                               ),
                             ),
