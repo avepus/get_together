@@ -92,6 +92,33 @@ class Availability {
     return Availability(weekAvailability: adjustedAvailability, timeZoneName: timezone);
   }
 
+  List<int> getAvailabilityBetween(DateTime start, DateTime end, String timezone) {
+    Availability tzAvailability = getTzAvailability(timezone, start);
+    int startSlot = Availability.convertDateTimeToTimeslot(start);
+    int endSlot = Availability.convertDateTimeToTimeslot(end);
+    return Availability.sublistWithWrap(tzAvailability.weekAvailability, startSlot, endSlot);
+  }
+
+  ///gets the timeslot based on the day of the week and the time
+  static int convertDateTimeToTimeslot(DateTime datetime) {
+    int daySlots = getTimeSlotFromDayOfWeek(datetime);
+    int timeSlots = getTimeSlotFromTime(datetime);
+    return daySlots + timeSlots;
+  }
+
+  static int getTimeSlotFromDayOfWeek(DateTime datetime) {
+    return getWeekdayWithSundayStart(datetime) * timeSlotsInADay;
+  }
+
+  static int getWeekdayWithSundayStart(DateTime datetime) {
+    return (datetime.weekday + 7) % 7;
+  }
+
+  static int getTimeSlotFromTime(DateTime datetime) {
+    //because the first timeslot is 0, we need to subtract 1
+    return (datetime.hour * 2 + (datetime.minute ~/ timeSlotDuration));
+  }
+
   static int timeZoneOffsetInMinutes(tz.Location location1, tz.Location location2, DateTime anchorDate) {
     DateTime time1 = tz.TZDateTime.from(anchorDate, location1);
     DateTime time2 = tz.TZDateTime.from(anchorDate, location2);
@@ -103,5 +130,21 @@ class Availability {
   static int timeZoneOffsetInTimeSlots(tz.Location location1, tz.Location location2, DateTime anchorDate) {
     int offsetMins = timeZoneOffsetInMinutes(location1, location2, anchorDate);
     return offsetMins ~/ Availability.timeSlotDuration;
+  }
+
+  static List<T> sublistWithWrap<T>(List<T> list, int start, [int? end]) {
+    List<T> result = [];
+
+    //the following line handles a corner case where end is 0. Technically that means we loop but this isn't inclusive so we treat it as grabbing everything from start to the last item in the array
+    if (end == null || end == 0) {
+      result.addAll(list.sublist(start));
+    } else if (start <= end) {
+      result.addAll(list.sublist(start, end));
+    } else {
+      result.addAll(list.sublist(start));
+      result.addAll(list.sublist(0, end));
+    }
+
+    return result;
   }
 }

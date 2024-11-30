@@ -101,5 +101,134 @@ void main() {
       int mawsoneToUTC = Availability.timeZoneOffsetInTimeSlots(mawson, utc, date);
       expect(mawsoneToUTC, mawsonOffset);
     });
+
+    test('getTimeSlotFromTimeOfDay test', () {
+      DateTime time = DateTime(2024, 11, 11, 0, 0, 0); //this is Monday at 12:00 Am
+      int timeSlot = Availability.getTimeSlotFromTime(time);
+      expect(timeSlot, 0);
+
+      time = DateTime(2024, 11, 11, 1, 0, 0); //this is Monday at 1:00 Am
+      timeSlot = Availability.getTimeSlotFromTime(time);
+      expect(timeSlot, 2);
+    });
+
+    test('getTimeSlotFromDayOfWeek test', () {
+      DateTime time = DateTime(2024, 11, 11, 1, 0, 0); //this is Monday at 1:00 Am
+      int timeSlot = Availability.getTimeSlotFromDayOfWeek(time);
+      expect(timeSlot, 48);
+    });
+
+    test('getWeekdayWithSundayStart test', () {
+      DateTime sunday = DateTime(2024, 11, 10);
+      DateTime monday = DateTime(2024, 11, 11);
+      DateTime tuesday = DateTime(2024, 11, 12);
+      DateTime wednesday = DateTime(2024, 11, 13);
+      DateTime thursday = DateTime(2024, 11, 14);
+      DateTime friday = DateTime(2024, 11, 15);
+      DateTime saturday = DateTime(2024, 11, 16);
+      DateTime sunday2 = DateTime(2024, 11, 17);
+      int weekday = Availability.getWeekdayWithSundayStart(sunday);
+      expect(weekday, 0);
+      weekday = Availability.getWeekdayWithSundayStart(monday);
+      expect(weekday, 1);
+      weekday = Availability.getWeekdayWithSundayStart(tuesday);
+      expect(weekday, 2);
+      weekday = Availability.getWeekdayWithSundayStart(wednesday);
+      expect(weekday, 3);
+      weekday = Availability.getWeekdayWithSundayStart(thursday);
+      expect(weekday, 4);
+      weekday = Availability.getWeekdayWithSundayStart(friday);
+      expect(weekday, 5);
+      weekday = Availability.getWeekdayWithSundayStart(saturday);
+      expect(weekday, 6);
+      weekday = Availability.getWeekdayWithSundayStart(sunday2);
+      expect(weekday, 0);
+    });
+
+    test('convertDateTimeToTimeslot first timeslot test', () {
+      DateTime sundayMidnight = DateTime(2024, 11, 10, 0, 0, 0); //this is Sunday at midnight
+      int timeSlot = Availability.convertDateTimeToTimeslot(sundayMidnight);
+      expect(timeSlot, 0);
+    });
+
+    test('convertDateTimeToTimeslot last timeslot test', () {
+      DateTime saturday2330 = DateTime(2024, 11, 16, 23, 30, 0); //this is Monday at midnight
+      int timeSlot = Availability.convertDateTimeToTimeslot(saturday2330);
+      expect(timeSlot, 335);
+    });
+
+    test('convertDateTimeToTimeslot other timeslot tests', () {
+      DateTime mondayMidnight = DateTime(2024, 11, 11, 0, 0, 0); //this is Monday at midnight
+      int timeSlot = Availability.convertDateTimeToTimeslot(mondayMidnight);
+      expect(timeSlot, 48);
+    });
+
+    test('sublistWithWrap  tests', () {
+      List<int> t1List = [1];
+      List<int> result = Availability.sublistWithWrap(t1List, 0, 1);
+      expect(result, [1]);
+
+      List<int> t2List = [1, 2, 3, 4, 5];
+      result = Availability.sublistWithWrap(t2List, 0, 3);
+      expect(result, [1, 2, 3]);
+
+      result = Availability.sublistWithWrap(t2List, 3, 0);
+      expect(result, [4, 5]);
+
+      result = Availability.sublistWithWrap(t2List, 3, 1);
+      expect(result, [4, 5, 1]);
+
+      result = Availability.sublistWithWrap(t2List, 2);
+      expect(result, [3, 4, 5]);
+
+      result = Availability.sublistWithWrap(t2List, 2, 2);
+      expect(result, []);
+    });
+
+    test('getAvailabilityBetween tests', () {
+      String tzName = 'America/New_York';
+      tz.initializeTimeZones();
+      tz.Location newYork = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime sundayMidnight = tz.TZDateTime(newYork, 2024, 11, 10, 0, 0, 0); //this is Sunday at midnight
+      int sundayMidnightSlot = Availability.convertDateTimeToTimeslot(sundayMidnight);
+      availabilityList[sundayMidnightSlot] = Availability.badValue;
+
+      tz.TZDateTime sunday0100 = tz.TZDateTime(newYork, 2024, 11, 10, 1, 0, 0); //this is Sunday at 1:00 am
+      int sunday0100Slot = Availability.convertDateTimeToTimeslot(sunday0100);
+      availabilityList[sunday0100Slot] = Availability.goodValue;
+
+      tz.TZDateTime sunday0200 = tz.TZDateTime(newYork, 2024, 11, 10, 2, 0, 0); //this is Sunday at 2:00 am
+
+      tz.TZDateTime nextSundayMidnight = tz.TZDateTime(newYork, 2024, 11, 17, 0, 0, 0); //this is next Sunday at midnight
+
+      tz.TZDateTime Saturday2300 = tz.TZDateTime(newYork, 2024, 11, 16, 23, 0, 0); //this is Monday at midnight
+
+      tz.TZDateTime saturday2330 = tz.TZDateTime(newYork, 2024, 11, 16, 23, 30, 0); //this is Monday at midnight
+      int saturday2330Slot = Availability.convertDateTimeToTimeslot(saturday2330);
+      availabilityList[saturday2330Slot] = Availability.greatValue;
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+      //test inclusivity of start on midnight Sunday
+      List<int> result = availability.getAvailabilityBetween(sundayMidnight, sunday0200, tzName);
+
+      List<int> expected = [Availability.badValue, Availability.notSetValue, Availability.goodValue, Availability.notSetValue];
+
+      expect(result, expected);
+
+      //test exclusivity of end. i.e. end datetime of Sunday at midnight should return the final 11:30 pm Saturday timeslot
+      result = availability.getAvailabilityBetween(Saturday2300, nextSundayMidnight, tzName);
+
+      expected = [Availability.notSetValue, Availability.greatValue];
+
+      expect(result, expected);
+
+      //
+    });
   });
 }

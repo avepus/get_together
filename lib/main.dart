@@ -27,8 +27,11 @@ import 'event_proposal_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///make a way to jummp to the propose even page
-///propose event functionality with multiple time slot options that users can rank
+///
+///Done - Currently updating Availability to be able to pull availability based on start and end date
+///Done - Need to add availability_tests to test the new functions
+///Event will pass in start and end date to Availabilities and will set attendance based availability
+///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends
 ///
 //low priority todo list
