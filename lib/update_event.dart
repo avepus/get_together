@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_together/utils.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -209,6 +210,18 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
   void saveEventToFirestore() async {
     assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
+
+    //TODO: differentiate between inferred response based on availability and manual responses
+    Map<String, AttendanceResponse> attendanceResponses = {};
+    for (String member in widget.group.members) {
+      Availability? availability = memberAvailabilities[member];
+      if (availability == null) {
+        attendanceResponses[member] = AttendanceResponse.maybe;
+      }
+      AttendanceResponse response = availability.getAttendanceResponseForEvent(start, end, timezone);
+      attendanceResponses[member] = response;
+    }
+
     Event event = Event(
       documentId: widget.event?.documentId, //this isn't great but for now we use null to indicate a new event
       title: _eventTitleController.text,
@@ -219,6 +232,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       groupDocumentId: widget.group.documentId,
       createdTime: widget.event?.createdTime ?? DateTime.now(),
       creatorDocumentId: appState.loginUserDocumentId!,
+      attendanceResponses: attendanceResponses,
     );
     String notificationTitle = event.documentId == null ? 'New Event' : 'Event Updated';
     String description = event.documentId == null ? '${widget.group.name} has a new event "${event.title}" scheduled for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';

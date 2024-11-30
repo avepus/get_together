@@ -30,6 +30,7 @@ import 'classes/event_proposal.dart';
 ///
 ///Done - Currently updating Availability to be able to pull availability based on start and end date
 ///Done - Need to add availability_tests to test the new functions
+///Need to fix timezone issues. Need to rely on builtin timezone support :'(
 ///Event will pass in start and end date to Availabilities and will set attendance based availability
 ///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends

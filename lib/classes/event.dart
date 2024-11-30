@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils.dart';
 
+enum AttendanceResponse { yes, maybe, no }
+
 //this represents a group's meeting/event
 class Event {
   static const String collectionName = 'events';
@@ -15,6 +17,7 @@ class Event {
   static const String isCancelledKey = 'isCancelled';
   static const String createdTimeKey = 'createdTime';
   static const String creatorDocumentIdKey = 'creatorDocumentId';
+  static const String attendanceResponsesKey = 'attendanceResponses';
 
   static const String documentIdLabel = 'Document ID';
   static const String titleLabel = 'Title';
@@ -24,6 +27,7 @@ class Event {
   static const String endTimeLabel = 'End Time';
   static const String groupDocumentIdLabel = 'Group Document ID';
   static const String isCancelledLabel = 'Cancelled?';
+  static const String attendanceResponsesLabel = 'Responses';
 
   static const String createdTimeLabel = 'Created Time';
   static const String creatorDocumentIdLabel = 'Creator Document ID';
@@ -39,9 +43,10 @@ class Event {
   final bool isCancelled;
   final DateTime createdTime;
   final String creatorDocumentId;
+  final Map<String, AttendanceResponse> attendanceResponses;
 
   Event(
-      {required this.documentId,
+      {this.documentId,
       required this.title,
       required this.description,
       required this.location,
@@ -50,7 +55,8 @@ class Event {
       required this.groupDocumentId,
       this.isCancelled = false,
       required this.createdTime,
-      required this.creatorDocumentId});
+      required this.creatorDocumentId,
+      required this.attendanceResponses});
 
   static Event fromDocumentSnapshot(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -65,6 +71,7 @@ class Event {
       isCancelled: data[isCancelledKey] ?? false,
       createdTime: (data[createdTimeKey] as Timestamp).toDate(),
       creatorDocumentId: data[creatorDocumentIdKey],
+      attendanceResponses: Map<String, AttendanceResponse>.from(data[attendanceResponsesKey]),
     );
   }
 
@@ -80,6 +87,7 @@ class Event {
       isCancelledKey: isCancelled,
       createdTimeKey: Timestamp.fromDate(createdTime),
       creatorDocumentIdKey: creatorDocumentId,
+      attendanceResponsesKey: attendanceResponses,
     };
   }
 

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/users_list_view.dart';
 import '../classes/group.dart';
 import '../classes/app_user.dart';
+import '../classes/event.dart';
 import '../utils.dart';
 import '../widgets/editable_firestore_field.dart';
 import '../widgets/editable_document_image.dart';
