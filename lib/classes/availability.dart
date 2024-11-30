@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../utils.dart';
+import 'event.dart';
 
 enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
 
@@ -90,6 +91,23 @@ class Availability {
     int offset = timeZoneOffsetInTimeSlots(currentLocation, inputLocation, anchorDate);
     List<int> adjustedAvailability = rollList(weekAvailability, offset);
     return Availability(weekAvailability: adjustedAvailability, timeZoneName: timezone);
+  }
+
+  AttendanceResponse getAttendanceResponseForEvent(DateTime start, DateTime end, String timezone) {
+    int averageAvailability = getAverageAvailabilityBetween(start, end, timezone);
+    if (averageAvailability >= Availability.goodValue) {
+      return AttendanceResponse.yes;
+    } else if (averageAvailability >= Availability.notSetValue) {
+      return AttendanceResponse.maybe;
+    } else {
+      return AttendanceResponse.no;
+    }
+  }
+
+  int getAverageAvailabilityBetween(DateTime start, DateTime end, String timezone) {
+    List<int> availability = getAvailabilityBetween(start, end, timezone);
+    int sum = availability.fold(0, (previousValue, element) => previousValue + element);
+    return sum ~/ availability.length;
   }
 
   List<int> getAvailabilityBetween(DateTime start, DateTime end, String timezone) {

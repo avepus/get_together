@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:get_together/classes/availability.dart';
+import 'package:get_together/classes/event.dart';
 
 void main() {
   group('Availability', () {
@@ -229,6 +230,103 @@ void main() {
       expect(result, expected);
 
       //
+    });
+
+    test('getAverageAvailabilityBetween tests', () {
+      String tzName = 'America/New_York';
+      tz.initializeTimeZones();
+      tz.Location newYork = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime sundayMidnight = tz.TZDateTime(newYork, 2024, 11, 10, 0, 0, 0); //this is Sunday at midnight
+      int sundayMidnightSlot = Availability.convertDateTimeToTimeslot(sundayMidnight);
+      availabilityList[sundayMidnightSlot] = Availability.greatValue;
+
+      tz.TZDateTime sunday0100 = tz.TZDateTime(newYork, 2024, 11, 10, 1, 0, 0); //this is Sunday at 1:00 am
+      int sunday0100Slot = Availability.convertDateTimeToTimeslot(sunday0100);
+      availabilityList[sunday0100Slot] = Availability.greatValue;
+
+      tz.TZDateTime sunday0200 = tz.TZDateTime(newYork, 2024, 11, 10, 2, 0, 0); //this is Sunday at 2:00 am
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+      //test inclusivity of start on midnight Sunday
+      int result = availability.getAverageAvailabilityBetween(sundayMidnight, sunday0200, tzName);
+
+      expect(result, 1);
+    });
+
+    test('getAttendanceResponseForEvent test yes', () {
+      String tzName = 'America/New_York';
+      tz.initializeTimeZones();
+      tz.Location newYork = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime sundayMidnight = tz.TZDateTime(newYork, 2024, 11, 10, 0, 0, 0); //this is Sunday at midnight
+      int sundayMidnightSlot = Availability.convertDateTimeToTimeslot(sundayMidnight);
+      availabilityList[sundayMidnightSlot] = Availability.greatValue;
+
+      tz.TZDateTime sunday0100 = tz.TZDateTime(newYork, 2024, 11, 10, 1, 0, 0); //this is Sunday at 1:00 am
+      int sunday0100Slot = Availability.convertDateTimeToTimeslot(sunday0100);
+      availabilityList[sunday0100Slot] = Availability.greatValue;
+
+      tz.TZDateTime sunday0200 = tz.TZDateTime(newYork, 2024, 11, 10, 2, 0, 0); //this is Sunday at 2:00 am
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+      //test inclusivity of start on midnight Sunday
+      AttendanceResponse result = availability.getAttendanceResponseForEvent(sundayMidnight, sunday0200, tzName);
+      expect(result, AttendanceResponse.yes);
+    });
+
+    test('getAttendanceResponseForEvent test no', () {
+      String tzName = 'America/New_York';
+      tz.initializeTimeZones();
+      tz.Location newYork = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime nextSundayMidnight = tz.TZDateTime(newYork, 2024, 11, 17, 0, 0, 0); //this is next Sunday at midnight
+
+      tz.TZDateTime Saturday2300 = tz.TZDateTime(newYork, 2024, 11, 16, 23, 0, 0);
+
+      tz.TZDateTime saturday2330 = tz.TZDateTime(newYork, 2024, 11, 16, 23, 30, 0);
+      int saturday2330Slot = Availability.convertDateTimeToTimeslot(saturday2330);
+      availabilityList[saturday2330Slot] = Availability.badValue;
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+
+      AttendanceResponse result = availability.getAttendanceResponseForEvent(Saturday2300, nextSundayMidnight, tzName);
+      expect(result, AttendanceResponse.no);
+    });
+
+    test('getAttendanceResponseForEvent test maybe', () {
+      String tzName = 'America/New_York';
+      tz.initializeTimeZones();
+      tz.Location newYork = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime nextSundayMidnight = tz.TZDateTime(newYork, 2024, 11, 17, 0, 0, 0); //this is next Sunday at midnight
+
+      tz.TZDateTime Saturday2300 = tz.TZDateTime(newYork, 2024, 11, 16, 23, 0, 0);
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+
+      AttendanceResponse result = availability.getAttendanceResponseForEvent(Saturday2300, nextSundayMidnight, tzName);
+      expect(result, AttendanceResponse.maybe);
     });
   });
 }
