@@ -282,7 +282,7 @@ void main() {
       );
       //test inclusivity of start on midnight Sunday
       AttendanceResponse result = availability.getAttendanceResponseForEvent(sundayMidnight, sunday0200, tzName);
-      expect(result, AttendanceResponse.yes);
+      expect(result, AttendanceResponse.unconfirmedYes);
     });
 
     test('getAttendanceResponseForEvent test no', () {
@@ -306,7 +306,7 @@ void main() {
       );
 
       AttendanceResponse result = availability.getAttendanceResponseForEvent(Saturday2300, nextSundayMidnight, tzName);
-      expect(result, AttendanceResponse.no);
+      expect(result, AttendanceResponse.unconfirmedNo);
     });
 
     test('getAttendanceResponseForEvent test maybe', () {
@@ -326,7 +326,28 @@ void main() {
       );
 
       AttendanceResponse result = availability.getAttendanceResponseForEvent(Saturday2300, nextSundayMidnight, tzName);
-      expect(result, AttendanceResponse.maybe);
+      expect(result, AttendanceResponse.unconfirmedMaybe);
+    });
+
+    test('getAttendanceResponseForEvent test utc', () {
+      //This test exists because 'UTC' is passed to the getAttendanceResponseForEvent hardcoded so I need to be sure it works
+      String tzName = 'UTC';
+      tz.initializeTimeZones();
+      tz.Location utc = tz.getLocation(tzName);
+
+      List<int> availabilityList = Availability.emptyWeekArray();
+
+      tz.TZDateTime nextSundayMidnight = tz.TZDateTime(utc, 2024, 11, 17, 0, 0, 0); //this is next Sunday at midnight
+
+      tz.TZDateTime Saturday2300 = tz.TZDateTime(utc, 2024, 11, 16, 23, 0, 0);
+
+      Availability availability = Availability(
+        weekAvailability: availabilityList,
+        timeZoneName: tzName,
+      );
+
+      AttendanceResponse result = availability.getAttendanceResponseForEvent(Saturday2300, nextSundayMidnight, tzName);
+      expect(result, AttendanceResponse.unconfirmedMaybe);
     });
   });
 }
