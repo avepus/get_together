@@ -215,11 +215,13 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
     Map<String, AttendanceResponse> attendanceResponses = {};
     for (String member in widget.group.members) {
       Availability? availability = memberAvailabilities[member];
+      //it might make more sense here to have the timezone be based on your availability or some other user setting but we're just basing it off your local timezone
       if (availability == null) {
         attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
+      } else {
+        AttendanceResponse response = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
+        attendanceResponses[member] = response;
       }
-      AttendanceResponse response = availability.getAttendanceResponseForEvent(start, end, timezone);
-      attendanceResponses[member] = response;
     }
 
     Event event = Event(
