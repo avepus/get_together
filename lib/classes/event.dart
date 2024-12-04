@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils.dart';
 
-enum AttendanceResponse { yes, maybe, no }
+enum AttendanceResponse { unconfirmedYes, unconfirmedMaybe, unconfirmedNo, confirmedYes, confirmedMaybe, confirmedNo }
 
 //this represents a group's meeting/event
 class Event {

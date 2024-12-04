@@ -216,7 +216,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
     for (String member in widget.group.members) {
       Availability? availability = memberAvailabilities[member];
       if (availability == null) {
-        attendanceResponses[member] = AttendanceResponse.maybe;
+        attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
       }
       AttendanceResponse response = availability.getAttendanceResponseForEvent(start, end, timezone);
       attendanceResponses[member] = response;

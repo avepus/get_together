@@ -96,11 +96,11 @@ class Availability {
   AttendanceResponse getAttendanceResponseForEvent(DateTime start, DateTime end, String timezone) {
     int averageAvailability = getAverageAvailabilityBetween(start, end, timezone);
     if (averageAvailability >= Availability.goodValue) {
-      return AttendanceResponse.yes;
+      return AttendanceResponse.unconfirmedYes;
     } else if (averageAvailability >= Availability.notSetValue) {
-      return AttendanceResponse.maybe;
+      return AttendanceResponse.unconfirmedMaybe;
     } else {
-      return AttendanceResponse.no;
+      return AttendanceResponse.unconfirmedNo;
     }
   }
 
