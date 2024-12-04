@@ -219,8 +219,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       if (availability == null) {
         attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
       } else {
-        AttendanceResponse response = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
-        attendanceResponses[member] = response;
+        attendanceResponses[member] = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
       }
     }
 
