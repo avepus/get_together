@@ -27,7 +27,7 @@ import 'event_proposal_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///probably need to abstract away the event creation on update_event.dart so that it can be tested properly. Maybe can skip though
+///display responses on the event screen. This should update when changing times.
 ///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends
 ///

@@ -208,11 +208,13 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
         ]));
   }
 
+  //TODO: this needs to be broken up and have unit tests but that's for future Avery
   void saveEventToFirestore() async {
     assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
 
     //TODO: differentiate between inferred response based on availability and manual responses
-    Map<String, AttendanceResponse> attendanceResponses = {};
+    //TODO: this will overwrite any manual responses. May want to avoid doing that under some circumstances like a title or description update.
+    Map<String, AttendanceResponse> attendanceResponses = widget.event?.attendanceResponses ?? {};
     for (String member in widget.group.members) {
       Availability? availability = memberAvailabilities[member];
       //it might make more sense here to have the timezone be based on your availability or some other user setting but we're just basing it off your local timezone
