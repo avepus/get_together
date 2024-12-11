@@ -47,6 +47,20 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   late List<int> timeSlots;
   late ApplicationState appState;
 
+  ///left off here. Need to call this function in widget build to display attendance responses and need to call in saveToFirestore to replace repeated code
+  Map<String, AttendanceResponse> _getAttendanceResponses() {
+    Map<String, AttendanceResponse> attendanceResponses = {};
+    for (String member in widget.group.members) {
+      Availability? availability = memberAvailabilities[member];
+      if (availability == null) {
+        attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
+      } else {
+        attendanceResponses[member] = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
+      }
+    }
+    return attendanceResponses;
+  }
+
   ///This widget accpets a group and either an event or a timeSlot. If an event is passed in, we just use it's values. If it's not, we set the start and based on the timeslot
   void _setValuesFromEventAndTimeSlot(Event? event, int? timeSlot) {
     if (event != null) {
