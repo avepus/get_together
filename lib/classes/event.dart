@@ -71,7 +71,8 @@ class Event {
       isCancelled: data[isCancelledKey] ?? false,
       createdTime: (data[createdTimeKey] as Timestamp).toDate(),
       creatorDocumentId: data[creatorDocumentIdKey],
-      attendanceResponses: Map<String, AttendanceResponse>.from(data[attendanceResponsesKey]),
+      attendanceResponses:
+          (data[attendanceResponsesKey] as Map<String, dynamic>).map((key, value) => MapEntry(key, AttendanceResponse.values.firstWhere((e) => e.toString().split('.').last == value))),
     );
   }
 
@@ -87,7 +88,7 @@ class Event {
       isCancelledKey: isCancelled,
       createdTimeKey: Timestamp.fromDate(createdTime),
       creatorDocumentIdKey: creatorDocumentId,
-      attendanceResponsesKey: attendanceResponses,
+      attendanceResponsesKey: attendanceResponses.map((key, value) => MapEntry(key, value.toString().split('.').last)),
     };
   }
 
@@ -95,7 +96,8 @@ class Event {
     if (documentId != null) {
       await FirebaseFirestore.instance.collection(collectionName).doc(documentId).set(toMap());
     } else {
-      DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
+      Map<String, dynamic> map = toMap();
+      DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(map);
       documentId = ref.id;
     }
   }
