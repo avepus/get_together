@@ -202,6 +202,9 @@ final _router = GoRouter(
           path: 'sign-in',
           builder: (context, state) {
             return SignInScreen(
+              providers: [
+                EmailAuthProvider(),
+              ],
               actions: [
                 ForgotPasswordAction(((context, email) {
                   //TODO: this is not working
