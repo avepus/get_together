@@ -47,7 +47,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   late List<int> timeSlots;
   late ApplicationState appState;
 
-  ///left off here. Need to call this function in widget build to display attendance responses and need to call in saveToFirestore to replace repeated code
+  ///left off here. Need to call this function in widget build to display attendance responses and need to call in saveToFirestore to replace repeated code in saveEventToFirestore
   Map<String, AttendanceResponse> _getAttendanceResponses() {
     Map<String, AttendanceResponse> attendanceResponses = {};
     for (String member in widget.group.members) {
