@@ -4,7 +4,9 @@ import 'package:get_together/classes/event_proposal.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
+import '../app_state.dart';
 import '../widgets/users_list_view.dart';
 import '../classes/group.dart';
 import '../classes/app_user.dart';
@@ -26,11 +28,13 @@ class GroupDetailsPage extends StatefulWidget {
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
   late Stream<DocumentSnapshot> _groupSnapshot;
+  late ApplicationState appState;
 
   @override
   void initState() {
     super.initState();
     _groupSnapshot = FirebaseFirestore.instance.collection('groups').doc(widget.groupDocumentId).snapshots();
+    appState = Provider.of<ApplicationState>(context, listen: false);
   }
 
   @override
@@ -128,7 +132,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         //TODO: make magic numbers below into configuragble values
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: Align(alignment: Alignment.centerLeft, child: GenerateEventButton(group: group, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3)),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: GenerateEventButton(group: group, userDocumentId: appState.loginUserDocumentId!, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3)),
                         ),
                         //TODO: next need to look at this. Suggest times is giving different resutls tan the new event page suggestions
                         Visibility(

@@ -64,7 +64,7 @@ class _EventsPageState extends State<EventsPage> {
                         onTap: () {
                           context.pop();
                           //TODO: get rid of magic number 5 below
-                          showAddEventDialog(context, group, group.meetingDurationTimeSlots, 5);
+                          showAddEventDialog(context, group, appState.loginUserDocumentId!, group.meetingDurationTimeSlots, 5);
                         });
                   },
                 );
