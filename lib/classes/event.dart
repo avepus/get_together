@@ -43,7 +43,7 @@ class Event {
   final bool isCancelled;
   DateTime createdTime;
   final String creatorDocumentId;
-  final Map<String, AttendanceResponse> attendanceResponses;
+  Map<String, AttendanceResponse> attendanceResponses;
 
   Event(
       {this.documentId,
