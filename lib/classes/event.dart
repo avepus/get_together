@@ -34,14 +34,14 @@ class Event {
 
   //documentId = null implies that this is not stored in firebase yet
   String? documentId;
-  final String title;
-  final String description;
-  final String location;
-  final DateTime startTime; //UTC
-  final DateTime endTime; //UTC
+  String title;
+  String description;
+  String location;
+  DateTime startTime; //UTC
+  DateTime endTime; //UTC
   final String groupDocumentId;
   final bool isCancelled;
-  final DateTime createdTime;
+  DateTime createdTime;
   final String creatorDocumentId;
   final Map<String, AttendanceResponse> attendanceResponses;
 
