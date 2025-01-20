@@ -48,7 +48,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   @override
   void initState() {
     super.initState();
-    Event(
+    _event = Event(
       documentId: widget.event.documentId,
       title: widget.event.title,
       description: widget.event.description,
@@ -211,18 +211,11 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   void saveEventToFirestore() async {
     assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
 
-    //TODO: differentiate between inferred response based on availability and manual responses
     //TODO: this will overwrite any manual responses. May want to avoid doing that under some circumstances like a title or description update.
-    Map<String, AttendanceResponse> attendanceResponses = widget.event?.attendanceResponses ?? {};
-    for (String member in widget.group.members) {
-      Availability? availability = memberAvailabilities[member];
-      //it might make more sense here to have the timezone be based on your availability or some other user setting but we're just basing it off your local timezone
-      if (availability == null) {
-        attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
-      } else {
-        attendanceResponses[member] = availability.getAttendanceResponseForEvent(_event.startTime.toUtc(), _event.endTime.toUtc(), 'UTC');
-      }
-    }
+    _event.attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
+    _event.title = _eventTitleController.text;
+    _event.description = _eventDescriptionController.text;
+    _event.location = _eventLocationController.text;
 
     String notificationTitle = _event.documentId == null ? 'New Event' : 'Event Updated';
     String description = _event.documentId == null ? '${widget.group.name} has a new event "${_event.title}" scheduled for ${myFormatDateAndTime(_event.startTime)}' : 'An event has been updated';
