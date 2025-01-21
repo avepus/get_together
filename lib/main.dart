@@ -190,13 +190,13 @@ final _router = GoRouter(
                 //always need the group passed
                 context.pushReplacement('/');
               }
-              if (map['event'] == null && map['timeSlot'] == null) {
-                //need a timeslot (for new event) or an event (for updating existing) passed in
+              assert(map['event'] != null, 'Event must be passed to updateEvent route');
+              if (map['event'] == null) {
+                //need an event passed in
                 context.pushReplacement('/');
               }
               Group group = map['group'] as Group;
-              int? slot = map['timeSlot'];
-              return UpdateEventPage(group: group, event: map['event'], timeSlot: slot);
+              return UpdateEventPage(group: group, event: map['event']);
             }),
         GoRoute(
           path: 'sign-in',

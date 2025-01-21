@@ -22,15 +22,15 @@ import 'classes/app_user.dart';
 ///if a timeslot is passed in and no event is passed in, the save event button on this page will create a new event
 class UpdateEventPage extends StatefulWidget {
   final Group group;
-  final Event? event;
-  final int? timeSlot;
-  UpdateEventPage({super.key, required this.group, this.event, this.timeSlot});
+  final Event event;
+  UpdateEventPage({super.key, required this.group, required this.event});
 
   @override
   _UpdateEventPageState createState() => _UpdateEventPageState();
 }
 
 class _UpdateEventPageState extends State<UpdateEventPage> {
+  late Event _event;
   final int numberOfSlotsToReturn = 5; //this should probably be configurable
   final _eventTitleController = TextEditingController();
   final _eventDescriptionController = TextEditingController();
@@ -39,53 +39,35 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   final _startDateController = TextEditingController();
   final _endTimeController = TextEditingController();
   final _endDateController = TextEditingController();
-  late DateTime start;
   late int duration;
-  late DateTime end;
   Map<String, Availability> memberAvailabilities = {};
   late Map<int, int> timeSlotsAndScores;
   late List<int> timeSlots;
   late ApplicationState appState;
 
-  ///left off here. Need to call this function in widget build to display attendance responses and need to call in saveToFirestore to replace repeated code in saveEventToFirestore
-  Map<String, AttendanceResponse> _getAttendanceResponses() {
-    Map<String, AttendanceResponse> attendanceResponses = {};
-    for (String member in widget.group.members) {
-      Availability? availability = memberAvailabilities[member];
-      if (availability == null) {
-        attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
-      } else {
-        attendanceResponses[member] = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
-      }
-    }
-    return attendanceResponses;
-  }
-
-  ///This widget accpets a group and either an event or a timeSlot. If an event is passed in, we just use it's values. If it's not, we set the start and based on the timeslot
-  void _setValuesFromEventAndTimeSlot(Event? event, int? timeSlot) {
-    if (event != null) {
-      _eventTitleController.text = event.title;
-      _eventDescriptionController.text = event.description;
-      _eventLocationController.text = event.location;
-      start = event.startTime;
-      end = event.endTime;
-    } else if (timeSlot != null) {
-      start = getNextDateTimeFromTimeSlot(DateTime.now(), timeSlot);
-      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
-    } else {
-      start = DateTime.now();
-      end = start.add(Duration(minutes: widget.group.meetingDurationMinutes));
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _setValuesFromEventAndTimeSlot(widget.event, widget.timeSlot);
-    _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
-    _startTimeController.text = DateFormat.jm().format(start);
-    _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
-    _endTimeController.text = DateFormat.jm().format(end);
+    _event = Event(
+      documentId: widget.event.documentId,
+      title: widget.event.title,
+      description: widget.event.description,
+      location: widget.event.location,
+      startTime: widget.event.startTime,
+      endTime: widget.event.endTime,
+      groupDocumentId: widget.event.groupDocumentId,
+      isCancelled: widget.event.isCancelled,
+      createdTime: widget.event.createdTime,
+      creatorDocumentId: widget.event.creatorDocumentId,
+      attendanceResponses: Map<String, AttendanceResponse>.from(widget.event.attendanceResponses),
+    );
+    _eventTitleController.text = _event.title;
+    _eventDescriptionController.text = _event.description;
+    _eventLocationController.text = _event.location;
+    _startDateController.text = DateFormat.yMMMMEEEEd().format(_event.startTime);
+    _startTimeController.text = DateFormat.jm().format(_event.startTime);
+    _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
+    _endTimeController.text = DateFormat.jm().format(_event.endTime);
 
     for (String member in widget.group.members) {
       Availability? availability = widget.group.getAvailability(member);
@@ -218,7 +200,10 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
               ),
             ],
           ),
-          Container(width: 400, height: 400, child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, linkToEvent: false))
+          Container(
+              width: 400,
+              height: 400,
+              child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, userDocumentId: appState.loginUserDocumentId!, linkToEvent: false))
         ]));
   }
 
@@ -226,39 +211,20 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   void saveEventToFirestore() async {
     assert(appState.loginUserDocumentId != null, 'loginUserDocumentId should be populated when the app is initialized but it is null');
 
-    //TODO: differentiate between inferred response based on availability and manual responses
     //TODO: this will overwrite any manual responses. May want to avoid doing that under some circumstances like a title or description update.
-    Map<String, AttendanceResponse> attendanceResponses = widget.event?.attendanceResponses ?? {};
-    for (String member in widget.group.members) {
-      Availability? availability = memberAvailabilities[member];
-      //it might make more sense here to have the timezone be based on your availability or some other user setting but we're just basing it off your local timezone
-      if (availability == null) {
-        attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
-      } else {
-        attendanceResponses[member] = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
-      }
-    }
+    _event.attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
+    _event.title = _eventTitleController.text;
+    _event.description = _eventDescriptionController.text;
+    _event.location = _eventLocationController.text;
 
-    Event event = Event(
-      documentId: widget.event?.documentId, //this isn't great but for now we use null to indicate a new event
-      title: _eventTitleController.text,
-      description: _eventDescriptionController.text,
-      location: _eventLocationController.text,
-      startTime: start.toUtc(),
-      endTime: end.toUtc(),
-      groupDocumentId: widget.group.documentId,
-      createdTime: widget.event?.createdTime ?? DateTime.now(),
-      creatorDocumentId: appState.loginUserDocumentId!,
-      attendanceResponses: attendanceResponses,
-    );
-    String notificationTitle = event.documentId == null ? 'New Event' : 'Event Updated';
-    String description = event.documentId == null ? '${widget.group.name} has a new event "${event.title}" scheduled for ${myFormatDateAndTime(event.startTime)}' : 'An event has been updated';
-    NotificationType type = event.documentId == null ? NotificationType.newEvent : NotificationType.updatedEvent;
+    String notificationTitle = _event.documentId == null ? 'New Event' : 'Event Updated';
+    String description = _event.documentId == null ? '${widget.group.name} has a new event "${_event.title}" scheduled for ${myFormatDateAndTime(_event.startTime)}' : 'An event has been updated';
+    NotificationType type = _event.documentId == null ? NotificationType.newEvent : NotificationType.updatedEvent;
 
     //saveToFirestore will update event and store the new document ID if it's a new event so we need our checks for a new event before this call
-    await event.saveToFirestore();
+    await _event.saveToFirestore();
     //after saving we can assume event.documentId is not null
-    AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: event.documentId!);
+    AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: _event.documentId!);
     for (String memberID in widget.group.members) {
       await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
     }
@@ -276,7 +242,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: start,
+      initialDate: _event.startTime,
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
     );
@@ -285,22 +251,22 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       return;
     }
 
-    DateTime startMidnight = DateTime(start.year, start.month, start.day);
+    DateTime startMidnight = DateTime(_event.startTime.year, _event.startTime.month, _event.startTime.day);
     Duration newStartDifference = picked.difference(startMidnight);
 
-    start = start.add(newStartDifference);
-    end = end.add(newStartDifference);
+    _event.startTime = _event.startTime.add(newStartDifference);
+    _event.endTime = _event.endTime.add(newStartDifference);
 
     setState(() {
-      _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
-      _startTimeController.text = DateFormat.jm().format(start);
-      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
-      _endTimeController.text = DateFormat.jm().format(end);
+      _startDateController.text = DateFormat.yMMMMEEEEd().format(_event.startTime);
+      _startTimeController.text = DateFormat.jm().format(_event.startTime);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
+      _endTimeController.text = DateFormat.jm().format(_event.endTime);
     });
   }
 
   Future<void> _selectStartTime(BuildContext context) async {
-    TimeOfDay initialTime = TimeOfDay.fromDateTime(start);
+    TimeOfDay initialTime = TimeOfDay.fromDateTime(_event.startTime);
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -310,16 +276,16 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       return;
     }
 
-    Duration difference = Duration(minutes: ((picked.hour - start.hour) * 60) + (picked.minute - start.minute));
+    Duration difference = Duration(minutes: ((picked.hour - _event.startTime.hour) * 60) + (picked.minute - _event.startTime.minute));
 
-    start = start.add(difference);
-    end = end.add(difference);
+    _event.startTime = _event.startTime.add(difference);
+    _event.endTime = _event.endTime.add(difference);
 
     setState(() {
-      _startDateController.text = DateFormat.yMMMMEEEEd().format(start);
-      _startTimeController.text = DateFormat.jm().format(start);
-      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
-      _endTimeController.text = DateFormat.jm().format(end);
+      _startDateController.text = DateFormat.yMMMMEEEEd().format(_event.startTime);
+      _startTimeController.text = DateFormat.jm().format(_event.startTime);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
+      _endTimeController.text = DateFormat.jm().format(_event.endTime);
     });
   }
 
@@ -327,9 +293,9 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   Future<void> _selectEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: end,
-      firstDate: start,
-      lastDate: start.add(const Duration(days: 1)),
+      initialDate: _event.endTime,
+      firstDate: _event.startTime,
+      lastDate: _event.startTime.add(const Duration(days: 1)),
     );
 
     if (picked == null) {
@@ -337,24 +303,24 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
     }
 
     //when selecting a date, the time is set to midnight. We want an even comparison so we compare it to our current end time at midnight
-    DateTime endMidnight = DateTime(end.year, end.month, end.day);
+    DateTime endMidnight = DateTime(_event.endTime.year, _event.endTime.month, _event.endTime.day);
 
     Duration newEndDifference = picked.difference(endMidnight);
 
-    end = end.add(newEndDifference);
+    _event.endTime = _event.endTime.add(newEndDifference);
 
-    if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
+    if (_event.endTime.isBefore(_event.startTime)) {
+      _event.endTime = _event.startTime.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
-      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
-      _endTimeController.text = DateFormat.jm().format(end);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
+      _endTimeController.text = DateFormat.jm().format(_event.endTime);
     });
   }
 
   Future<void> _selectEndTime(BuildContext context) async {
-    TimeOfDay initialTime = TimeOfDay.fromDateTime(end);
+    TimeOfDay initialTime = TimeOfDay.fromDateTime(_event.endTime);
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -364,28 +330,30 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       return;
     }
 
-    Duration difference = Duration(minutes: ((picked.hour - end.hour) * 60) + (picked.minute - end.minute));
+    Duration difference = Duration(minutes: ((picked.hour - _event.endTime.hour) * 60) + (picked.minute - _event.endTime.minute));
 
-    end = end.add(difference);
+    _event.endTime = _event.endTime.add(difference);
 
-    if (end.isBefore(start)) {
-      end = start.add(const Duration(minutes: Availability.timeSlotDuration));
+    if (_event.endTime.isBefore(_event.startTime)) {
+      _event.endTime = _event.startTime.add(const Duration(minutes: Availability.timeSlotDuration));
     }
 
     setState(() {
-      _endDateController.text = DateFormat.yMMMMEEEEd().format(end);
-      _endTimeController.text = DateFormat.jm().format(end);
+      _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
+      _endTimeController.text = DateFormat.jm().format(_event.endTime);
     });
   }
 }
 
 class GenerateEventButton extends StatelessWidget {
   final Group group;
+  final String userDocumentId;
   final int timeSlotDuration;
   final int numberOfSlotsToReturn;
 
   const GenerateEventButton({
     required this.group,
+    required this.userDocumentId,
     required this.timeSlotDuration,
     required this.numberOfSlotsToReturn,
     super.key,
@@ -396,13 +364,13 @@ class GenerateEventButton extends StatelessWidget {
     return ElevatedButton(
       child: const Text('Create Event'),
       onPressed: () {
-        showAddEventDialog(context, group, timeSlotDuration, numberOfSlotsToReturn);
+        showAddEventDialog(context, group, userDocumentId, timeSlotDuration, numberOfSlotsToReturn);
       },
     );
   }
 }
 
-void showAddEventDialog(BuildContext context, Group group, int timeSlotDuration, int numberOfSlotsToReturn) {
+void showAddEventDialog(BuildContext context, Group group, String userDocumentId, int timeSlotDuration, int numberOfSlotsToReturn) {
   ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
   Map<String, Availability> memberAvailabilities = group.getGroupMemberAvailabilities();
   //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
@@ -421,6 +389,7 @@ void showAddEventDialog(BuildContext context, Group group, int timeSlotDuration,
               timeSlots: timeSlots,
               timeSlotsAndScores: timeSlotsAndScores,
               group: group,
+              userDocumentId: userDocumentId,
               linkToEvent: true,
             )),
         actions: <Widget>[
@@ -442,12 +411,14 @@ class SuggestedTimesListView extends StatelessWidget {
     required this.timeSlots,
     required this.timeSlotsAndScores,
     required this.group,
+    required this.userDocumentId,
     required this.linkToEvent,
   });
 
   final List<int> timeSlots;
   final Map<int, int> timeSlotsAndScores;
   final Group group;
+  final String userDocumentId;
   final bool linkToEvent;
 
   @override
@@ -498,7 +469,21 @@ class SuggestedTimesListView extends StatelessWidget {
             onTap: () {
               if (linkToEvent) {
                 context.pop();
-                context.pushNamed('updateEvent', extra: {'group': group, 'timeSlot': timeSlots[index - 1]});
+                DateTime start = getNextDateTimeFromTimeSlot(DateTime.now(), timeSlots[index - 1]);
+                DateTime end = start.add(Duration(minutes: group.meetingDurationMinutes));
+                Event event = Event(
+                  documentId: null, //this is always used to create a new event so we want the documentId to be null
+                  title: '',
+                  description: '',
+                  location: '',
+                  startTime: start,
+                  endTime: end,
+                  groupDocumentId: group.documentId,
+                  createdTime: DateTime.now(), //Future: this is not technmically created yet. We'd want this to be when they save the event
+                  creatorDocumentId: userDocumentId,
+                  attendanceResponses: {},
+                );
+                context.pushNamed('updateEvent', extra: {'group': group, 'event': event});
               }
             },
           );
@@ -506,4 +491,17 @@ class SuggestedTimesListView extends StatelessWidget {
       },
     );
   }
+}
+
+Map<String, AttendanceResponse> getAttendanceResponses(Group group, DateTime start, DateTime end) {
+  Map<String, AttendanceResponse> attendanceResponses = {};
+  for (String member in group.members) {
+    Availability? availability = group.getAvailability(member);
+    if (availability == null) {
+      attendanceResponses[member] = AttendanceResponse.unconfirmedMaybe;
+    } else {
+      attendanceResponses[member] = availability.getAttendanceResponseForEvent(start.toUtc(), end.toUtc(), 'UTC');
+    }
+  }
+  return attendanceResponses;
 }
