@@ -39,6 +39,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   final _startDateController = TextEditingController();
   final _endTimeController = TextEditingController();
   final _endDateController = TextEditingController();
+  late final Future<List<AppUser>> _users;
   late int duration;
   Map<String, Availability> memberAvailabilities = {};
   late Map<int, int> timeSlotsAndScores;
@@ -47,8 +48,9 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
   @override
   void initState() {
-    super.initState();
+    _users = widget.group.fetchMemberUsers();
 
+    super.initState();
     //create a non-final copy of the event passed in so it can be modified
     _event = Event(
       documentId: widget.event.documentId,
@@ -86,6 +88,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +209,29 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
           Container(
               width: 400,
               height: 400,
-              child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, userDocumentId: appState.loginUserDocumentId!, linkToEvent: false))
+              child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, userDocumentId: appState.loginUserDocumentId!, linkToEvent: false)),
+          Container(
+            width: 400,
+            height: 400,
+            child: FutureBuilder<List<AppUser>>(
+          future: _users,
+          builder: (context, users) {
+            if (users.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (users.hasError) {
+              return Text('Error: ${users.error}');
+            } else if (users.data == null) {
+              return const Text('No users found');
+            } else {
+              List<AppUser> usersList = users.data!;
+              return ListView.builder(
+                itemCount: usersList.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(usersList[index].displayName ?? 'No Name'),
+                    subtitle: Text(usersList[index].email ?? 'No Email'),
+                    //left off here. Need to display this user similar to how it's done in the group details page
+          )
         ]));
   }
 
