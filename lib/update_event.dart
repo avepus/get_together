@@ -48,6 +48,8 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   @override
   void initState() {
     super.initState();
+
+    //create a non-final copy of the event passed in so it can be modified
     _event = Event(
       documentId: widget.event.documentId,
       title: widget.event.title,
@@ -61,6 +63,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       creatorDocumentId: widget.event.creatorDocumentId,
       attendanceResponses: Map<String, AttendanceResponse>.from(widget.event.attendanceResponses),
     );
+
     _eventTitleController.text = _event.title;
     _eventDescriptionController.text = _event.description;
     _eventLocationController.text = _event.location;
