@@ -4,6 +4,27 @@ import '../utils.dart';
 
 enum AttendanceResponse { unconfirmedYes, unconfirmedMaybe, unconfirmedNo, confirmedYes, confirmedMaybe, confirmedNo }
 
+extension AttendanceResponseExtension on AttendanceResponse {
+  String get displayText {
+    switch (this) {
+      case AttendanceResponse.unconfirmedYes:
+        return 'Yes (Unconfirmed)';
+      case AttendanceResponse.confirmedYes:
+        return 'Yes';
+      case AttendanceResponse.unconfirmedMaybe:
+        return 'Maybe (Unconfirmed)';
+      case AttendanceResponse.confirmedMaybe:
+        return 'Maybe';
+      case AttendanceResponse.unconfirmedNo:
+        return 'No (Unconfirmed)';
+      case AttendanceResponse.confirmedNo:
+        return 'No';
+      default:
+        return '';
+    }
+  }
+}
+
 //this represents a group's meeting/event
 class Event {
   static const String collectionName = 'events';

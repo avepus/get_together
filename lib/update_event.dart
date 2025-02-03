@@ -14,6 +14,7 @@ import 'findTime.dart';
 import 'app_state.dart';
 import 'classes/app_notification.dart';
 import 'classes/app_user.dart';
+import '/widgets/image_with_null_error_handling.dart';
 
 ///this page is used to create a new event or update an existing event
 ///a group is required
@@ -88,7 +89,6 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
     timeSlots = timeSlotsAndScores.keys.toList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -211,27 +211,31 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
               height: 400,
               child: SuggestedTimesListView(timeSlots: timeSlots, timeSlotsAndScores: timeSlotsAndScores, group: widget.group, userDocumentId: appState.loginUserDocumentId!, linkToEvent: false)),
           Container(
-            width: 400,
-            height: 400,
-            child: FutureBuilder<List<AppUser>>(
-          future: _users,
-          builder: (context, users) {
-            if (users.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (users.hasError) {
-              return Text('Error: ${users.error}');
-            } else if (users.data == null) {
-              return const Text('No users found');
-            } else {
-              List<AppUser> usersList = users.data!;
-              return ListView.builder(
-                itemCount: usersList.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(usersList[index].displayName ?? 'No Name'),
-                    subtitle: Text(usersList[index].email ?? 'No Email'),
-                    //left off here. Need to display this user similar to how it's done in the group details page
-          )
+              width: 400,
+              height: 400,
+              child: FutureBuilder<List<AppUser>>(
+                  future: _users,
+                  builder: (context, users) {
+                    if (users.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (users.hasError) {
+                      return Text('Error: ${users.error}');
+                    } else if (users.data == null) {
+                      return const Text('No users found');
+                    } else {
+                      List<AppUser> usersList = users.data!;
+                      return ListView.builder(
+                          itemCount: usersList.length,
+                          itemBuilder: (context, index) {
+                            AppUser user = usersList[index];
+                            return ListTile(
+                              leading: ImageWithNullAndErrorHandling(imageUrl: user.imageUrl),
+                              title: Text(user.displayName ?? '<No Name>'),
+                              subtitle: Text(_event.attendanceResponses[user.documentId]?.displayText ?? AttendanceResponse.unconfirmedMaybe.displayText),
+                            );
+                          });
+                    }
+                  })),
         ]));
   }
 
