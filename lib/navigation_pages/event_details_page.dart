@@ -175,7 +175,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                   },
                                 ),
                               ),
-                            ))
+                            )),
+                        //left off here - need to add user responses to this page like they are on update_event
                       ],
                     );
                   }
