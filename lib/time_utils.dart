@@ -21,10 +21,18 @@ int getUtcShiftedTimeSlot(int timeslot) {
   return newTimeSlot;
 }
 
-/// Given a UTC DateTime and UTC shifted time slot
-DateTime getNextDateTimeFromTimeSlot(DateTime anchorDateTime, int timeSlotInUTC) {
+/// Given a local DateTime and local time slot
+DateTime getNextDateTimeFromTimeSlotLocal(DateTime anchorDateTimeLocal, int timeSlotInLocal) {
+  int timeSlotUtc = getUtcShiftedTimeSlot(timeSlotInLocal);
+  DateTime dateUtc = anchorDateTimeLocal.toUtc();
+  DateTime utcResult = getNextDateTimeFromTimeSlotUTC(dateUtc, timeSlotUtc);
+  return utcResult.toLocal();
+}
+
+/// Given a UTC DateTime and UTC shifted time slot, get the next UTC datetime that matches that timeslot
+DateTime getNextDateTimeFromTimeSlotUTC(DateTime anchorDateTimeUTC, int timeSlotInUTC) {
   Duration timeSlotAsDuration = Duration(minutes: timeSlotInUTC * Availability.timeSlotDuration);
-  return getNextDateTime(anchorDateTime, timeSlotAsDuration);
+  return getNextDateTime(anchorDateTimeUTC, timeSlotAsDuration);
 }
 
 /// Given an anchor date and a time slot, this function will return the next date time that fits the time slot.
