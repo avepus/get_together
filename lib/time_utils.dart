@@ -10,15 +10,26 @@ Duration maxDuration(Duration a, Duration b) {
   return a.compareTo(b) >= 0 ? a : b;
 }
 
+//given a timeslot in the local time, shifts it to UTC time
+int getUtcShiftedTimeSlot(int timeslot) {
+  int minutesOffset = DateTime.now().timeZoneOffset.inMinutes;
+  int timeSlotOffset = minutesOffset ~/ Availability.timeSlotDuration;
+  int newTimeSlot = timeslot - timeSlotOffset;
+
+  //if the new time slot is negative or out of bounds, we need to wrap it around
+  newTimeSlot = newTimeSlot % Availability.arrayLength;
+  return newTimeSlot;
+}
+
 /// Given a UTC DateTime and UTC shifted time slot
-DateTime getNextDateTimeFromTimeSlot(DateTime anchorDateTime, int timeSlot) {
-  Duration timeSlotAsDuration = Duration(minutes: timeSlot * Availability.timeSlotDuration);
+DateTime getNextDateTimeFromTimeSlot(DateTime anchorDateTime, int timeSlotInUTC) {
+  Duration timeSlotAsDuration = Duration(minutes: timeSlotInUTC * Availability.timeSlotDuration);
   return getNextDateTime(anchorDateTime, timeSlotAsDuration);
 }
 
 /// Given an anchor date and a time slot, this function will return the next date time that fits the time slot.
 /// The DateTime returned must have at least [buffer] between now and that future time.
-///
+
 DateTime getNextDateTime(DateTime anchorDateTime, Duration timeSlotAsDuration, [Duration buffer = const Duration()]) {
   //there must be a minimum buffer of 1 day to prevent timezone issues grabbing the wrong day
   Duration safeBuffer = maxDuration(buffer, const Duration(days: 1));

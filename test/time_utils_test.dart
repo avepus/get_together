@@ -164,6 +164,44 @@ void main() {
     expect(resultOne.toLocal().hour + 1, resultTwo.toLocal().hour);
   });
 
+  test('getNextDateTimeFromTimeSlot case without setting timezone', () {
+    //Test a Monday at 10pm
+    DateTime date = DateTime(2025, 2, 3, 22, 0, 0);
+    DateTime dateUtc = date.toUtc();
+
+    //timeslot is Sunday at 2:30 am
+    int timeSlot = 5;
+
+    //Friday at midnight
+    DateTime resultUtc = getNextDateTimeFromTimeSlot(dateUtc, timeSlot);
+    DateTime result = resultUtc.toLocal();
+
+    DateTime expected = DateTime(2025, 2, 9, 2, 30, 0);
+
+    //We expect these to be one hour off because of daylight savings time. Handling for DST to shift timeslots is handled outside of this function so this is fine
+    expect(result, expected);
+  });
+
+  test('getNextDateTimeFromTimeSlot case without setting timezone using local', () {
+    //Test a Monday at 10pm
+    DateTime date = DateTime(2025, 2, 3, 22, 0, 0);
+    DateTime dateUtc = date.toUtc();
+
+    //timeslot is Sunday at 2:30 am
+    int timeSlot = 5;
+
+    int timeSlotUtc = getUtcShiftedTimeSlot(timeSlot);
+
+    //Friday at midnight
+    DateTime resultutc = getNextDateTimeFromTimeSlot(dateUtc, timeSlotUtc);
+    DateTime result = resultutc.toLocal();
+
+    DateTime expected = DateTime(2025, 2, 9, 2, 30, 0);
+
+    //We expect these to be one hour off because of daylight savings time. Handling for DST to shift timeslots is handled outside of this function so this is fine
+    expect(result, expected);
+  });
+
   test('getNextDateTimeFromTimeSlot make sure timeslot works', () {
     //this is a Wednesday
     DateTime date = DateTime.utc(2024, 5, 1);
@@ -175,6 +213,28 @@ void main() {
 
     //we expect that Saturday time to work
     DateTime expected = DateTime.utc(2024, 5, 4);
+
+    expect(result, expected);
+  });
+
+  test('getUtcShiftedTimeSlot', () {
+    //this assumes local time is central
+    int timeslot = 12;
+
+    int result = getUtcShiftedTimeSlot(timeslot);
+
+    int expected = 24;
+
+    expect(result, expected);
+  });
+
+  test('getUtcShiftedTimeSlot check that modulus works', () {
+    //this assumes local time is central
+    int timeslot = 330;
+
+    int result = getUtcShiftedTimeSlot(timeslot);
+
+    int expected = 6;
 
     expect(result, expected);
   });

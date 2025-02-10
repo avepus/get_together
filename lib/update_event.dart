@@ -501,7 +501,8 @@ class SuggestedTimesListView extends StatelessWidget {
             onTap: () {
               if (linkToEvent) {
                 context.pop();
-                DateTime start = getNextDateTimeFromTimeSlot(DateTime.now(), timeSlots[index - 1]);
+                int utcTimeSlot = getUtcShiftedTimeSlot(timeSlots[index - 1]);
+                DateTime start = getNextDateTimeFromTimeSlot(DateTime.now().toUtc(), utcTimeSlot).toLocal();
                 DateTime end = start.add(Duration(minutes: group.meetingDurationMinutes));
                 Event event = Event(
                   documentId: null, //this is always used to create a new event so we want the documentId to be null
