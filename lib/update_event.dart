@@ -40,6 +40,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   final _startDateController = TextEditingController();
   final _endTimeController = TextEditingController();
   final _endDateController = TextEditingController();
+  late Map<String, AttendanceResponse> _attendanceResponses;
   late final Future<List<AppUser>> _users;
   late int duration;
   Map<String, Availability> memberAvailabilities = {};
@@ -50,6 +51,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
   @override
   void initState() {
     _users = widget.group.fetchMemberUsers();
+    _attendanceResponses = Map<String, AttendanceResponse>.from(widget.event.attendanceResponses);
 
     super.initState();
     //create a non-final copy of the event passed in so it can be modified
@@ -64,7 +66,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       isCancelled: widget.event.isCancelled,
       createdTime: widget.event.createdTime,
       creatorDocumentId: widget.event.creatorDocumentId,
-      attendanceResponses: Map<String, AttendanceResponse>.from(widget.event.attendanceResponses),
+      attendanceResponses: _attendanceResponses,
     );
 
     _eventTitleController.text = _event.title;
@@ -231,7 +233,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
                             return ListTile(
                               leading: ImageWithNullAndErrorHandling(imageUrl: user.imageUrl),
                               title: Text(user.displayName ?? '<No Name>'),
-                              subtitle: Text(_event.attendanceResponses[user.documentId]?.displayText ?? AttendanceResponse.unconfirmedMaybe.displayText),
+                              subtitle: Text(_attendanceResponses[user.documentId]?.displayText ?? AttendanceResponse.unconfirmedMaybe.displayText),
                             );
                           });
                     }
@@ -294,6 +296,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       _startTimeController.text = DateFormat.jm().format(_event.startTime);
       _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
       _endTimeController.text = DateFormat.jm().format(_event.endTime);
+      _attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
     });
   }
 
@@ -318,6 +321,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       _startTimeController.text = DateFormat.jm().format(_event.startTime);
       _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
       _endTimeController.text = DateFormat.jm().format(_event.endTime);
+      _attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
     });
   }
 
@@ -348,6 +352,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
     setState(() {
       _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
       _endTimeController.text = DateFormat.jm().format(_event.endTime);
+      _attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
     });
   }
 
@@ -373,6 +378,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
     setState(() {
       _endDateController.text = DateFormat.yMMMMEEEEd().format(_event.endTime);
       _endTimeController.text = DateFormat.jm().format(_event.endTime);
+      _attendanceResponses = getAttendanceResponses(widget.group, _event.startTime, _event.endTime);
     });
   }
 }
