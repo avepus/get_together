@@ -94,17 +94,17 @@ final _router = GoRouter(
               return GroupDetailsPage(groupDocumentId: state.pathParameters['groupDocumentId']!);
             }),
         GoRoute(
-            path: 'event/:eventDocumentId',
+            path: 'event',
             name: 'event',
             builder: (context, state) {
               Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
               Event? event = map?['event'] as Event?;
-              String? eventDocumentId = state.pathParameters['eventDocumentId'];
+              assert(event != null, 'Event must be passed to event route');
 
-              if (state.extra == null && state.pathParameters['eventDocumentId'] == null) {
+              if (state.extra == null || event == null) {
                 context.pushReplacement('/');
               }
-              return EventDetailsPage(event: event, eventDocumentId: eventDocumentId);
+              return EventDetailsPage(event: event!);
             }),
         GoRoute(
           path: 'eventProposal/:eventProposalDocumentId',
