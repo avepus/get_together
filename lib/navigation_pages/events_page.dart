@@ -79,7 +79,7 @@ class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     //temporarily testing notificaitons here
-    requestNotificationPermission();
+    //requestNotificationPermission();
 
     ApplicationState appState = Provider.of<ApplicationState>(context);
     return Scaffold(
