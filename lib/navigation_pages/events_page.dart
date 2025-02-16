@@ -19,63 +19,6 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-  void _showAddEventDialog(BuildContext context, ApplicationState appState) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Select Group'),
-          content: Container(
-            height: 500,
-            width: 300,
-            child: FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance.collection(Group.collectionName).where(Group.adminsKey, arrayContains: appState.loginUserDocumentId).get(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-
-                if (!snapshot.hasData) {
-                  return const Text('No data');
-                }
-
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    Group group = Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
-                    //this code relies on knowing the group structure. would be better if it didn't
-                    //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
-                    return ListTile(
-                        leading: ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
-                        title: Text(
-                          group.name ?? '<No Name>',
-                          maxLines: 1,
-                        ),
-                        subtitle: group.description != null
-                            ? Text(
-                                group.description!,
-                                maxLines: 1,
-                              )
-                            : null,
-                        onTap: () {
-                          context.pop();
-                          //TODO: get rid of magic number 5 below
-                          showAddEventDialog(context, group, appState.loginUserDocumentId!, group.meetingDurationTimeSlots, 5);
-                        });
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     //temporarily testing notificaitons here
@@ -164,6 +107,63 @@ class _EventsPageState extends State<EventsPage> {
               });
         },
       ),
+    );
+  }
+
+  void _showAddEventDialog(BuildContext context, ApplicationState appState) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Select Group'),
+          content: Container(
+            height: 500,
+            width: 300,
+            child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance.collection(Group.collectionName).where(Group.adminsKey, arrayContains: appState.loginUserDocumentId).get(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+
+                if (!snapshot.hasData) {
+                  return const Text('No data');
+                }
+
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    Group group = Group.fromDocumentSnapshot(snapshot.data!.docs[index]);
+                    //this code relies on knowing the group structure. would be better if it didn't
+                    //I tried to extract this as group method to return the ListTile, but I couldn't get the navigfation to work
+                    return ListTile(
+                        leading: ImageWithNullAndErrorHandling(imageUrl: group.imageUrl),
+                        title: Text(
+                          group.name ?? '<No Name>',
+                          maxLines: 1,
+                        ),
+                        subtitle: group.description != null
+                            ? Text(
+                                group.description!,
+                                maxLines: 1,
+                              )
+                            : null,
+                        onTap: () {
+                          context.pop();
+                          //TODO: get rid of magic number 5 below
+                          showAddEventDialog(context, group, appState.loginUserDocumentId!, group.meetingDurationTimeSlots, 5);
+                        });
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
