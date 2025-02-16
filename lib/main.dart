@@ -27,6 +27,14 @@ import 'event_proposal_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
+///create event_proposal page that allows you to create an event with but have multiple times
+///store the event_proposal in firebase
+///the page needs allow for as many dates and times as the user wants to add
+///filter events in a proposal from the events_page
+///create a event_propsal_details page allows users to rank the dates and times
+///display event proposals to show at the top of the events_page
+///once the event is scheduled it should no longer show up
+
 ///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends
 ///
