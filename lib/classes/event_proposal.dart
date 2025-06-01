@@ -42,6 +42,8 @@ class EventProposal {
     required this.createdTime,
   });
 
+  Map<String, int> get getEventAndScoreMap => eventAndScoreMap;
+
   static EventProposal fromDocumentSnapshot(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return EventProposal(
@@ -72,10 +74,6 @@ class EventProposal {
   }
 
   static EventProposal getDefaultProposal(String groupDocumentId) {
-    //left off here. need to figure out how to handle this
-    //the proposal only holds the doc id of the events so I'd need to create an event and save it in firebase
-    //I don't love that. I'd prefer the docs aren't stored in firebase until the user clicks save
-    //I think I'll just have to deal with it though
     return EventProposal(
       eventAndScoreMap: {},
       groupDocumentId: groupDocumentId,
