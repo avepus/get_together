@@ -27,8 +27,6 @@ import 'event_proposal_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///create a get_defatul_event_proposal function that will create a default event proposal with a single "proposal 1" event object
-///in the routing, handle the case where the event proposal is null and we need to pass in the default event proposal
 ///create event_proposal page that allows you to create an event with but have multiple times
 ///store the event_proposal in firebase
 ///the page needs allow for as many dates and times as the user wants to add
