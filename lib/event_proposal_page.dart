@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_together/app_state.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../classes/event_proposal.dart';
 import '../classes/group.dart';
@@ -9,7 +11,7 @@ import '../utils.dart';
 import '../classes/event.dart';
 
 //this needs special handling when saving to firestore because it may hold a reference to an event that is not in the database yet
-//first, every event must be saved
+//first, every event must be saved to the database
 //then, the EventProposal map must be updated with the event document IDs
 //then we can save the EventProposal to the database
 
@@ -23,7 +25,7 @@ class EventProposalPage extends StatefulWidget {
 }
 
 class _EventProposalPageState extends State<EventProposalPage> {
-  late List<Event> _events; // List of events for the proposal. This holds the actual Event objects potentially retrieved from the database if this was an existing proposal.
+  List<Event> _events = []; // List of events for the proposal. This holds the actual Event objects potentially retrieved from the database if this was an existing proposal.
   late Map<String, int> _eventAndScoreMap; // List of events for the proposal
   late EventProposal _eventProposal; // The event proposal being edited or created
   @override
@@ -41,23 +43,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
     // handle when we're creating a new proposal
     if (_eventProposal.getEventAndScoreMap.isEmpty) {
       // initialize a default event and add to the events list
-      _events.add(Event(
-        documentId: null, // Not saved yet
-        title: '',
-        description: '',
-        location: '',
-        startTime: DateTime.now(),
-        endTime: DateTime.now().add(Duration(hours: 1)),
-        groupDocumentId: widget.group.documentId,
-        createdTime: DateTime.now(),
-        creatorDocumentId: appState.loginUserDocumentId!,
-        attendanceResponses: {},
-      ));
-
-      // also add event to eventAndScoreMap with a default score of 0
-      // the id will be a placeholder until the event is saved to the database
-      // TODO: better handling here than a hardcoded '0' key
-      _eventProposal.getEventAndScoreMap['0'] = 0; // Using the last event's documentId as key
+      addNewBlankEventToPropsal();
     } else {
       // if we have an existing proposal, we need to fetch the events from the database
       _events = widget.eventProposal.getEventAndScoreMap.keys.map((eventId) {
@@ -66,13 +52,54 @@ class _EventProposalPageState extends State<EventProposalPage> {
     }
   }
 
+  //this adds a new default event to the _events list
+  //this also adds the new event to the eventAndScoreMap with a default score of 0 mapped to it's location in the _events list. once it's saved in firestore we need to update that id
+  addNewBlankEventToPropsal() {
+    final appState = Provider.of<ApplicationState>(context, listen: false);
+    Event event = Event(
+      documentId: null, // Not saved yet
+      title: 'Event ${_events.length + 1}', // Default title
+      description: '',
+      location: '',
+      startTime: DateTime.now(),
+      endTime: DateTime.now().add(Duration(hours: 1)),
+      groupDocumentId: widget.group.documentId,
+      createdTime: DateTime.now(),
+      creatorDocumentId: appState.loginUserDocumentId!,
+      attendanceResponses: {},
+    );
+    setState(() {
+      _eventProposal.getEventAndScoreMap[_events.length.toString()] = 0; // Using the last event's documentId as key
+      _events.add(event);
+      // add the event to the eventAndScoreMap with a default score of 0
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: EventProposalTitle(eventProposal: widget.eventProposal, group: widget.group),
         ),
-        body: Container());
+        body: ListView(
+          children: [
+            ..._events.map((event) {
+              int index = _events.indexOf(event);
+              String title = event.location.isNotEmpty ? '${event.title} at ${event.location}' : event.title;
+              return ListTile(
+                  title: Text(title),
+                  subtitle: Text(event.description),
+                  trailing: Text(DateFormat.MMMd().add_jm().format(event.startTime)),
+                  onTap: () {
+                    context.pushNamed('updateEvent', extra: {'event': _events[index], 'group': widget.group, 'eventProposal': _eventProposal, 'index': index});
+                  });
+            }).toList(),
+            ElevatedButton(
+              onPressed: addNewBlankEventToPropsal,
+              child: const Text('Add New Event'),
+            ),
+          ],
+        ));
   }
 }
 
