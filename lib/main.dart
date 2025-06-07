@@ -28,6 +28,8 @@ import 'classes/event_proposal.dart';
 
 ///todo list
 ///need to figure out how updates from the update_event page will get back to the event_proposal_page
+//////Current plan is to change the update_event page to take an event_proposal as a parameter
+//////and then update the event and pass the event_proposal with the updated event back to the event_proposal_page
 ///the page needs allow for as many dates and times as the user wants to add
 ///store the event_proposal in firebase
 ///filter events in a proposal from the events_page
