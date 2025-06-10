@@ -63,7 +63,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       startTime: widget.event.startTime,
       endTime: widget.event.endTime,
       groupDocumentId: widget.event.groupDocumentId,
-      isCancelled: widget.event.isCancelled,
+      status: widget.event.status,
       createdTime: widget.event.createdTime,
       creatorDocumentId: widget.event.creatorDocumentId,
       attendanceResponses: _attendanceResponses,
@@ -517,6 +517,7 @@ class SuggestedTimesListView extends StatelessWidget {
                   startTime: start,
                   endTime: end,
                   groupDocumentId: group.documentId,
+                  status: EventStatus.scheduled,
                   createdTime: DateTime.now(), //Future: this is not technmically created yet. We'd want this to be when they save the event
                   creatorDocumentId: userDocumentId,
                   attendanceResponses: {},

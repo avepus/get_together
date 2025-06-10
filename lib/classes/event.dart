@@ -25,6 +25,13 @@ extension AttendanceResponseExtension on AttendanceResponse {
   }
 }
 
+enum EventStatus {
+  draft, //an event that someone started creating but hasn't saved. This is unimplemented
+  proposal, //an event that is in an EventProposal - this shouldn't be displayed anywhere except in the EventProrposal
+  scheduled, //an event that has been scheduled and is currently planned
+  cancelled //a scheduled event that has been cancelled
+}
+
 //this represents a group's meeting/event
 class Event {
   static const String collectionName = 'events';
@@ -35,7 +42,7 @@ class Event {
   static const String startTimeKey = 'startTime';
   static const String endTimeKey = 'endTime';
   static const String groupDocumentIdKey = 'groupDocumentId';
-  static const String isCancelledKey = 'isCancelled';
+  static const String statusKey = 'status';
   static const String createdTimeKey = 'createdTime';
   static const String creatorDocumentIdKey = 'creatorDocumentId';
   static const String attendanceResponsesKey = 'attendanceResponses';
@@ -47,7 +54,7 @@ class Event {
   static const String startTimeLabel = 'Start Time';
   static const String endTimeLabel = 'End Time';
   static const String groupDocumentIdLabel = 'Group Document ID';
-  static const String isCancelledLabel = 'Cancelled?';
+  static const String statusLabel = 'Status';
   static const String attendanceResponsesLabel = 'Responses';
 
   static const String createdTimeLabel = 'Created Time';
@@ -61,7 +68,7 @@ class Event {
   DateTime startTime; //UTC
   DateTime endTime; //UTC
   final String groupDocumentId;
-  final bool isCancelled;
+  final EventStatus status;
   DateTime createdTime;
   final String creatorDocumentId;
   Map<String, AttendanceResponse> attendanceResponses;
@@ -74,7 +81,7 @@ class Event {
       required this.startTime,
       required this.endTime,
       required this.groupDocumentId,
-      this.isCancelled = false,
+      required this.status,
       required this.createdTime,
       required this.creatorDocumentId,
       required this.attendanceResponses});
@@ -89,13 +96,15 @@ class Event {
       startTime: (data[startTimeKey] as Timestamp).toDate(),
       endTime: (data[endTimeKey] as Timestamp).toDate(),
       groupDocumentId: data[groupDocumentIdKey],
-      isCancelled: data[isCancelledKey] ?? false,
+      status: EventStatus.values[data[statusKey]!],
       createdTime: (data[createdTimeKey] as Timestamp).toDate(),
       creatorDocumentId: data[creatorDocumentIdKey],
       attendanceResponses:
           (data[attendanceResponsesKey] as Map<String, dynamic>).map((key, value) => MapEntry(key, AttendanceResponse.values.firstWhere((e) => e.toString().split('.').last == value))),
     );
   }
+
+  bool get isEditable => status == EventStatus.scheduled || status == EventStatus.draft;
 
   Map<String, dynamic> toMap() {
     return {
@@ -106,7 +115,7 @@ class Event {
       startTimeKey: Timestamp.fromDate(startTime),
       endTimeKey: Timestamp.fromDate(endTime),
       groupDocumentIdKey: groupDocumentId,
-      isCancelledKey: isCancelled,
+      statusKey: status.index,
       createdTimeKey: Timestamp.fromDate(createdTime),
       creatorDocumentIdKey: creatorDocumentId,
       attendanceResponsesKey: attendanceResponses.map((key, value) => MapEntry(key, value.toString().split('.').last)),

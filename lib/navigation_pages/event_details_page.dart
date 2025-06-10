@@ -58,13 +58,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               return ListView(
                 children: [
                   Visibility(
-                    visible: widget.event.isCancelled || eventIsOver,
+                    visible: widget.event.status == EventStatus.cancelled || eventIsOver,
                     child: Container(
                       width: double.infinity,
                       color: Colors.red,
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        widget.event.isCancelled ? 'Event Cancelled' : 'Event Is Over',
+                        widget.event.status == EventStatus.cancelled ? 'Event Cancelled' : 'Event Is Over',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -107,7 +107,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       hasSecurity: false,
                       dataType: String),
                   Visibility(
-                      visible: hasEditSecurity && !widget.event.isCancelled && !eventIsOver,
+                      visible: hasEditSecurity && widget.event.status != EventStatus.cancelled && !eventIsOver,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton(
@@ -118,7 +118,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                         ),
                       )),
                   Visibility(
-                      visible: hasEditSecurity && !widget.event.isCancelled && !eventIsOver,
+                      visible: hasEditSecurity && widget.event.isEditable && !eventIsOver,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: Align(

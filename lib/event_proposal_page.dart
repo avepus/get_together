@@ -54,7 +54,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
 
   //this adds a new default event to the _events list
   //this also adds the new event to the eventAndScoreMap with a default score of 0 mapped to it's location in the _events list. once it's saved in firestore we need to update that id
-  addNewBlankEventToPropsal() {
+  addNewBlankEventToPropsal() async {
     final appState = Provider.of<ApplicationState>(context, listen: false);
     Event event = Event(
       documentId: null, // Not saved yet
@@ -64,6 +64,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
       startTime: DateTime.now(),
       endTime: DateTime.now().add(Duration(hours: 1)),
       groupDocumentId: widget.group.documentId,
+      status: EventStatus.proposal,
       createdTime: DateTime.now(),
       creatorDocumentId: appState.loginUserDocumentId!,
       attendanceResponses: {},
@@ -73,6 +74,8 @@ class _EventProposalPageState extends State<EventProposalPage> {
       _events.add(event);
       // add the event to the eventAndScoreMap with a default score of 0
     });
+    // Save the new event to Firestore
+    DocumentReference eventRef = await FirebaseFirestore.instance.collection(Event.collectionName).add(event.toMap());
   }
 
   @override
