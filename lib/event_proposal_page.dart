@@ -46,10 +46,16 @@ class _EventProposalPageState extends State<EventProposalPage> {
       addNewBlankEventToPropsal();
     } else {
       // if we have an existing proposal, we need to fetch the events from the database
-      _events = widget.eventProposal.getEventAndScoreMap.keys.map((eventId) {
-        return Event.fromDocumentSnapshot(FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get() as DocumentSnapshot);
-      }).toList();
+      populateEventsFromProposal();
     }
+  }
+
+  Future<void> populateEventsFromProposal() async {
+    var futures = _eventProposal.getEventAndScoreMap.keys.map((eventId) => FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get());
+    var docs = await Future.wait(futures);
+    setState(() {
+      _events = docs.map((doc) => Event.fromDocumentSnapshot(doc)).toList();
+    });
   }
 
   //this adds a new default event to the _events list
@@ -70,12 +76,12 @@ class _EventProposalPageState extends State<EventProposalPage> {
       attendanceResponses: {},
     );
     setState(() {
-      _eventProposal.getEventAndScoreMap[_events.length.toString()] = 0; // Using the last event's documentId as key
       _events.add(event);
       // add the event to the eventAndScoreMap with a default score of 0
     });
     // Save the new event to Firestore
-    DocumentReference eventRef = await FirebaseFirestore.instance.collection(Event.collectionName).add(event.toMap());
+    await event.saveToFirestore();
+    _eventProposal.getEventAndScoreMap[event.documentId!] = 0; // Update the eventAndScoreMap with the new event's document ID
   }
 
   @override

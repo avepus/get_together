@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_together/classes/event_proposal.dart';
 import 'package:get_together/utils.dart';
 import 'package:intl/date_symbol_data_file.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +25,8 @@ import '/widgets/image_with_null_error_handling.dart';
 class UpdateEventPage extends StatefulWidget {
   final Group group;
   final Event event;
-  UpdateEventPage({super.key, required this.group, required this.event});
+  final EventProposal? eventProposal;
+  UpdateEventPage({super.key, required this.group, required this.event, this.eventProposal});
 
   @override
   _UpdateEventPageState createState() => _UpdateEventPageState();
@@ -268,7 +270,19 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       ),
     );
     if (context.mounted) {
-      context.pushNamed('events');
+      if (widget.eventProposal != null) {
+        EventProposal eventProposal = EventProposal(
+            createdTime: widget.eventProposal!.createdTime,
+            groupDocumentId: widget.eventProposal!.groupDocumentId,
+            status: widget.eventProposal!.status,
+            eventAndScoreMap: widget.eventProposal!.eventAndScoreMap,
+            documentId: widget.eventProposal!.documentId);
+
+        eventProposal.getEventAndScoreMap[_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
+        context.pushNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
+      } else {
+        context.pushNamed('events');
+      }
     }
   }
 

@@ -27,10 +27,7 @@ import 'event_proposal_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///need to figure out how updates from the update_event page will get back to the event_proposal_page. I see two options
-//////1. saving the events in firestore immediately. Easiest probably
-//////2. updating the event_proposal_page to allow editing the event directly in the proposal
-//////and then update the event and pass the event_proposal with the updated event back to the event_proposal_page
+///make events delete if proposal is not saved
 ///make the add new blank event button on event proposal duplicate the first event if there is one
 ///the page needs allow for as many dates and times as the user wants to add
 ///store the event_proposal in firebase
@@ -207,7 +204,11 @@ final _router = GoRouter(
                 context.pushReplacement('/');
               }
               Group group = map['group'] as Group;
-              return UpdateEventPage(group: group, event: map['event']);
+              return UpdateEventPage(
+                group: group,
+                event: map['event'],
+                eventProposal: map['eventProposal'],
+              );
             }),
         GoRoute(
           path: 'sign-in',
