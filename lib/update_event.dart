@@ -259,29 +259,32 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
 
     //saveToFirestore will update event and store the new document ID if it's a new event so we need our checks for a new event before this call
     await _event.saveToFirestore();
-    //after saving we can assume event.documentId is not null
-    AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: _event.documentId!);
-    for (String memberID in widget.group.members) {
-      await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('event ${_eventTitleController.text} saved'),
-      ),
-    );
-    if (context.mounted) {
-      if (widget.eventProposal != null) {
-        EventProposal eventProposal = EventProposal(
-            createdTime: widget.eventProposal!.createdTime,
-            groupDocumentId: widget.eventProposal!.groupDocumentId,
-            status: widget.eventProposal!.status,
-            eventAndScoreMap: widget.eventProposal!.eventAndScoreMap,
-            documentId: widget.eventProposal!.documentId);
 
-        eventProposal.getEventAndScoreMap[_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
+    if (widget.eventProposal != null) {
+      EventProposal eventProposal = EventProposal(
+          createdTime: widget.eventProposal!.createdTime,
+          groupDocumentId: widget.eventProposal!.groupDocumentId,
+          status: widget.eventProposal!.status,
+          eventAndScoreMap: widget.eventProposal!.eventAndScoreMap,
+          documentId: widget.eventProposal!.documentId);
+
+      eventProposal.getEventAndScoreMap[_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
+      if (context.mounted) {
         context.pop(); // pop here so that the back button on the event proposal page brings you back properly
         context.pushReplacementNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
-      } else {
+      }
+    } else {
+      //event is saved so we can assume event.documentId is not null
+      AppNotification notification = AppNotification(title: notificationTitle, description: description, type: type, createdTime: Timestamp.now(), routeToDocumentId: _event.documentId!);
+      for (String memberID in widget.group.members) {
+        await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('event ${_eventTitleController.text} saved'),
+        ),
+      );
+      if (context.mounted) {
         context.pushNamed('events');
       }
     }

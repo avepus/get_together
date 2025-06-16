@@ -26,7 +26,6 @@ class EventProposalPage extends StatefulWidget {
 
 class _EventProposalPageState extends State<EventProposalPage> {
   List<Event> _events = []; // List of events for the proposal. This holds the actual Event objects potentially retrieved from the database if this was an existing proposal.
-  late Map<String, int> _eventAndScoreMap; // List of events for the proposal
   late EventProposal _eventProposal; // The event proposal being edited or created
   @override
   void initState() {
@@ -37,7 +36,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
         createdTime: widget.eventProposal.createdTime,
         groupDocumentId: widget.eventProposal.groupDocumentId,
         status: widget.eventProposal.status,
-        eventAndScoreMap: widget.eventProposal.getEventAndScoreMap,
+        eventAndScoreMap: Map.from(widget.eventProposal.getEventAndScoreMap), //this creates a copy so we don't modify the original
         documentId: widget.eventProposal.documentId);
 
     // handle when we're creating a new proposal
@@ -84,31 +83,88 @@ class _EventProposalPageState extends State<EventProposalPage> {
     _eventProposal.getEventAndScoreMap[event.documentId!] = 0; // Update the eventAndScoreMap with the new event's document ID
   }
 
+  Future<void> saveEventProposal() async {
+    await _eventProposal.saveToFirestore();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> cancelEventProposalChanges() async {
+    // Delete all events associated with this proposal that got saved in firestore but won't be needed because we are canceling
+    //we need to compare to firestore rather than just checking against the widget.eventProposal because updating the event and routing back to this page saves the event in the "original" copy. We'll need check against firestore
+    for (var event in _events) {
+      List<String> originalEventDocIds = await getFirebaseEventDocumentIds(_eventProposal.documentId);
+      bool isNewEvent = !originalEventDocIds.contains(event.documentId);
+      if (event.documentId != null && isNewEvent) {
+        await FirebaseFirestore.instance.collection(Event.collectionName).doc(event.documentId).delete();
+      }
+    }
+  }
+
+  Future<List<String>> getFirebaseEventDocumentIds(String? eventProposalDocumentId) async {
+    if (eventProposalDocumentId == null) {
+      return [];
+    }
+    final doc = await FirebaseFirestore.instance.collection('event_proposals').doc(eventProposalDocumentId).get();
+
+    if (!doc.exists) {
+      return [];
+    }
+
+    return EventProposal.fromDocumentSnapshot(doc).getEventAndScoreMap.keys.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: EventProposalTitle(eventProposal: widget.eventProposal, group: widget.group),
+    return PopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            title: EventProposalTitle(eventProposal: widget.eventProposal, group: widget.group),
+          ),
+          body: ListView(
+            children: [
+              ..._events.map((event) {
+                int index = _events.indexOf(event);
+                String title = event.location.isNotEmpty ? '${event.title} at ${event.location}' : event.title;
+                return ListTile(
+                    title: Text(title),
+                    subtitle: Text(event.description),
+                    trailing: Text(DateFormat.MMMd().add_jm().format(event.startTime)),
+                    onTap: () {
+                      context.pushNamed('updateEvent', extra: {'event': _events[index], 'group': widget.group, 'eventProposal': _eventProposal, 'index': index});
+                    });
+              }).toList(),
+              ElevatedButton(
+                onPressed: addNewBlankEventToPropsal,
+                child: const Text('Add New Event'),
+              ),
+              Row(
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'saveEventProposal',
+                    onPressed: saveEventProposal,
+                    child: const Icon(Icons.save),
+                  ),
+                  FloatingActionButton(
+                    heroTag: 'cancelEventProposal',
+                    onPressed: () {
+                      cancelEventProposalChanges();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Icon(Icons.cancel),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
-        body: ListView(
-          children: [
-            ..._events.map((event) {
-              int index = _events.indexOf(event);
-              String title = event.location.isNotEmpty ? '${event.title} at ${event.location}' : event.title;
-              return ListTile(
-                  title: Text(title),
-                  subtitle: Text(event.description),
-                  trailing: Text(DateFormat.MMMd().add_jm().format(event.startTime)),
-                  onTap: () {
-                    context.pushNamed('updateEvent', extra: {'event': _events[index], 'group': widget.group, 'eventProposal': _eventProposal, 'index': index});
-                  });
-            }).toList(),
-            ElevatedButton(
-              onPressed: addNewBlankEventToPropsal,
-              child: const Text('Add New Event'),
-            ),
-          ],
-        ));
+        onPopInvoked: (bool willPop) async {
+          if (willPop) {
+            await cancelEventProposalChanges();
+          }
+          ;
+        });
   }
 }
 
