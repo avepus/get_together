@@ -279,7 +279,8 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
             documentId: widget.eventProposal!.documentId);
 
         eventProposal.getEventAndScoreMap[_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
-        context.pushNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
+        context.pop(); // pop here so that the back button on the event proposal page brings you back properly
+        context.pushReplacementNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
       } else {
         context.pushNamed('events');
       }
