@@ -57,10 +57,10 @@ class EventProposal {
 
   Map<String, dynamic> toMap() {
     return {
-      documentIdKey: documentId,
       eventAndScoreMapKey: eventAndScoreMap,
       groupKey: groupDocumentId,
       statusKey: status.index,
+      createdTimeKey: createdTime,
     };
   }
 

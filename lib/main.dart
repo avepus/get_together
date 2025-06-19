@@ -29,7 +29,6 @@ import 'classes/event_proposal.dart';
 ///todo list
 ///make events delete if proposal is not saved
 ///make the add new blank event button on event proposal duplicate the first event if there is one
-///the page needs allow for as many dates and times as the user wants to add
 ///store the event_proposal in firebase
 ///filter events in a proposal from the events_page
 ///create a event_propsal_details page allows users to rank the dates and times
