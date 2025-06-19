@@ -106,7 +106,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
     if (eventProposalDocumentId == null) {
       return [];
     }
-    final doc = await FirebaseFirestore.instance.collection('event_proposals').doc(eventProposalDocumentId).get();
+    final doc = await FirebaseFirestore.instance.collection(EventProposal.collectionName).doc(eventProposalDocumentId).get();
 
     if (!doc.exists) {
       return [];
