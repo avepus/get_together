@@ -96,11 +96,11 @@ class Event {
       startTime: (data[startTimeKey] as Timestamp).toDate(),
       endTime: (data[endTimeKey] as Timestamp).toDate(),
       groupDocumentId: data[groupDocumentIdKey],
-      status: EventStatus.values[data[statusKey]!],
+      status: enumFromIndexNameString(data[statusKey]!, EventStatus.values),
       createdTime: (data[createdTimeKey] as Timestamp).toDate(),
       creatorDocumentId: data[creatorDocumentIdKey],
-      attendanceResponses:
-          (data[attendanceResponsesKey] as Map<String, dynamic>).map((key, value) => MapEntry(key, AttendanceResponse.values.firstWhere((e) => e.toString().split('.').last == value))),
+      attendanceResponses: (data[attendanceResponsesKey] as Map<String, dynamic>)
+          .map((userDocumentId, attendanceResponseString) => MapEntry(userDocumentId, enumFromIndexNameString(attendanceResponseString, AttendanceResponse.values))),
     );
   }
 
@@ -115,10 +115,11 @@ class Event {
       startTimeKey: Timestamp.fromDate(startTime),
       endTimeKey: Timestamp.fromDate(endTime),
       groupDocumentIdKey: groupDocumentId,
-      statusKey: status.index,
+      statusKey: enumToIndexNameString(status),
       createdTimeKey: Timestamp.fromDate(createdTime),
       creatorDocumentIdKey: creatorDocumentId,
-      attendanceResponsesKey: attendanceResponses.map((key, value) => MapEntry(key, value.toString().split('.').last)),
+      // Convert attendance responses to their string enum values for firestore. I don't think this makes sense long-term but is useful for debugging to see the enum string instead of the value. It also allows inserting enum values instead of appending
+      attendanceResponsesKey: attendanceResponses.map((userDocumentId, attendanceResponse) => MapEntry(userDocumentId, enumToIndexNameString(attendanceResponse))),
     };
   }
 

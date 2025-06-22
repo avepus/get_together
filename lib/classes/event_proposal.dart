@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'app_user.dart';
+import '../utils.dart';
 
 enum EventProposalStatus { draft, proposed, scheduled, canceled }
 
@@ -50,7 +51,7 @@ class EventProposal {
       documentId: doc.id,
       eventAndScoreMap: Map<String, int>.from(data[eventAndScoreMapKey]),
       groupDocumentId: data[groupKey],
-      status: EventProposalStatus.values[data[statusKey]],
+      status: enumFromIndexNameString(data[statusKey], EventProposalStatus.values),
       createdTime: data[createdTimeKey],
     );
   }
@@ -59,7 +60,7 @@ class EventProposal {
     return {
       eventAndScoreMapKey: eventAndScoreMap,
       groupKey: groupDocumentId,
-      statusKey: status.index,
+      statusKey: enumToIndexNameString(status),
       createdTimeKey: createdTime,
     };
   }

@@ -66,3 +66,18 @@ List<int> rollList(List<int> input, int roll) {
   if (roll < 0) roll += input.length;
   return input.sublist(roll)..addAll(input.sublist(0, roll));
 }
+
+//converts an enum to a string that contains the index and name of the enum. This is used to store enums in firestore in an easily debuggable way
+String enumToIndexNameString(Enum e) {
+  return '${e.index}.${e.name}';
+}
+
+///converts a string that contains the index and name of the enum to the enum value. This is used to read enums from firestore that were stored using [enumToIndexNameString].
+T enumFromIndexNameString<T extends Enum>(String str, List<T> values) {
+  final parts = str.split('.');
+  if (parts.length != 2) {
+    throw ArgumentError('Invalid format for enum string: $str');
+  }
+  final index = int.parse(parts[0]);
+  return values[index];
+}
