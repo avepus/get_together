@@ -10,6 +10,7 @@ import '../classes/event.dart';
 import '../widgets/image_with_null_error_handling.dart';
 import '../update_event.dart';
 import '../firebase.dart';
+import '../utils.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -19,6 +20,7 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
+  static List<EventStatus> statusesToShow = [EventStatus.draft, EventStatus.scheduled];
   @override
   Widget build(BuildContext context) {
     //temporarily testing notificaitons here
@@ -85,6 +87,9 @@ class _EventsPageState extends State<EventsPage> {
                   events.add(event);
                 }
                 events.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+                //filter events by status
+                events = events.where((event) => statusesToShow.contains(event.status)).toList();
 
                 return ListView.separated(
                   itemCount: events.length,
