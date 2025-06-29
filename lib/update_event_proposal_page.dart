@@ -36,11 +36,11 @@ class _EventProposalPageState extends State<EventProposalPage> {
         createdTime: widget.eventProposal.createdTime,
         groupDocumentId: widget.eventProposal.groupDocumentId,
         status: widget.eventProposal.status,
-        eventAndScoreMap: Map.from(widget.eventProposal.getEventAndScoreMap), //this creates a copy so we don't modify the original
+        proposalResponses: Map.from(widget.eventProposal.proposalResponses), //this creates a copy so we don't modify the original
         documentId: widget.eventProposal.documentId);
 
     // handle when we're creating a new proposal
-    if (_eventProposal.getEventAndScoreMap.isEmpty) {
+    if (_eventProposal.proposalResponses.isEmpty) {
       // initialize a default event and add to the events list
       addNewBlankEventToPropsal();
     } else {
@@ -50,11 +50,19 @@ class _EventProposalPageState extends State<EventProposalPage> {
   }
 
   Future<void> populateEventsFromProposal() async {
-    var futures = _eventProposal.getEventAndScoreMap.keys.map((eventId) => FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get());
+    var futures = _getEventDocumentIdsFromProposal(_eventProposal).map((eventId) => FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get());
     var docs = await Future.wait(futures);
     setState(() {
       _events = docs.map((doc) => Event.fromDocumentSnapshot(doc)).toList();
     });
+  }
+
+  List<String> _getEventDocumentIdsFromProposal(EventProposal proposal) {
+    final Set<String> eventIds = {};
+    for (final userResponses in proposal.proposalResponses.values) {
+      eventIds.addAll(userResponses.keys);
+    }
+    return eventIds.toList();
   }
 
   //this adds a new default event to the _events list
@@ -80,7 +88,8 @@ class _EventProposalPageState extends State<EventProposalPage> {
     });
     // Save the new event to Firestore
     await event.saveToFirestore();
-    _eventProposal.getEventAndScoreMap[event.documentId!] = 0; // Update the eventAndScoreMap with the new event's document ID
+    _eventProposal.proposalResponses[appState.loginUserDocumentId!] ??= {};
+    _eventProposal.proposalResponses[appState.loginUserDocumentId!]![event.documentId!] = 0; // Update the eventAndScoreMap with the new event's document ID
   }
 
   Future<void> saveEventProposal() async {
@@ -112,7 +121,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
       return [];
     }
 
-    return EventProposal.fromDocumentSnapshot(doc).getEventAndScoreMap.keys.toList();
+    return _getEventDocumentIdsFromProposal(EventProposal.fromDocumentSnapshot(doc));
   }
 
   @override

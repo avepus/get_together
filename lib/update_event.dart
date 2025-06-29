@@ -265,10 +265,11 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
           createdTime: widget.eventProposal!.createdTime,
           groupDocumentId: widget.eventProposal!.groupDocumentId,
           status: widget.eventProposal!.status,
-          eventAndScoreMap: widget.eventProposal!.eventAndScoreMap,
+          proposalResponses: widget.eventProposal!.proposalResponses,
           documentId: widget.eventProposal!.documentId);
 
-      eventProposal.getEventAndScoreMap[_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
+      eventProposal.proposalResponses[appState.loginUserDocumentId!] ??= {};
+      eventProposal.proposalResponses[appState.loginUserDocumentId!]![_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
       if (context.mounted) {
         context.pop(); // pop here so that the back button on the event proposal page brings you back properly
         context.pushReplacementNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});

@@ -187,8 +187,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                               child: ElevatedButton(
                                 child: const Text('Propose Event'),
                                 onPressed: () {
-                                  EventProposal proposal =
-                                      EventProposal(groupDocumentId: group.documentId, eventAndScoreMap: Map<String, int>(), status: EventProposalStatus.draft, createdTime: Timestamp.now());
+                                  EventProposal proposal = EventProposal(groupDocumentId: group.documentId, proposalResponses: {}, status: EventProposalStatus.draft, createdTime: Timestamp.now());
                                   context.pushNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'eventProposal': proposal, 'group': group});
                                 },
                               ),

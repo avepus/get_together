@@ -17,39 +17,58 @@ class EventProposal {
   ///this is the entirety of the class basically
   ///it holds the eventID mapped to the score
   ///the highest score is what will be scheduled
-  static const String eventAndScoreMapKey = 'eventAndScoreMap';
   static const String groupKey = 'group';
   static const String statusKey = 'status';
   static const String createdTimeKey = 'createdTime';
+  static const String proposalResponsesKey = 'proposalResponses';
 
   static const String documentIdLabel = 'Document ID';
-  static const String eventAndScoreMapLabel = 'Event and Score Map';
   static const String groupDocumentIdLabel = 'Group Document ID';
   static const String statusLabel = 'Status';
   static const String createdTimeLabel = 'Created Time';
+  static const String proposalResponsesLabel = 'Proposal Responses';
 
   //documentId = null implies that this is not stored in firebase yet
   String? documentId;
-  final Map<String, int> eventAndScoreMap;
   final String groupDocumentId;
   final EventProposalStatus status;
   final Timestamp createdTime;
 
+  //this is map of user IDs to a map of event ID and ranking that the user gave
+  final Map<String, Map<String, int>> proposalResponses;
+
   EventProposal({
     this.documentId,
-    required this.eventAndScoreMap,
+    required this.proposalResponses,
     required this.groupDocumentId,
     required this.status,
     required this.createdTime,
   });
 
-  Map<String, int> get getEventAndScoreMap => eventAndScoreMap;
+  Map<String, Map<String, int>> get getProposalResponses => proposalResponses;
+
+  /// Parses a single user's response map (eventId -> score)
+  static Map<String, int> parseUserResponses(Map<String, dynamic> rawUserResponses) {
+    return rawUserResponses.map(
+      (eventId, score) => MapEntry(eventId, score as int),
+    );
+  }
+
+  /// Parses the full proposalResponses map (userId -> (eventId -> score))
+  static Map<String, Map<String, int>> parseProposalResponses(Map<String, dynamic> rawProposalResponses) {
+    return rawProposalResponses.map(
+      (userId, responses) => MapEntry(
+        userId,
+        parseUserResponses(responses as Map<String, dynamic>),
+      ),
+    );
+  }
 
   static EventProposal fromDocumentSnapshot(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return EventProposal(
       documentId: doc.id,
-      eventAndScoreMap: Map<String, int>.from(data[eventAndScoreMapKey]),
+      proposalResponses: parseProposalResponses(data[proposalResponsesKey]),
       groupDocumentId: data[groupKey],
       status: enumFromIndexNameString(data[statusKey], EventProposalStatus.values),
       createdTime: data[createdTimeKey],
@@ -58,7 +77,7 @@ class EventProposal {
 
   Map<String, dynamic> toMap() {
     return {
-      eventAndScoreMapKey: eventAndScoreMap,
+      proposalResponsesKey: proposalResponses,
       groupKey: groupDocumentId,
       statusKey: enumToIndexNameString(status),
       createdTimeKey: createdTime,
@@ -72,14 +91,5 @@ class EventProposal {
       DocumentReference ref = await FirebaseFirestore.instance.collection(collectionName).add(toMap());
       documentId = ref.id;
     }
-  }
-
-  static EventProposal getDefaultProposal(String groupDocumentId) {
-    return EventProposal(
-      eventAndScoreMap: {},
-      groupDocumentId: groupDocumentId,
-      status: EventProposalStatus.draft,
-      createdTime: Timestamp.now(),
-    );
   }
 }
