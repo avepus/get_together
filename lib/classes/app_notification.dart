@@ -7,7 +7,7 @@ import '../utils.dart';
 ///current plan for notifications is to have them stored in an array of Maps in the user document
 ///an instance of NOtification represents a single node in that array
 
-enum NotificationType { friendRequest, accptedFriendRequest, newEvent, updatedEvent, canceledEvent, groupRequest }
+enum NotificationType { friendRequest, accptedFriendRequest, newEvent, updatedEvent, canceledEvent, groupRequest, newEventProposal }
 
 extension NotificationTypesIconExtension on NotificationType {
   IconData get icon {
@@ -24,6 +24,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return Icons.cancel;
       case NotificationType.groupRequest:
         return Icons.group_add;
+      case NotificationType.newEventProposal:
+        return Icons.calendar_today;
     }
   }
 
@@ -41,6 +43,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return '';
       case NotificationType.groupRequest:
         return 'group';
+      case NotificationType.newEventProposal:
+        return 'eventProposal';
     }
   }
 
@@ -58,6 +62,8 @@ extension NotificationTypesIconExtension on NotificationType {
         return '';
       case NotificationType.groupRequest:
         return 'groupDocumentId';
+      case NotificationType.newEventProposal:
+        return 'eventProposalDocumentId';
     }
   }
 }
