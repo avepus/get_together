@@ -272,7 +272,7 @@ class _UpdateEventPageState extends State<UpdateEventPage> {
       eventProposal.proposalResponses[appState.loginUserDocumentId!]![_event.documentId!] = 0; // Add the new event to the proposal with a default score of 0
       if (context.mounted) {
         context.pop(); // pop here so that the back button on the event proposal page brings you back properly
-        context.pushReplacementNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
+        context.pushReplacementNamed('updateEventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'group': widget.group, 'eventProposal': eventProposal});
       }
     } else {
       //event is saved so we can assume event.documentId is not null

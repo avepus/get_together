@@ -188,7 +188,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                                 child: const Text('Propose Event'),
                                 onPressed: () {
                                   EventProposal proposal = EventProposal(groupDocumentId: group.documentId, proposalResponses: {}, status: EventProposalStatus.draft, createdTime: Timestamp.now());
-                                  context.pushNamed('eventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'eventProposal': proposal, 'group': group});
+                                  context.pushNamed('updateEventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'eventProposal': proposal, 'group': group});
                                 },
                               ),
                             ),

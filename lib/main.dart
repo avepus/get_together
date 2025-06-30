@@ -28,6 +28,7 @@ import 'classes/event_proposal.dart';
 
 ///todo list
 ///make the add new blank event button on event proposal duplicate the first event if there is one
+///create notification when event proposal is created
 ///create a event_propsal_details page allows users to rank the dates and times
 ///add option to delete event proposal
 ///display event proposals to show at the top of the events_page
@@ -113,8 +114,8 @@ final _router = GoRouter(
               return EventDetailsPage(event: event!);
             }),
         GoRoute(
-          path: 'eventProposal/:eventProposalDocumentId',
-          name: 'eventProposal',
+          path: 'updateEventProposal/:eventProposalDocumentId',
+          name: 'updateEventProposal',
           builder: (context, state) {
             Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
             EventProposal? eventProposal = map?['eventProposal'] as EventProposal?;
