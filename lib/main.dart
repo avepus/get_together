@@ -24,21 +24,21 @@ import 'classes/event.dart';
 import 'navigation_pages/event_details_page.dart';
 import 'navigation_pages/notifications_page.dart';
 import 'update_event_proposal_page.dart';
+import 'event_proposal_details_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///make the add new blank event button on event proposal duplicate the first event if there is one
-///create notification when event proposal is created
-///create a event_propsal_details page allows users to rank the dates and times
 ///add option to delete event proposal
-///display event proposals to show at the top of the events_page
-///make events in proposal schedulable by group admins and udpate everything
+///make events in proposal schedulable by group admins and udpate everything - thinking the event_proposal_details_page should have extra options for admins that allow scheduling
 ///make proposal deleted when scheduled
+///make notification handle deleted proposal
+///add button on events_page to propose an event - right now you can only create one
 ///once the event is scheduled it should no longer show up
 ///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends
 ///
 //low priority todo list
+///make the add new blank event button on event proposal duplicate the first event if there is one
 ///filter out past events and cancelled events from page and add checkbox to optionally show them
 //add caching
 
@@ -101,21 +101,52 @@ final _router = GoRouter(
               return GroupDetailsPage(groupDocumentId: state.pathParameters['groupDocumentId']!);
             }),
         GoRoute(
-            path: 'event',
+            path: 'event/:eventDocumentId',
             name: 'event',
             builder: (context, state) {
               Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
               Event? event = map?['event'] as Event?;
-              assert(event != null, 'Event must be passed to event route');
+              assert(event != null || state.pathParameters['eventDocumentId'] != null, 'Event or Event document ID must be passed to event route');
 
-              if (state.extra == null || event == null) {
-                context.pushReplacement('/');
+              if (event != null) {
+                //if event is not null, we can use it directly
+                return EventDetailsPage(event: event);
               }
-              return EventDetailsPage(event: event!);
+
+              String? eventDocumentId = state.pathParameters['eventDocumentId'];
+              if (eventDocumentId == null) {
+                return Scaffold(
+                  body: Center(child: Text('No event provided. You should not see this message ever.')),
+                );
+              }
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection(Event.collectionName).doc(eventDocumentId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Scaffold(
+                      appBar: AppBar(title: const Text('Loading...')),
+                      body: const Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Scaffold(
+                      appBar: AppBar(title: const Text('Error')),
+                      body: Center(child: Text('Error: ${snapshot.error}')),
+                    );
+                  } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Scaffold(
+                      appBar: AppBar(title: const Text('Event Not Found')),
+                      body: Center(child: Text('Event with id "$eventDocumentId" was not found')),
+                    );
+                  } else {
+                    Event event = Event.fromDocumentSnapshot(snapshot.data!);
+                    return EventDetailsPage(event: event);
+                  }
+                },
+              );
             }),
         GoRoute(
-          path: 'updateEventProposal/:eventProposalDocumentId',
-          name: 'updateEventProposal',
+          path: 'eventProposal/:eventProposalDocumentId',
+          name: 'eventProposal',
           builder: (context, state) {
             Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
             EventProposal? eventProposal = map?['eventProposal'] as EventProposal?;
@@ -127,7 +158,7 @@ final _router = GoRouter(
             }
 
             if (eventProposal != null && group != null) {
-              return EventProposalPage(eventProposal: eventProposal, group: group);
+              return EventProposalDetailsPage(eventProposal: eventProposal, group: group);
             }
 
             //remaining cases are when eventProposal is null and we need to retreive it
@@ -153,7 +184,7 @@ final _router = GoRouter(
                   eventProposal = EventProposal.fromDocumentSnapshot(snapshot.data!);
 
                   if (group != null) {
-                    return EventProposalPage(eventProposal: eventProposal!, group: group!);
+                    return EventProposalDetailsPage(eventProposal: eventProposal!, group: group!);
                   }
 
                   return FutureBuilder<DocumentSnapshot>(
@@ -172,6 +203,78 @@ final _router = GoRouter(
                       } else if (!snapshot.hasData || !snapshot.data!.exists) {
                         return Scaffold(
                           appBar: AppBar(title: Text('Group Not Found')),
+                          body: Center(child: Text('Group with id "${eventProposal!.groupDocumentId}" was not found')),
+                        );
+                      } else {
+                        group = Group.fromDocumentSnapshot(snapshot.data!);
+                        return EventProposalDetailsPage(eventProposal: eventProposal!, group: group!);
+                      }
+                    },
+                  );
+                }
+              },
+            );
+          },
+        ),
+        GoRoute(
+          path: 'updateEventProposal/:eventProposalDocumentId',
+          name: 'updateEventProposal',
+          builder: (context, state) {
+            Map<String, dynamic>? map = state.extra as Map<String, dynamic>?;
+            EventProposal? eventProposal = map?['eventProposal'] as EventProposal?;
+            String? eventProposalDocumentId = state.pathParameters['eventProposalDocumentId'];
+            Group? group = map?['group'] as Group?;
+
+            if (eventProposal == null && eventProposalDocumentId == null) {
+              return Scaffold(body: Center(child: Text('No event proposal provdided. You should not see this message ever.')));
+            }
+
+            if (eventProposal != null && group != null) {
+              return EventProposalPage(eventProposal: eventProposal, group: group);
+            }
+
+            //remaining cases are when eventProposal is null and we need to retreive it
+            return FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection(EventProposal.collectionName).doc(eventProposalDocumentId).get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Scaffold(
+                    appBar: AppBar(title: const Text('Loading...')),
+                    body: const Center(child: CircularProgressIndicator()),
+                  );
+                } else if (snapshot.hasError) {
+                  return Scaffold(
+                    appBar: AppBar(title: const Text('Error')),
+                    body: Center(child: Text('Error: ${snapshot.error}')),
+                  );
+                } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Scaffold(
+                    appBar: AppBar(title: const Text('Event Proposal Not Found')),
+                    body: Center(child: Text('Event Proposal with id "$eventProposalDocumentId" was not found')),
+                  );
+                } else {
+                  eventProposal = EventProposal.fromDocumentSnapshot(snapshot.data!);
+
+                  if (group != null) {
+                    return EventProposalPage(eventProposal: eventProposal!, group: group!);
+                  }
+
+                  return FutureBuilder<DocumentSnapshot>(
+                    future: FirebaseFirestore.instance.collection(Group.collectionName).doc(eventProposal!.groupDocumentId).get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Scaffold(
+                          appBar: AppBar(title: const Text('Loading...')),
+                          body: const Center(child: CircularProgressIndicator()),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Scaffold(
+                          appBar: AppBar(title: const Text('Error')),
+                          body: Center(child: Text('Error: ${snapshot.error}')),
+                        );
+                      } else if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Scaffold(
+                          appBar: AppBar(title: const Text('Group Not Found')),
                           body: Center(child: Text('Group with id "${eventProposal!.groupDocumentId}" was not found')),
                         );
                       } else {
