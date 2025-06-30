@@ -128,7 +128,7 @@ class AppNotification {
       trailing: Text(formatTimestamp(createdTime)),
       onTap: type.namedRoute.isNotEmpty
           ? () {
-              context.goNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
+              context.pushNamed(type.namedRoute, pathParameters: {type.pathParameterKey: routeToDocumentId});
             }
           : null,
     );
