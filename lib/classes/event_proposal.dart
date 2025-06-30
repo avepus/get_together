@@ -47,6 +47,14 @@ class EventProposal {
 
   Map<String, Map<String, int>> get getProposalResponses => proposalResponses;
 
+  List<String> get getAllEventDocumentIds {
+    final Set<String> eventIds = {};
+    for (final userResponses in proposalResponses.values) {
+      eventIds.addAll(userResponses.keys);
+    }
+    return eventIds.toList();
+  }
+
   /// Parses a single user's response map (eventId -> score)
   static Map<String, int> parseUserResponses(Map<String, dynamic> rawUserResponses) {
     return rawUserResponses.map(

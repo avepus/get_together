@@ -50,19 +50,11 @@ class _EventProposalPageState extends State<EventProposalPage> {
   }
 
   Future<void> populateEventsFromProposal() async {
-    var futures = _getEventDocumentIdsFromProposal(_eventProposal).map((eventId) => FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get());
+    var futures = _eventProposal.getAllEventDocumentIds.map((eventId) => FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).get());
     var docs = await Future.wait(futures);
     setState(() {
       _events = docs.map((doc) => Event.fromDocumentSnapshot(doc)).toList();
     });
-  }
-
-  List<String> _getEventDocumentIdsFromProposal(EventProposal proposal) {
-    final Set<String> eventIds = {};
-    for (final userResponses in proposal.proposalResponses.values) {
-      eventIds.addAll(userResponses.keys);
-    }
-    return eventIds.toList();
   }
 
   //this adds a new default event to the _events list
@@ -121,7 +113,7 @@ class _EventProposalPageState extends State<EventProposalPage> {
       return [];
     }
 
-    return _getEventDocumentIdsFromProposal(EventProposal.fromDocumentSnapshot(doc));
+    return EventProposal.fromDocumentSnapshot(doc).getAllEventDocumentIds;
   }
 
   @override
