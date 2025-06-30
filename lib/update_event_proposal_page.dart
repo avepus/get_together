@@ -9,6 +9,8 @@ import '../classes/event_proposal.dart';
 import '../classes/group.dart';
 import '../utils.dart';
 import '../classes/event.dart';
+import '../classes/app_notification.dart';
+import '../classes/app_user.dart';
 
 //this needs special handling when saving to firestore because it may hold a reference to an event that is not in the database yet
 //first, every event must be saved to the database
@@ -86,6 +88,14 @@ class _EventProposalPageState extends State<EventProposalPage> {
 
   Future<void> saveEventProposal() async {
     await _eventProposal.saveToFirestore();
+    //event is saved so we can assume event.documentId is not null
+    String notificationTitle = 'New Event Proposal from ${widget.group.name}';
+    String description = 'Click to view and respond.';
+    AppNotification notification =
+        AppNotification(title: notificationTitle, description: description, type: NotificationType.newEventProposal, createdTime: Timestamp.now(), routeToDocumentId: _eventProposal.documentId!);
+    for (String memberID in widget.group.members) {
+      await notification.saveToDocument(documentId: memberID, fieldKey: AppUser.notificationsKey, collection: AppUser.collectionName);
+    }
     if (mounted) {
       Navigator.of(context).pop();
     }
