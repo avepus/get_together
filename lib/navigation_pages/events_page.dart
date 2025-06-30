@@ -105,7 +105,8 @@ class _EventsPageState extends State<EventsPage> {
                         subtitle: Text(groupMap[event.groupDocumentId]!.name ?? '', maxLines: 1),
                         trailing: Text(DateFormat.MMMd().add_jm().format(event.startTime)),
                         onTap: () {
-                          context.pushNamed('event', extra: {'event': event});
+                          //note: I have to provide eventDocumentId pathParameter but it's not used since I'm passing the event object
+                          context.pushNamed('event', pathParameters: {'eventDocumentId': 'n/a'}, extra: {'event': event});
                         });
                   },
                 );
