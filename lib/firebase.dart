@@ -8,6 +8,7 @@ import 'package:rxdart/rxdart.dart';
 import 'classes/group.dart';
 import 'classes/app_notification.dart';
 import 'classes/event.dart';
+import 'utils.dart';
 
 Future<List<AppUser>> fetchAllUsers() async {
   CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -187,7 +188,7 @@ Future<void> markEventAsCancelled(Event event, Group group) async {
   assert(event.documentId != null, 'Event document ID is null but it never should be when we are attempting to cancel');
   CollectionReference events = FirebaseFirestore.instance.collection(Event.collectionName);
   events.doc(event.documentId).update({
-    Event.statusKey: EventStatus.cancelled.index,
+    Event.statusKey: enumToIndexNameString(EventStatus.cancelled),
   });
 }
 
