@@ -31,13 +31,14 @@ import 'classes/event_proposal.dart';
 ///add option to delete event proposal
 ///make events in proposal schedulable by group admins and udpate everything - thinking the event_proposal_details_page should have extra options for admins that allow scheduling
 ///make proposal deleted when scheduled
-///make notification handle deleted proposal
+///make proposal notification handle deleted proposal
 ///add button on events_page to propose an event - right now you can only create one
 ///once the event is scheduled it should no longer show up
 ///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
 ///restrict adding people to groups to only seeing friends
 ///
 //low priority todo list
+///right now, admins can alter eventproposals after people responded, which is not ideal. Maybe they just shouldn't be able to edit at all?
 ///make the add new blank event button on event proposal duplicate the first event if there is one
 ///filter out past events and cancelled events from page and add checkbox to optionally show them
 //add caching
