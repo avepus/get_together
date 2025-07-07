@@ -252,6 +252,44 @@ class _EventProposalDetailsPageState extends State<EventProposalDetailsPage> {
                                 );
                               },
                       ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: (widget.eventProposal.status == EventProposalStatus.scheduled || widget.eventProposal.status == EventProposalStatus.canceled)
+                            ? null
+                            : () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete Proposal'),
+                                    content: const Text('Are you sure you want to delete this proposal and all its events? This cannot be undone.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(true),
+                                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  // Delete all events in the proposal
+                                  for (final eventId in widget.eventProposal.getAllEventDocumentIds) {
+                                    await FirebaseFirestore.instance.collection(Event.collectionName).doc(eventId).delete();
+                                  }
+                                  // Delete the proposal itself
+                                  await FirebaseFirestore.instance.collection(EventProposal.collectionName).doc(widget.eventProposal.documentId).delete();
+                                  if (mounted) Navigator.of(context).pop();
+                                }
+                              },
+                      ),
                     ],
                   ),
                 ),
