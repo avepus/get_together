@@ -28,20 +28,17 @@ import 'event_proposal_details_page.dart';
 import 'classes/event_proposal.dart';
 
 ///todo list
-///add option to delete event proposal
-///make events in proposal schedulable by group admins and udpate everything - thinking the event_proposal_details_page should have extra options for admins that allow scheduling
-///make proposal deleted when scheduled
-///make proposal notification handle deleted proposal
-///add button on events_page to propose an event - right now you can only create one
-///once the event is scheduled it should no longer show up
-///propose event functionality with multiple time slot options that will default based on their availability but they can overwrite
+///propose event button should allow you to start with the top best times or start with a blank proposal
+//////I'm thinking this pops up an alert dialog with a checkbox next to each time and they all default checked. There would be a select/deselect all button
+///add button on events_page to propose an event - right now you can only create an event
+///create a plan for using the frequency and meeting days to auto propose events
 ///restrict adding people to groups to only seeing friends
 ///
 //low priority todo list
+///create recurring events
 ///right now, admins can alter eventproposals after people responded, which is not ideal. Maybe they just shouldn't be able to edit at all?
 ///make the add new blank event button on event proposal duplicate the first event if there is one
 ///filter out past events and cancelled events from page and add checkbox to optionally show them
-//add caching
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   bool kDebugMode = true;
