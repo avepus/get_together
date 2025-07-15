@@ -177,6 +177,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                             ),
                           ),
                         ),
+
+                        ///Left off here: need to add button functionality. Here's sample prompt
+                        ///I need the "Propose Event" button to have additional functionality. I need it to create an alert dialog box. The alert window should be very similar to the GenerateEventButton alert in that it should list the top best times based on the availability of the members of the group. However, the alert window for this new functionality should have checkboxes for each of the best times. The alert box should have an option to "Create" or "Cancel". Creating should create Event objects for each time and add them to an EventProposal and open up the Update_Event_Proposal_page
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
                           child: Padding(
