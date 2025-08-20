@@ -438,7 +438,7 @@ void showAddEventDialog(BuildContext context, Group group, String userDocumentId
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Best Times'),
+        title: const Text('Select Time - You can edit it later'),
         content: SizedBox(
             height: 200,
             width: 300,
