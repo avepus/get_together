@@ -17,6 +17,10 @@ import '../widgets/editable_document_image.dart';
 import '../firebase.dart';
 import '../widgets/update_availability.dart';
 import '../update_event.dart';
+import '../findTime.dart';
+import '../update_event.dart';
+import '../classes/availability.dart';
+import '../time_utils.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final String groupDocumentId;
@@ -179,7 +183,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ),
 
                         ///Left off here: need to add button functionality. Here's sample prompt
-                        ///I need the "Propose Event" button to have additional functionality. I need it to create an alert dialog box. The alert window should be very similar to the GenerateEventButton alert in that it should list the top best times based on the availability of the members of the group. However, the alert window for this new functionality should have checkboxes for each of the best times. The alert box should have an option to "Create" or "Cancel". Creating should create Event objects for each time and add them to an EventProposal and open up the Update_Event_Proposal_page
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child:
+                                  GenerateEventProposalButton(group: group, userDocumentId: appState.loginUserDocumentId!, timeSlotDuration: group.meetingDurationTimeSlots, numberOfSlotsToReturn: 3)),
+                        ),
                         Visibility(
                           visible: loggedInUidInArrayOld(group.admins),
                           child: Padding(
@@ -295,4 +305,100 @@ class GroupTitle extends StatelessWidget {
           }
         });
   }
+}
+
+class GenerateEventProposalButton extends StatelessWidget {
+  final Group group;
+  final String userDocumentId;
+  final int timeSlotDuration;
+  final int numberOfSlotsToReturn;
+
+  const GenerateEventProposalButton({
+    required this.group,
+    required this.userDocumentId,
+    required this.timeSlotDuration,
+    required this.numberOfSlotsToReturn,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: const Text('Create Event Proposal'),
+      onPressed: () {
+        showAddEventProposalDialog(context, group, userDocumentId, timeSlotDuration, numberOfSlotsToReturn);
+      },
+    );
+  }
+}
+
+void showAddEventProposalDialog(BuildContext context, Group group, String userDocumentId, int timeSlotDuration, int numberOfSlotsToReturn) {
+  ApplicationState appState = Provider.of<ApplicationState>(context, listen: false);
+  Map<String, Availability> memberAvailabilities = group.getGroupMemberAvailabilities();
+  //TODO: may want to pass in a future DateTime to findTimeSlots to have more accurrate availability calcuations based on the week that it will be planned rather than now
+  assert(appState.loginUserTimeZone != null, 'loginUserTimeZone should be populated when the app is initialized but it is null');
+  Map<int, int> timeSlotsAndScores = findTimeSlotsFiltered(memberAvailabilities, timeSlotDuration, numberOfSlotsToReturn, appState.loginUserTimeZone!);
+  List<int> timeSlots = timeSlotsAndScores.keys.toList();
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Create Suggested Or Blank?\n\nSuggested Times:'),
+        content: SizedBox(
+            height: 200,
+            width: 300,
+            child: SuggestedTimesListView(
+              timeSlots: timeSlots,
+              timeSlotsAndScores: timeSlotsAndScores,
+              group: group,
+              userDocumentId: userDocumentId,
+              linkToEvent: false,
+            )),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () {
+              context.pop();
+            },
+          ),
+          TextButton(
+            child: const Text('Create Blank'),
+            onPressed: () {
+              context.pop(); //pop first to get out of alert so if you go back you don't go back to alert dialog
+              EventProposal proposal = EventProposal(groupDocumentId: group.documentId, proposalResponses: {}, status: EventProposalStatus.draft, createdTime: Timestamp.now());
+              context.pushNamed('updateEventProposal', pathParameters: {'eventProposalDocumentId': 'new'}, extra: {'eventProposal': proposal, 'group': group});
+            },
+          ),
+          TextButton(
+            child: const Text('Create Suggested'),
+            onPressed: () {
+              context.pop();
+              EventProposal proposal = EventProposal(groupDocumentId: group.documentId, proposalResponses: {}, status: EventProposalStatus.draft, createdTime: Timestamp.now());
+              //left off here: need to create an event proposal and add Events for each sugggested time to the propoasl
+              //then need to route to the event
+              for (int timeslot in timeSlots) {
+                DateTime start = getNextDateTimeFromTimeSlotLocal(DateTime.now(), timeslot).toLocal();
+                DateTime end = start.add(Duration(minutes: group.meetingDurationMinutes));
+                Event event = Event(
+                  documentId: null, //this is always used to create a new event so we want the documentId to be null
+                  title: '',
+                  description: '',
+                  location: '',
+                  startTime: start,
+                  endTime: end,
+                  groupDocumentId: group.documentId,
+                  status: EventStatus.scheduled,
+                  createdTime: DateTime.now(),
+                  creatorDocumentId: userDocumentId,
+                  attendanceResponses: {},
+                );
+                //need to save the event
+                //need to add to EventProposal
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

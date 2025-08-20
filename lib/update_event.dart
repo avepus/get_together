@@ -537,7 +537,7 @@ class SuggestedTimesListView extends StatelessWidget {
                   endTime: end,
                   groupDocumentId: group.documentId,
                   status: EventStatus.scheduled,
-                  createdTime: DateTime.now(), //Future: this is not technmically created yet. We'd want this to be when they save the event
+                  createdTime: DateTime.now(),
                   creatorDocumentId: userDocumentId,
                   attendanceResponses: {},
                 );
